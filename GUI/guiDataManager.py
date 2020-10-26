@@ -1,6 +1,6 @@
 from Guidance.observer import Observer
 from GUI.viewManager import ViewManager
-from GUI.graphGui import MainWindow
+from GUI.basicGUI import MainWindow
 from PyQt5 import QtWidgets
 import sys  # We need sys so that we can pass argv to QApplication
 import os
