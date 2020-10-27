@@ -1,1 +1,2 @@
 class MotorCurrent:
+    pass
