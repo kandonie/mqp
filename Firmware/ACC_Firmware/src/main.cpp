@@ -9,6 +9,7 @@ AsyncWebServer server(80);
 
 
 String readAPOS() {
+  //This should check a global variable with the last heading reading
   return "North";
 }
 
@@ -28,7 +29,7 @@ void setup() {
   Serial.println(IP);
 
   //Get Requests
-  server.on("/robotAPOS", HTTP_GET, [](AsyncWebServerRequest *request){  //Angular Position Get From Robot
+  server.on("/readAPOS", HTTP_GET, [](AsyncWebServerRequest *request){  //Angular Position Get From Robot
     request->send_P(200, "text/plain", readAPOS().c_str());
   });
 
