@@ -3,7 +3,6 @@ from GUI.viewManager import ViewManager
 from GUI.basicGUI import MainWindow
 from PyQt5 import QtWidgets
 import sys  # We need sys so that we can pass argv to QApplication
-import os
 
 class GUIDataManager:
     def __init__(self):
