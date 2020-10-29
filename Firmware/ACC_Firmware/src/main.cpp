@@ -70,8 +70,14 @@ void setup() {
 
   Set Robot Heading
 
-
   Get Current Heading
+
+  Get DriveCurrent
+
+  Get WeaponCurrent
+
+  Get Wifi Signal Stength
+
 
   */
 
