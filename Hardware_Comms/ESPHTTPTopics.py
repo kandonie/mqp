@@ -1,5 +1,6 @@
 from enum import Enum
 
 class HTTPTopics(Enum):
+    MAIN = "/general"
     APOS = "/readAPOS"
-    PWM = "/pwm"
+    ESTOP = "/ESTOP"
