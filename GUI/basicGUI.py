@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit
-from PyQt5.QtGui import QIcon, QIntValidator
-from PyQt5.QtCore import pyqtSlot, Qt
-from Hardware_Comms.WiFiComms import WiFiComms
-from Hardware_Comms.ESPHTTPTopics import HTTPTopics
+from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtCore import Qt
+from Hardware_Comms.ESPHTTPTopics import StateMachineTopics
+from Guidance.IntelligenceState import IntelligenceState
 
 class MainWindow(QMainWindow):
 
@@ -13,13 +13,15 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Basic GUI")
         self.setGeometry(100, 100, 600, 600)
         self.spacing = 20 #num pixels between widgets
-        self.WiFi = WiFiComms()
+        self.observers= []
 
         self.makeButtons()
         self.makeComboBoxes()
         self.makeSliders()
         self.makeLabels()
 
+    def attachObserver(self, observer):
+        self.observers.append(observer)
         
     def makeButtons(self):
         ESTOPButton = QPushButton(self.mainWidget)
@@ -39,7 +41,10 @@ class MainWindow(QMainWindow):
         intelligenceStateComboBoxLabel.setText("Intelligence State")
         labelWidth = self.getLabelWidth(intelligenceStateComboBoxLabel)
         intelligenceStateComboBox = QComboBox(self.mainWidget)
-        intelligenceStateComboBox.addItems(["IDLE", "RC", "AUTO"])
+        options = []
+        for state in IntelligenceState:
+            options.append(str(state.name))
+        intelligenceStateComboBox.addItems(options)
         intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
         intelligenceStateComboBox.move(100 + labelWidth + self.spacing, 100)
 
@@ -84,26 +89,27 @@ class MainWindow(QMainWindow):
 
     def getLabelWidth(self, label):
         return label.fontMetrics().boundingRect(label.text()).width()
-
     
     def PWMValueChanged(self, value):
-        try:
-            self.pwmSlider.setValue(int(value))
-        except:
-            print("couldn't change slider val")
-        try:
-            self.pwmQLineEdit.setText(str(value))
-        except:
-            print("Couldn't set QLINEEDIT")
+        if not value:
+            return
+        elif int(value) > 100:
+            value = 100
+        self.pwmSlider.setValue(int(value))
+        self.pwmQLineEdit.setText(str(value))
 
-    def sendPWM(self, val):
-        self.WiFi.sendInfo(val, HTTPTopics.PWM)
+    def sendPWM(self):
+        self.notify(StateMachineTopics.SET_PWM, self.pwmQLineEdit.text())
 
     def getAPos(self):
-        return self.WiFi.getInfo(HTTPTopics.APOS)
+        return 0
 
     def intelligenceStateChanged(self, text):
-        print(text)
+        self.notify(StateMachineTopics.INTELLIGENCE_STATE, text)
 
     def ESTOP(self):
-        print("ESTOP")
+        self.notify(StateMachineTopics.ESTOP, "ESTOP")
+
+    def notify(self, topic, value):
+        for observer in self.observers:
+            observer.notify(topic, value)

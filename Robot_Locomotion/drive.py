@@ -1,10 +1,11 @@
+from Hardware_Comms.ESPHTTPTopics import SetJSONVars
+
 class Drive:
-    def __init__(self):
-        pass
+    def __init__(self, wifi):
+        self.wifi = wifi
 
-    def driveStraight(dist_feet):
-        pass
+    def stop(self):
+        self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.name, 0)
 
-    #pos angles for CCW
-    def turn(angle_degrees):
-        pass
+    def setPWM(self, pwm):
+        self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.name, pwm)

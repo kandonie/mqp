@@ -2,57 +2,29 @@ from Robot_Locomotion.drive import Drive
 from Robot_Locomotion.weapon import Weapon
 from Guidance.observer import Observer
 from Guidance.states import States
-from GUI.buttonStrings import ButtonStrings
+from Hardware_Comms.ESPHTTPTopics import StateMachineTopics
+from Guidance.IntelligenceState import IntelligenceState
 
 class StateMachine(Observer):
-    def __init__(self):
-        self.drive = Drive()
-        self.weapon = Weapon()
+    def __init__(self, wifi):
+        self.drive = Drive(wifi)
+        self.weapon = Weapon(wifi)
         self.state = States.IDLE
 
-    def update(self, data):
-        data = self.parseData(data)
-        if data == ButtonStrings.CCW_SQUARE:
-            self.state = States.TEST_SQUARE_CCW
-        elif data == ButtonStrings.CW_SQUARE:
-            self.state = States.TEST_SQUARE_CW
-        elif data == ButtonStrings.CW_TURN:
-            self.state = States.TEST_TURN_CW
-        elif data == ButtonStrings.CCW_TURN:
-            self.state = States.TEST_TURN_CCW
+    def notify(self, topic, value):
+        if topic == StateMachineTopics.ESTOP:
+            self.ESTOP()
+        elif topic == StateMachineTopics.INTELLIGENCE_STATE:
+            if value == IntelligenceState.STOPPED:
+                self.state = States.IDLE
+            else:
+                pass
+        elif topic == StateMachineTopics.SET_PWM:
+            self.drive.setPWM(value)
 
-        self.executeState()
-    
-    def executeState(self):
-        if self.state == States.TEST_TURN_CCW:
-            self.doFourRightAndleTurnsCCW
-        elif self.state == States.TEST_TURN_CW:
-            self.doFourRightAngleTurnsCW
-        elif self.state == States.TEST_SQUARE_CCW:
-            self.doSquareCCW
-        elif self.state == States.TEST_SQUARE_CW:
-            self.doSquareCW
-        
-        
-    def parseData(self, data):
-        return data
 
-    def doSquareCW(self):
-        sideLen = 10#feet
-        for side in range(0,4):
-            self.drive.driveStraight(sideLen)
-            self.drive.turn(-90)
+    def ESTOP(self):
+        self.weapon.stop()
+        self.drive.stop()
+        self.state = States.IDLE ##################should I make estop state?
 
-    def doSquareCCW(self):
-        sideLen = 10#feet
-        for side in range(0,4):
-            self.drive.driveStraight(sideLen)
-            self.drive.turn(90)
-
-    def doFourRightAndleTurnsCCW(self):
-        for i in range(0,4):
-            self.drive.turn(90)
-
-    def doFourRightAngleTurnsCW(self):
-        for i in range(0,4):
-            self.drive.turn(-90)
