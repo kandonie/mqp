@@ -1,7 +1,7 @@
 from enum import Enum
 
 class HTTPTopics(Enum):
-    MAIN = "/general"
+    MAIN = "/generaltest"
 
 class StateMachineTopics(Enum):
     SET_PWM = "set pwm"
