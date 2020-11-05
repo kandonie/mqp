@@ -1,30 +1,49 @@
 from Robot_Locomotion.drive import Drive
 from Robot_Locomotion.weapon import Weapon
-from Guidance.observer import Observer
-from Guidance.states import States
-from Hardware_Comms.ESPHTTPTopics import StateMachineTopics
-from Guidance.IntelligenceState import IntelligenceState
+from Guidance.states import States, IntelligenceStates
+from Hardware_Comms.ESPHTTPTopics import CommsTopics, GetJSONVars
 
-class StateMachine(Observer):
+class StateMachine():
     def __init__(self, wifi):
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
-        self.state = States.IDLE
+        self.state = States.MATCH_START
 
+        self.sensors = []
+        self.connectivity = None
+        self.infoDict = {"INTELLIGENCE_STATE" : IntelligenceStates.IDLE.value}
+        for topic in GetJSONVars:
+            self.infoDict[topic.value] = ""
+
+        self.switcher = {
+            States.MATCH_START: self.idle()
+            }
+
+    def runStateMachine(self):
+        self.switcher[self.state]
+
+    def determineNextState(self):
+        #if self.statoos
+        pass
+
+    #this function gets called when there is new info
     def notify(self, topic, value):
-        if topic == StateMachineTopics.ESTOP:
+        if topic == CommsTopics.ESTOP:
             self.ESTOP()
-        elif topic == StateMachineTopics.INTELLIGENCE_STATE:
-            if value == IntelligenceState.STOPPED:
-                self.state = States.IDLE
+        elif topic == CommsTopics.INTELLIGENCE_STATE:
+            if value == IntelligenceStates.IDLE:
+                self.state = States.ESTOP
             else:
                 pass
-        elif topic == StateMachineTopics.SET_PWM:
+        elif topic == CommsTopics.SET_PWM:
             self.drive.setPWM(value)
 
+        self.determineNextState()
 
     def ESTOP(self):
         self.weapon.stop()
         self.drive.stop()
-        self.state = States.IDLE ##################should I make estop state?
+        self.state = States.ESTOP
 
+    def idle(self):
+        pass

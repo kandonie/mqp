@@ -3,7 +3,7 @@ from enum import Enum
 class HTTPTopics(Enum):
     MAIN = "/generaltest"
 
-class StateMachineTopics(Enum):
+class CommsTopics(Enum):
     SET_PWM = "set pwm"
     SET_HEADING = "set heading"
     ESTOP = "ESTOP"

@@ -5,7 +5,14 @@ class Drive:
         self.wifi = wifi
 
     def stop(self):
-        self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.name, 0)
+        self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.value, 0)
+
+    def drive(self, speed):
+        pass
+
+    def turn(self, angle):
+        pass
 
     def setPWM(self, pwm):
-        self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.name, pwm)
+        self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.value, pwm)
+        self.wifi.sendInfo(SetJSONVars.MOTOR2_PWM.value, pwm)

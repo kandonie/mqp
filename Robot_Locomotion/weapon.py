@@ -5,7 +5,7 @@ class Weapon:
         self.wifi = wifi
 
     def stop(self):
-        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.name, 0)
+        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, 0)
 
-    def setPWM(self, pwm):
-        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.name, pwm)
+    def toggle(self, isOn):
+        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, isOn)

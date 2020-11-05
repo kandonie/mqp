@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
-from Hardware_Comms.ESPHTTPTopics import StateMachineTopics
+from Hardware_Comms.ESPHTTPTopics import CommsTopics
 from Guidance.IntelligenceState import IntelligenceState
 
 class MainWindow(QMainWindow):
@@ -99,16 +99,16 @@ class MainWindow(QMainWindow):
         self.pwmQLineEdit.setText(str(value))
 
     def sendPWM(self):
-        self.notify(StateMachineTopics.SET_PWM, self.pwmQLineEdit.text())
+        self.notify(CommsTopics.SET_PWM, self.pwmQLineEdit.text())
 
     def getAPos(self):
         return 0
 
     def intelligenceStateChanged(self, text):
-        self.notify(StateMachineTopics.INTELLIGENCE_STATE, text)
+        self.notify(CommsTopics.INTELLIGENCE_STATE, text)
 
     def ESTOP(self):
-        self.notify(StateMachineTopics.ESTOP, "ESTOP")
+        self.notify(CommsTopics.ESTOP, "ESTOP")
 
     def notify(self, topic, value):
         for observer in self.observers:

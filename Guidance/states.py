@@ -1,11 +1,14 @@
 from enum import Enum
 
+class IntelligenceStates(Enum):
+    IDLE = "Idle"
+    RC = "Remote Control"
+    AUTO = "Autonomous"
+
 class States(Enum):
-    IDLE = 0
-    REMOTE_CONTROL = 1
-    AUTONOMOUS_STARTUP = 3
-    ATTACKING = 4
-    PINNING = 5
-    STATIONARY_OPPONENT = 6
-    WEAPON_STALL = 7
-    MATCH_OVER = 8
+    ESTOP = "ESTOP"
+    MATCH_START = "match start"
+    UPSIDE_DOWN_DISAGREEMENT = "upside down disagreement"
+    UPSIDE_DOWN = "upside down"
+    ROBOT_INVISIBLE = "CAN'T SEE ROBOT :("
+    BACK_OFF = "backing off"

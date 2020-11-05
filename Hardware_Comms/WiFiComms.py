@@ -12,7 +12,13 @@ class WiFiComms:
         self.setJson = {}
         for var in SetJSONVars:
             self.setJson[var.name] = ''
-
+        #determine is ESP is connected
+        try:
+            print("Trying to connect to ESP...")
+            requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
+            self.isConnected = True
+        except:
+            self.isConnected = False
 
     def getInfo(self, param):
         print("Notifying of " + str(param))
@@ -29,6 +35,8 @@ class WiFiComms:
 
     def sendInfo(self, topic, value):
         print("asking " + str(value) + " of " + str(topic))
+        if not self.isConnected:
+            return "No ESP Connected"
         try:
             #self.getInfo(HTTPTopics.MAIN.value) test line
             self.setJson[topic] = value
