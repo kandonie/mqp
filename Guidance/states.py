@@ -1,11 +1,15 @@
 from enum import Enum
 
 class IntelligenceStates(Enum):
+    """The states of autonomy of the robot
+    """
     IDLE = "Idle"
     RC = "Remote Control"
     AUTO = "Autonomous"
 
 class States(Enum):
+    """the autonomous states of the robot
+    """
     ESTOP = "ESTOP"
     MATCH_START = "match start"
     UPSIDE_DOWN_DISAGREEMENT = "upside down disagreement"
