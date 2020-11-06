@@ -23,6 +23,8 @@ double currHeading = 0;
 
 double weaponCurrent;
 double driveCurrent;
+int test = 0;
+int startTime = 0;
 
 
 String readAPOS()
@@ -50,18 +52,18 @@ void setup()
   // Remove the password parameter, if you want the AP (Access Point) to be open
 
   //Uncomment to host esp access point
-  //WiFi.softAP(ssid, password);
-  //IPAddress IP = WiFi.softAPIP();
-  //Serial.print("AP IP address: ");
-  //Serial.println(IP);
+  WiFi.softAP(ssid, password);
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-  Serial.println(WiFi.localIP());
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi..");
+  // }
+  // Serial.println(WiFi.localIP());
 
   //Get Requests (Test Request)
   server.on(APOS, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
@@ -95,6 +97,8 @@ void setup()
  
       request->send(200);
       Serial.println("Response Sent");
+      test = 1;
+      startTime = millis();
   });
 
   //start the webserver
@@ -106,8 +110,16 @@ void setup()
 
 }
 
-void loop()
-{
-  // put your main code here, to run repeatedly:
+void loop() {
+  Serial.println(test);
+  if (test) {
+    for (int i = 0; i < 180; i++) {
+      setRight(i);
+      setLeft(i);
+      delay(200);
+    }
+    test = 0;
+    Serial.println(test);
+  }
   
 }
