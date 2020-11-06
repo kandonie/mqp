@@ -7,7 +7,7 @@ Servo DriveMotor1;
 Servo DriveMotor2;
 Servo WeaponMotor;
 
-const int motor2pin = 28;
+const int motor2pin = 23;
 const int motorPin = 16;
 
 void movementSetup()

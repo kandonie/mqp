@@ -111,15 +111,33 @@ void setup()
 }
 
 void loop() {
-  Serial.println(test);
   if (test) {
+    for (int i = 90; i < 180; i++) {
+      setRight(i);
+      setLeft(i);
+      delay(10);
+    }
+    for (int i = 180; i > 0; i--) {
+      setRight(i);
+      setLeft(i);
+      delay(10);
+    }
     for (int i = 0; i < 180; i++) {
       setRight(i);
       setLeft(i);
-      delay(200);
+      delay(10);
+    }
+    for (int i = 180; i > 0; i--) {
+      setRight(i);
+      setLeft(i);
+      delay(10);
+    }
+    for (int i = 0; i < 90; i++) {
+      setRight(i);
+      setLeft(i);
+      delay(10);
     }
     test = 0;
-    Serial.println(test);
   }
   
 }
