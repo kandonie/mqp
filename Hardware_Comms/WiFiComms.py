@@ -5,7 +5,7 @@ from Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
 class WiFiComms:
     def __init__(self):
         # esp32 IP
-        self.IP = "http://192.168.0.17"
+        self.IP = "http://192.168.4.1"
         self.getJson = {}
         for var in GetJSONVars:
             self.getJson[var.name] = ''
