@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from Hardware_Comms.ESPHTTPTopics import CommsTopics
-from Guidance.IntelligenceState import IntelligenceState
+from Guidance.states import IntelligenceStates
 
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         intelligenceStateComboBox = QComboBox(self.mainWidget)
         #addd in each state in intelligence state as an option
         options = []
-        for state in IntelligenceState:
+        for state in IntelligenceStates:
             options.append(str(state.name))
         intelligenceStateComboBox.addItems(options)
         #finalize box
