@@ -2,6 +2,7 @@ from Robot_Locomotion.drive import Drive
 from Robot_Locomotion.weapon import Weapon
 from Guidance.states import States, IntelligenceStates
 from Hardware_Comms.ESPHTTPTopics import CommsTopics, GetJSONVars
+from Guidance.States.IdleState import IdleState
 
 class StateMachine():
     """controls the decisions of the robot.
@@ -15,10 +16,11 @@ class StateMachine():
         #init vars
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
-        self.state = States.MATCH_START
+        self.state = IdleState(self.drive, self.weapon)
         self.sensors = []
         self.connectivity = None
 
+        #TODO MAYBE get rid of this
         #make a dict of information needed to switch states
         self.infoDict = {"INTELLIGENCE_STATE" : IntelligenceStates.IDLE.value}
         for topic in GetJSONVars:
@@ -30,13 +32,26 @@ class StateMachine():
             }
 
     def runStateMachine(self):
-        """exectutes states based on self.infoDict
+        """exectutes states based on current state
         """
-        self.switcher[self.state]
+        #TODO find better name, make ENUM for each key
+        robotData = {"sensors":self.sensors, "connection": self.connectivity}
+        self.state.execute(robotData)
 
     def determineNextState(self):
         """determines the next state of the robot 
         """
+        if self.state.getType() == States.ESTOP:
+            pass
+        #     if xyz
+        #         self.state = IdleState(self.drive, self.weapon)
+        #     elif jdfa:
+        #         self.sate = oTherState
+        # elif self.state == IDLE:
+        #     if xyz
+        #         self.state = Some state
+        #     elif jdfa:
+        #         self.sate = oTherState
         pass
 
     #this function gets called when there is new info
@@ -56,7 +71,6 @@ class StateMachine():
                 pass
         elif topic == CommsTopics.SET_PWM:
             self.drive.setPWM(value)
-
         self.determineNextState()
 
     def ESTOP(self):
