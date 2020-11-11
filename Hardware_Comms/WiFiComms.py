@@ -23,7 +23,9 @@ class WiFiComms:
             print("Trying to connect to ESP...")
             requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             self.isConnected = True
+            print("done!")
         except:
+            print("failed")
             self.isConnected = False
 
     def getInfo(self, param):

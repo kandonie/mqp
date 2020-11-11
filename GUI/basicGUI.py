@@ -2,7 +2,8 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from Hardware_Comms.ESPHTTPTopics import CommsTopics
-from Guidance.states import IntelligenceStates
+from Guidance.states import IntelligenceStates, StateDataTopics
+from Robot_Locomotion.MovementType import MovementType
 
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
@@ -49,16 +50,22 @@ class MainWindow(QMainWindow):
         #PWM Slider
         sliderLabel_y = intelligenceCombo_y + self.getLabelHeight(self.intelligenceStateComboBoxLabel) + sectionSpacing
         self.pwmLabel.move(start_x, sliderLabel_y)
-        pwmSlider_y = sliderLabel_y + self.getLabelHeight(self.pwmLabel) + widgetSpacing
+        self.sendPWMButton.move(start_x + self.pwmLabel.width() + widgetSpacing, sliderLabel_y)
+        pwmSlider_y = sliderLabel_y + 2 * self.getLabelHeight(self.pwmLabel) + widgetSpacing
         self.pwmQLineEdit.move(start_x, pwmSlider_y)
         qEditWidth = 100
+        self.pwmQLineEdit.setFixedWidth(qEditWidth)
         pwmSlider_x = start_x + widgetSpacing + qEditWidth
         self.pwmSlider.move(pwmSlider_x, pwmSlider_y)
-        self.pwmQLineEdit.setFixedWidth(qEditWidth)
-        pwmButton_y = pwmSlider_y + self.getLabelHeight(self.pwmLabel) + widgetSpacing
-        self.sendPWMButton.move(start_x, pwmButton_y)
+        #Movement
+        movementLabel_y = pwmSlider_y + self.getLabelHeight(self.sendPWMButton) + sectionSpacing
+        self.movementLabel.move(start_x, movementLabel_y)
+        self.movementTypeButton.move(start_x + self.getLabelWidth(self.movementLabel) + widgetSpacing, movementLabel_y)
+        chooseMovement_y = movementLabel_y + 2 * self.getLabelHeight(self.movementTypeButton) + widgetSpacing
+        self.movementQLineEdit.move(start_x, chooseMovement_y)
+        self.moveRobotComboBox.move(start_x+self.movementQLineEdit.width() + widgetSpacing, chooseMovement_y)
         #sensor info
-        sensor_y = pwmButton_y + 2 * self.getLabelHeight(self.sendPWMButton) + sectionSpacing
+        sensor_y = chooseMovement_y + 2 * self.movementQLineEdit.height() + sectionSpacing
         self.aPosLabel.move(start_x, sensor_y)
         self.aPosDataLabel.move(start_x + self.getLabelWidth(self.aPosLabel) + widgetSpacing, sensor_y)
 
@@ -95,16 +102,30 @@ class MainWindow(QMainWindow):
         #make label
         self.intelligenceStateComboBoxLabel = QLabel(self.mainWidget)
         self.intelligenceStateComboBoxLabel.setText("Intelligence State")
-
         #make combobox
         self.intelligenceStateComboBox = QComboBox(self.mainWidget)
         #addd in each state in intelligence state as an option
-        options = []
+        intelligenceOptions = []
         for state in IntelligenceStates:
-            options.append(str(state.name))
-        self.intelligenceStateComboBox.addItems(options)
+            intelligenceOptions.append(str(state.value))
+        self.intelligenceStateComboBox.addItems(intelligenceOptions)
         #finalize box
         self.intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
+
+        #straight/turn/square
+        self.movementLabel = QLabel(self.mainWidget)
+        self.movementLabel.setText("Make the Robot move")
+        self.movementQLineEdit = QLineEdit("0", self.mainWidget)
+        self.movementQLineEdit.setValidator(QIntValidator())
+        self.movementQLineEdit.setMaxLength(3)
+        self.moveRobotComboBox = QComboBox(self.mainWidget)
+        movementOptions = []
+        for state in MovementType:
+            movementOptions.append(str(state.value))
+        self.moveRobotComboBox.addItems(movementOptions)
+        self.movementTypeButton = QPushButton(self.mainWidget)
+        self.movementTypeButton.setText("Send Movement Info")
+        self.movementTypeButton.clicked.connect(self.sendMovement)
 
     
     def makeSliders(self):
@@ -198,12 +219,23 @@ class MainWindow(QMainWindow):
         """
         self.notify(CommsTopics.INTELLIGENCE_STATE, text)
 
+    def sendMovement(self):
+        """
+        notifies observers of change in movement desired with desired value
+        :param text: the box chosen in the combo box
+        :return:
+        """
+        value = self.movementQLineEdit.text()
+        if not value:
+            value = '0'
+        self.notify(StateDataTopics.MOVEMENT, self.moveRobotComboBox.currentText(), int(value))
+
     def ESTOP(self):
         """alerts observers that an ESTOP is requested
         """
         self.notify(CommsTopics.ESTOP, "ESTOP")
 
-    def notify(self, topic, value):
+    def notify(self, topic, value, *args):
         """notifies observers of topic with value
 
         Args:
@@ -211,4 +243,4 @@ class MainWindow(QMainWindow):
             value (string): the value for the comm topic
         """
         for observer in self.observers:
-            observer.notify(topic, value)
+            observer.notify(topic, value, args)
