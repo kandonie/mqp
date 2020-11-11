@@ -19,10 +19,8 @@ class MainWindow(QMainWindow):
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
         self.setWindowTitle("Basic GUI")
-        self.setGeometry(100, 100, 600, 600)
 
         #important for setting locations of QWidgets
-        self.spacing = 20 #num pixels between widgets
         self.observers= []
 
         #make widgets
@@ -30,6 +28,43 @@ class MainWindow(QMainWindow):
         self.makeComboBoxes()
         self.makeSliders()
         self.makeLabels()
+
+        self.setWidgetLocations()
+
+
+    def setWidgetLocations(self):
+        start_x = 50
+        start_y = 50
+        widgetSpacing = 20 #num pixels between widgets
+        sectionSpacing = 60
+
+        #Estop button
+        estop_y = start_y
+        self.ESTOPButton.move(start_x, estop_y)
+        #intelligence state combo box
+        intelligenceCombo_y = estop_y + 2 * self.getLabelHeight(self.ESTOPButton) + sectionSpacing
+        self.intelligenceStateComboBoxLabel.move(start_x, intelligenceCombo_y)
+        intelligenceComboLabelWidth = self.getLabelWidth(self.intelligenceStateComboBoxLabel)
+        self.intelligenceStateComboBox.move(start_x + intelligenceComboLabelWidth + widgetSpacing, intelligenceCombo_y)
+        #PWM Slider
+        sliderLabel_y = intelligenceCombo_y + self.getLabelHeight(self.intelligenceStateComboBoxLabel) + sectionSpacing
+        self.pwmLabel.move(start_x, sliderLabel_y)
+        pwmSlider_y = sliderLabel_y + self.getLabelHeight(self.pwmLabel) + widgetSpacing
+        self.pwmQLineEdit.move(start_x, pwmSlider_y)
+        qEditWidth = 100
+        pwmSlider_x = start_x + widgetSpacing + qEditWidth
+        self.pwmSlider.move(pwmSlider_x, pwmSlider_y)
+        self.pwmQLineEdit.setFixedWidth(qEditWidth)
+        pwmButton_y = pwmSlider_y + self.getLabelHeight(self.pwmLabel) + widgetSpacing
+        self.sendPWMButton.move(start_x, pwmButton_y)
+        #sensor info
+        sensor_y = pwmButton_y + 2 * self.getLabelHeight(self.sendPWMButton) + sectionSpacing
+        self.aPosLabel.move(start_x, sensor_y)
+        self.aPosDataLabel.move(start_x + self.getLabelWidth(self.aPosLabel) + widgetSpacing, sensor_y)
+
+        max_y = sensor_y + 2 * self.getLabelHeight(self.aPosLabel) + widgetSpacing
+        max_x = pwmSlider_x + self.pwmSlider.width() + widgetSpacing
+        self.setGeometry(start_x, start_y, max_x, max_y)
 
     def attachObserver(self, observer):
         """adds an of observers to its own list
@@ -44,64 +79,52 @@ class MainWindow(QMainWindow):
         """Creates the ESTOP and sendPWM buttons
         """        
         #make ESTOP
-        ESTOPButton = QPushButton(self.mainWidget)
-        ESTOPButton.setText("Estop")
-        ESTOPButton.move(64,32)
-        ESTOPButton.clicked.connect(self.ESTOP)
+        self.ESTOPButton = QPushButton(self.mainWidget)
+        self.ESTOPButton.setText("Estop")
+        self.ESTOPButton.clicked.connect(self.ESTOP)
 
         #make send PWM button
-        sendPWMButton = QPushButton(self.mainWidget)
-        sendPWMButton.setText("Send PWM")
-        sendPWMButton.move(100, 400)
-        sendPWMButton.clicked.connect(self.sendPWM)
+        self.sendPWMButton = QPushButton(self.mainWidget)
+        self.sendPWMButton.setText("Send PWM")
+        self.sendPWMButton.clicked.connect(self.sendPWM)
 
 
     def makeComboBoxes(self):
         """makes the Intelligence state combo box, along with corresponding label
         """        
         #make label
-        intelligenceStateComboBoxLabel = QLabel(self.mainWidget)
-        intelligenceStateComboBoxLabel.move(100,100)
-        intelligenceStateComboBoxLabel.setText("Intelligence State")
-        labelWidth = self.getLabelWidth(intelligenceStateComboBoxLabel)
+        self.intelligenceStateComboBoxLabel = QLabel(self.mainWidget)
+        self.intelligenceStateComboBoxLabel.setText("Intelligence State")
 
         #make combobox
-        intelligenceStateComboBox = QComboBox(self.mainWidget)
+        self.intelligenceStateComboBox = QComboBox(self.mainWidget)
         #addd in each state in intelligence state as an option
         options = []
         for state in IntelligenceStates:
             options.append(str(state.name))
-        intelligenceStateComboBox.addItems(options)
+        self.intelligenceStateComboBox.addItems(options)
         #finalize box
-        intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
-        intelligenceStateComboBox.move(100 + labelWidth + self.spacing, 100)
+        self.intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
 
     
     def makeSliders(self):
         """makes a PWM slider
         """        
         #create pwm slider label (just shows the word PWM over the slider) 
-        sliderX, sliderY = 100,200
-        pwmLabel = QLabel(self.mainWidget)
-        pwmLabel.setText("PWM")
-        pwmLabel.move(sliderX, sliderY)
-        pwmLabelHeight = self.getLabelHeight(pwmLabel)
+        self.pwmLabel = QLabel(self.mainWidget)
+        self.pwmLabel.setText("PWM")
 
         #create pwm qedit (corresponds to value of slider)
         self.pwmQLineEdit = QLineEdit("0", self.mainWidget)
-        qEditWidth = 100
-        self.pwmQLineEdit.setFixedWidth(qEditWidth)
         self.pwmQLineEdit.setValidator(QIntValidator())
         self.pwmQLineEdit.setMaxLength(3)
         self.pwmQLineEdit.textEdited.connect(self.PWMValueChanged)
-        self.pwmQLineEdit.move(sliderX, sliderY + pwmLabelHeight + self.spacing )
 
         #create pwm slider (corresponds to value of QLineEdit)
         self.pwmSlider = QSlider(Qt.Horizontal, self.mainWidget)
         self.pwmSlider.setRange(0,100)
         self.pwmSlider.setSingleStep(1)
         self.pwmSlider.valueChanged.connect(self.PWMValueChanged)
-        self.pwmSlider.move(sliderX + self.spacing + qEditWidth, sliderY + pwmLabelHeight + self.spacing)
         self.pwmSlider.setFixedWidth(500)
 
 
@@ -109,12 +132,10 @@ class MainWindow(QMainWindow):
         """makes labels for data read
         """        
         #angular position label
-        aPosLabel = QLabel(self.mainWidget)
-        aPosDataLabel = QLabel(self.mainWidget)
-        aPosLabel.setText("Angular Position: ")
-        aPosDataLabel.setText(str(self.getAPos()))
-        aPosLabel.move(100, 500)
-        aPosDataLabel.move(100 + self.getLabelWidth(aPosLabel) + self.spacing, 500)
+        self.aPosLabel = QLabel(self.mainWidget)
+        self.aPosDataLabel = QLabel(self.mainWidget)
+        self.aPosLabel.setText("Angular Position: ")
+        self.aPosDataLabel.setText(str(self.getAPos()))
 
     
     def getLabelHeight(self, label):
