@@ -1,0 +1,4 @@
+Each new state must have an __init__(self, drive, weapon) and execute(self, robotData) function
+look at doc comments on existing state classes for more info
+This would normally be done through overriding methods but python doesn't care about
+Types so we have to write this in this file
