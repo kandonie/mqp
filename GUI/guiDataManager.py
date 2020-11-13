@@ -11,10 +11,6 @@ class GUIDataManager:
         Args:
             observers ([observers]): a list of observers to be notified of GUI events.
         """
-        #initialize vars
-        self.cameraImage = None
-        self.buttons = []
-        self.attribute = None
 
         #create main window
         app = QtWidgets.QApplication(sys.argv)
@@ -35,3 +31,6 @@ class GUIDataManager:
             observer (Observer): must have a notify function that takes 2 params. 
         """        
         self.main.attachObserver(observer)
+
+    def notify(self, topic, value, *args):
+        pass
