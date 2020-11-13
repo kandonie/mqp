@@ -30,8 +30,14 @@ class Drive:
         """turns the robot to angle
 
         Args:
-            angle (string): The global angle to turn to in radians
+            angle (string): The global angle to turn to in degrees
         """
+        pass
+
+    def square(self, sideLen):
+        pass
+
+    def driveDistance(self, distance):
         pass
 
     def setPWM(self, pwm):

@@ -1,6 +1,7 @@
 from Robot_Locomotion.drive import Drive
 from Robot_Locomotion.weapon import Weapon
-from Guidance.states import States, IntelligenceStates
+from Robot_Locomotion.MovementType import MovementType
+from Guidance.states import States, IntelligenceStates, StateDataTopics
 from Hardware_Comms.ESPHTTPTopics import CommsTopics, GetJSONVars
 from Guidance.States.IdleState import IdleState
 
@@ -41,8 +42,8 @@ class StateMachine():
     def determineNextState(self):
         """determines the next state of the robot 
         """
-        if self.state.getType() == States.ESTOP:
-            pass
+        #if self.state.getType() == States.ESTOP:
+        #    pass
         #     if xyz
         #         self.state = IdleState(self.drive, self.weapon)
         #     elif jdfa:
@@ -55,22 +56,32 @@ class StateMachine():
         pass
 
     #this function gets called when there is new info
-    def notify(self, topic, value):
+    def notify(self, topic, value, *args ):
         """called when observable has new info. Updates self.infoDict
 
         Args:
-            topic (CommsTopics): the communication topic
+            topic (CommsTopics): the communication topic, can be StateDataTopics
             value (string): the value of the topic
         """
         if topic == CommsTopics.ESTOP:
             self.ESTOP()
-        elif topic == CommsTopics.INTELLIGENCE_STATE:
-            if value == IntelligenceStates.IDLE:
+        elif topic == StateDataTopics.INTELLIGENCE_STATE:
+            if value == IntelligenceStates.IDLE.value:
                 self.state = States.ESTOP
             else:
                 pass
         elif topic == CommsTopics.SET_PWM:
             self.drive.setPWM(value)
+        elif topic == StateDataTopics.MOVEMENT:
+            data = args[0]
+            if value == MovementType.DRIVE_STRAIGHT.value:
+                self.drive.driveDistance(data)
+            elif value == MovementType.STOP.value:
+                self.drive.stop()
+            elif value == MovementType.SQUARE.value:
+                self.drive.square(data)
+            elif value == MovementType.TURN.value:
+                self.drive.turn(data)
         self.determineNextState()
 
     def ESTOP(self):

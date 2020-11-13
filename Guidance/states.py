@@ -7,6 +7,10 @@ class IntelligenceStates(Enum):
     RC = "Remote Control"
     AUTO = "Autonomous"
 
+class StateDataTopics(Enum):
+    INTELLIGENCE_STATE = "Intelligence State Data Topic"
+    MOVEMENT = "GUI Movement Data Topic"
+
 class States(Enum):
     """the autonomous states of the robot
     """
