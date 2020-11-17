@@ -35,3 +35,6 @@ class GUIDataManager:
             observer (Observer): must have a notify function that takes 2 params. 
         """        
         self.main.attachObserver(observer)
+
+    def notify(self, topic, value):
+        self.main.notify(topic, value)
