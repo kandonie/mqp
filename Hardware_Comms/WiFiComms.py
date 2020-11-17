@@ -63,6 +63,7 @@ class WiFiComms:
             self.setJson[topic] = value
             response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             print(response)
+            print("rtt: " + str(response.elapsed.total_seconds()))
         except:
             print("No connection could be established with ESP")
             return "ESP Comms Err"

@@ -4,6 +4,9 @@ sys.path.insert(1, '~/mqp')
 from Guidance.stateMachine import StateMachine
 from GUI.guiDataManager import GUIDataManager
 from Hardware_Comms.WiFiComms import WiFiComms
+from Sensing.cv import CV
+from Sensing.imu import IMU
+from Sensing.motorCurrent import MotorCurrent
 
 
 def main():
@@ -20,6 +23,8 @@ def main():
         print("Couldn't start state machine")
     #start GUI (won't return until GUI window is closed )
     dm = GUIDataManager([sm])
+    imu = IMU()
+    imu.attachObservers([sm, dm])
 
 
 if __name__ == "__main__":

@@ -32,5 +32,6 @@ class GUIDataManager:
         """        
         self.main.attachObserver(observer)
 
-    def notify(self, topic, value, *args):
-        pass
+
+    def notify(self, topic, value):
+        self.main.notify(topic, value)

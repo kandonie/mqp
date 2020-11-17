@@ -24,6 +24,7 @@ class Drive:
         Args:
             speed (string): the speed to drive at
         """
+        print("driving with PWM: " + str(speed))
         pass
 
     def turn(self, angle):
@@ -32,13 +33,10 @@ class Drive:
         Args:
             angle (string): The global angle to turn to in degrees
         """
-        pass
-
-    def square(self, sideLen):
-        pass
+        print("Turning " + str(angle) + " degrees")
 
     def driveDistance(self, distance):
-        pass
+        print("Driving " + str(distance) + " meters")
 
     def setPWM(self, pwm):
         """sets the pwm of drive motors
