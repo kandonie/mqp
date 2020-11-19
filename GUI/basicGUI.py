@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
         #addd in each state in intelligence state as an option
         intelligenceOptions = []
         for state in IntelligenceStates:
-            intelligenceOptions.append(state.name)
+            intelligenceOptions.append(state.value)
         self.intelligenceStateComboBox.addItems(intelligenceOptions)
         #finalize box
         self.intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
@@ -211,7 +211,7 @@ class MainWindow(QMainWindow):
         """
         state = None
         for s in IntelligenceStates:
-            if text == s.name:
+            if text == s.value:
                 state = s
                 break
         self.notifyObservers(state, text)
