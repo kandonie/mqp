@@ -184,8 +184,8 @@ class MainWindow(QMainWindow):
         """
         if not value:
             return
-        elif int(value) > 100:
-            value = 100
+        elif int(value) > 2000:
+            value = 2000
         self.pwmSlider.setValue(int(value))
         self.pwmQLineEdit.setText(str(value))
 

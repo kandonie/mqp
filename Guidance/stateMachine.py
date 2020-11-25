@@ -51,9 +51,11 @@ class StateMachine():
         """
         if self.intelligenceState == IntelligenceStates.IDLE:
             self.switchState(BehavioralStates.ESTOP)
+            print("psst  .... change to auto to send robot messages")
         elif self.intelligenceState == IntelligenceStates.RC:
             ##TODO teleop STUff
-            pass
+            ##TODO keyboard up down left and right correspond to movement
+            print("psst .... change to auto to send robot messages")
         elif self.intelligenceState == IntelligenceStates.AUTO:
             if self.requestStateChange:
                 #switch to requested state

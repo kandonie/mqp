@@ -23,26 +23,28 @@ void movementSetup()
 
 void setRight(int speed)
 {   
-    
+    /*
     if (speed > 2000) {
     speed = 2000;
     }
     if (speed < 1000) {
         speed = 1000;
     }
+    */
     
     DriveMotor1.writeMicroseconds(speed);
 }
 
 void setLeft(int speed)
 {
-    
+    /*
     if (speed > 2000) {
     speed = 2000;
     }
     if (speed < 1000) {
         speed = 1000;
     }
+    */
     
     DriveMotor2.writeMicroseconds(speed);
 }
