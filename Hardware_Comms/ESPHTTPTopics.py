@@ -4,13 +4,6 @@ class HTTPTopics(Enum):
     """ topic used for wifi comms"""
     MAIN = "/generaltest"
 
-class CommsTopics(Enum):
-    """ The topics that can be communicated to the state machine"""
-    SET_PWM = "set pwm"
-    SET_HEADING = "set heading"
-    ESTOP = "ESTOP"
-    INTELLIGENCE_STATE = "intelligence state"
-
 class SetJSONVars(Enum):
     """The json variables that can be set through wifi"""
     MOTOR1_PWM = 'motor1pwm'

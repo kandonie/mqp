@@ -1,9 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
-from Hardware_Comms.ESPHTTPTopics import CommsTopics
-from Guidance.states import IntelligenceStates, StateDataTopics
-from Robot_Locomotion.MovementType import MovementType
+from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
@@ -63,7 +61,6 @@ class MainWindow(QMainWindow):
         self.movementTypeButton.move(start_x + self.getLabelWidth(self.movementLabel) + widgetSpacing, movementLabel_y)
         chooseMovement_y = movementLabel_y + 2 * self.getLabelHeight(self.movementTypeButton) + widgetSpacing
         self.movementQLineEdit.move(start_x, chooseMovement_y)
-        self.moveRobotComboBox.move(start_x+self.movementQLineEdit.width() + widgetSpacing, chooseMovement_y)
         #sensor info
         sensor_y = chooseMovement_y + 2 * self.movementQLineEdit.height() + sectionSpacing
         self.aPosLabel.move(start_x, sensor_y)
@@ -107,22 +104,17 @@ class MainWindow(QMainWindow):
         #addd in each state in intelligence state as an option
         intelligenceOptions = []
         for state in IntelligenceStates:
-            intelligenceOptions.append(str(state.value))
+            intelligenceOptions.append(state.value)
         self.intelligenceStateComboBox.addItems(intelligenceOptions)
         #finalize box
         self.intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
 
         #straight/turn/square
         self.movementLabel = QLabel(self.mainWidget)
-        self.movementLabel.setText("Make the Robot move")
-        self.movementQLineEdit = QLineEdit("0", self.mainWidget)
+        self.movementLabel.setText("Drive polygon, n sides")
+        self.movementQLineEdit = QLineEdit("3", self.mainWidget)
         self.movementQLineEdit.setValidator(QIntValidator())
-        self.movementQLineEdit.setMaxLength(3)
-        self.moveRobotComboBox = QComboBox(self.mainWidget)
-        movementOptions = []
-        for state in MovementType:
-            movementOptions.append(str(state.value))
-        self.moveRobotComboBox.addItems(movementOptions)
+        self.movementQLineEdit.setMaxLength(1)
         self.movementTypeButton = QPushButton(self.mainWidget)
         self.movementTypeButton.setText("Send Movement Info")
         self.movementTypeButton.clicked.connect(self.sendMovement)
@@ -200,7 +192,7 @@ class MainWindow(QMainWindow):
     def sendPWM(self):
         """alerts observers of change in pwm
         """
-        self.notify(CommsTopics.SET_PWM, self.pwmQLineEdit.text())
+        self.notifyObservers(BehavioralStates.PWM, self.pwmQLineEdit.text())
 
     def getAPos(self):
         """gets the angular position of the robot
@@ -217,7 +209,12 @@ class MainWindow(QMainWindow):
         Args:
             text (String): The new intelligence state (must correspond to an IntelligenceStateEnum)
         """
-        self.notify(CommsTopics.INTELLIGENCE_STATE, text)
+        state = None
+        for s in IntelligenceStates:
+            if text == s.value:
+                state = s
+                break
+        self.notifyObservers(state, text)
 
     def sendMovement(self):
         """
@@ -228,14 +225,17 @@ class MainWindow(QMainWindow):
         value = self.movementQLineEdit.text()
         if not value:
             value = '0'
-        self.notify(StateDataTopics.MOVEMENT, self.moveRobotComboBox.currentText(), int(value))
+        elif int(value) < 3:
+            print("Polygon needs at least 2 sides")
+            return
+        self.notifyObservers(BehavioralStates.MOVEMENT_TEST, int(value))
 
     def ESTOP(self):
         """alerts observers that an ESTOP is requested
         """
-        self.notify(CommsTopics.ESTOP, "ESTOP")
+        self.notifyObservers(BehavioralStates.ESTOP, "ESTOP")
 
-    def notify(self, topic, value, *args):
+    def notifyObservers(self, topic, value, *args):
         """notifies observers of topic with value
 
         Args:
@@ -243,4 +243,7 @@ class MainWindow(QMainWindow):
             value (string): the value for the comm topic
         """
         for observer in self.observers:
-            observer.notify(topic, value, args)
+            observer.notify(topic, value)
+
+    def notify(self, topic, value):
+        pass

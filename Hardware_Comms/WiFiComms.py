@@ -12,11 +12,11 @@ class WiFiComms:
         #initialzies get vars
         self.getJson = {}
         for var in GetJSONVars:
-            self.getJson[var.name] = ''
+            self.getJson[var.value] = ''
         #initialize set vars
         self.setJson = {}
         for var in SetJSONVars:
-            self.setJson[var.name] = ''
+            self.setJson[var.value] = ''
         #determine is ESP is connected
         #if not done here, all http requests take forever and it slows down program
         try:
