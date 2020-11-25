@@ -128,14 +128,14 @@ class MainWindow(QMainWindow):
         self.pwmLabel.setText("PWM")
 
         #create pwm qedit (corresponds to value of slider)
-        self.pwmQLineEdit = QLineEdit("0", self.mainWidget)
+        self.pwmQLineEdit = QLineEdit("1660", self.mainWidget)
         self.pwmQLineEdit.setValidator(QIntValidator())
-        self.pwmQLineEdit.setMaxLength(3)
+        self.pwmQLineEdit.setMaxLength(4)
         self.pwmQLineEdit.textEdited.connect(self.PWMValueChanged)
 
         #create pwm slider (corresponds to value of QLineEdit)
         self.pwmSlider = QSlider(Qt.Horizontal, self.mainWidget)
-        self.pwmSlider.setRange(0,100)
+        self.pwmSlider.setRange(1000, 2000)
         self.pwmSlider.setSingleStep(1)
         self.pwmSlider.valueChanged.connect(self.PWMValueChanged)
         self.pwmSlider.setFixedWidth(500)

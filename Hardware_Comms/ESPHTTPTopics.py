@@ -10,6 +10,8 @@ class SetJSONVars(Enum):
     MOTOR2_PWM = 'motor2pwm'
     WEAPON_PWM = 'weaponMode'
     DESIRED_HEADING = 'desiredHeading'
+    DISTANCE = 'movmentDistance'
+    CURRENT_HEADING = 'currentHeading'
 
 class GetJSONVars(Enum):
     """The json variables the can be acquired through wifi"""
