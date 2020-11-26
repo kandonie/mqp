@@ -16,8 +16,8 @@ char ESTOP[] = "/ESTOP";
 char APOS[] = "/readAPOS";
 
 //mutex - varible names
-int motor1PWM = 0;
-int motor2PWM = 0;
+int motor1PWM = 1500;
+int motor2PWM = 1500;
 int weaponPWM = 0;
 double desiredHeading = 0;
 double currHeading = 0;
@@ -164,8 +164,8 @@ void setup()
   // no power cycle after calibration 
 
   //this is the jitter
-  setRight(1660);
-  setLeft(1660);
+  setRight(1500);
+  setLeft(1500);
   delay(10);
 
   Serial.println("End Of Calibration");
@@ -176,6 +176,7 @@ void setup()
 void loop() {
  
   setRight(motor1PWM);
+  setLeft(motor2PWM);
 
   
 }
