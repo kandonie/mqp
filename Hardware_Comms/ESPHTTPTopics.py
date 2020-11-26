@@ -14,6 +14,14 @@ class SetJSONVars(Enum):
     # robot turn heading first then moves set distance
     DESIRED_HEADING = 'desiredHeading'
     DISTANCE = 'movmentDistance'
+    ARM_DISARM_SYSTEMS =  'arm/disarm sytems'
+
+class ARM(Enum):
+    #signals go through, robot just doesnt respond
+    ARM_ALL = 'Weapon AND Drive Armed'
+    ARM_DRIVE = 'Drive ONLY Armed'
+    ARM_WEAPON = 'Weapon ONLY Armed'
+    DISARM_ALL = 'Totally Disarmed'
 
 
 class GetJSONVars(Enum):

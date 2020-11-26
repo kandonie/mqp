@@ -4,6 +4,7 @@ from Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates, RobotDa
 from Guidance.States.IdleState import IdleState
 from Guidance.States.MovementTests import PolygonalMovement
 from Guidance.States.PWMController import PWMController
+from Hardware_Comms.ESPHTTPTopics import ARM, SetJSONVars
 import threading
 
 
@@ -17,6 +18,10 @@ class StateMachine():
             wifi (WiFiComms): The wifi object used to communicate with the robot
         """
         #init vars
+        self.wifi = wifi
+        #set initial arm state to disarm
+        #TODO maybe put this somewhere else
+        self.wifi.sendInfo(SetJSONVars.ARM_DISARM_SYSTEMS, ARM.DISARM_ALL)
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
         self.state = IdleState(self.drive, self.weapon)
@@ -86,5 +91,6 @@ class StateMachine():
             if data is None or topic != data[0] or value != data[1]:
                 self.requestStateChange = True
                 args = (topic, value)
-
+        elif topic == SetJSONVars.ARM_DISARM_SYSTEMS:
+            self.wifi.sendInfo(topic.value, value)
         self.determineNextState(args)

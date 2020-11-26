@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit
+from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit, QRadioButton
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
+from Hardware_Comms.ESPHTTPTopics import ARM, SetJSONVars
 
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
@@ -27,9 +28,10 @@ class MainWindow(QMainWindow):
         self.makeComboBoxes()
         self.makeSliders()
         self.makeLabels()
+        self.makeRadioButtons()
 
         self.setWidgetLocations()
-
+        print("done GUI creation")
 
     def setWidgetLocations(self):
         start_x = 50
@@ -40,8 +42,17 @@ class MainWindow(QMainWindow):
         #Estop button
         estop_y = start_y
         self.ESTOPButton.move(start_x, estop_y)
+        disarm_line1_y = estop_y + self.getLabelHeight(self.ESTOPButton) + sectionSpacing
+        #Radio button
+        self.disarm_radio_button.move(start_x, disarm_line1_y)
+        armDrive_x = 2 * self.disarm_radio_button.width() + 2 * sectionSpacing + start_x
+        self.arm_drive_radio_button.move(armDrive_x, disarm_line1_y)
+        disarm_line2_y = disarm_line1_y + self.disarm_radio_button.height() + widgetSpacing
+        self.arm_weapon_radio_button.move(start_x, disarm_line2_y)
+        armAll_x = 2 * self.arm_weapon_radio_button.width() +  2 * sectionSpacing + start_x
+        self.arm_radio_button.move(armAll_x, disarm_line2_y)
         #intelligence state combo box
-        intelligenceCombo_y = estop_y + 2 * self.getLabelHeight(self.ESTOPButton) + sectionSpacing
+        intelligenceCombo_y = disarm_line2_y + 2 * self.arm_weapon_radio_button.height() + sectionSpacing
         self.intelligenceStateComboBoxLabel.move(start_x, intelligenceCombo_y)
         intelligenceComboLabelWidth = self.getLabelWidth(self.intelligenceStateComboBoxLabel)
         self.intelligenceStateComboBox.move(start_x + intelligenceComboLabelWidth + widgetSpacing, intelligenceCombo_y)
@@ -67,8 +78,25 @@ class MainWindow(QMainWindow):
         self.aPosDataLabel.move(start_x + self.getLabelWidth(self.aPosLabel) + widgetSpacing, sensor_y)
 
         max_y = sensor_y + 2 * self.getLabelHeight(self.aPosLabel) + widgetSpacing
-        max_x = pwmSlider_x + self.pwmSlider.width() + widgetSpacing
-        self.setGeometry(start_x, start_y, max_x, max_y)
+        max_x = armAll_x + self.arm_radio_button.width() + widgetSpacing
+        self.setGeometry(start_x, start_y, 1000, 1000)
+
+    def makeRadioButtons(self):
+        self.disarm_radio_button = QRadioButton( ARM.DISARM_ALL.value, self.mainWidget)
+        self.disarm_radio_button.toggled.connect(lambda:self.changeInArm(self.disarm_radio_button))
+        self.arm_drive_radio_button = QRadioButton(ARM.ARM_DRIVE.value, self.mainWidget)
+        self.arm_drive_radio_button.toggled.connect(lambda:self.changeInArm(self.arm_drive_radio_button))
+        self.arm_weapon_radio_button = QRadioButton(ARM.ARM_WEAPON.value, self.mainWidget)
+        self.arm_weapon_radio_button.toggled.connect(lambda: self.changeInArm(self.arm_weapon_radio_button))
+        self.arm_radio_button = QRadioButton(ARM.ARM_ALL.value,self.mainWidget)
+        self.arm_radio_button.toggled.connect(lambda: self.changeInArm(self.arm_radio_button))
+        #start in the disarm state
+        self.disarm_radio_button.setChecked(True)
+
+    def changeInArm(self, arm_button):
+        if arm_button.isChecked():
+            self.notifyObservers(SetJSONVars.ARM_DISARM_SYSTEMS, arm_button.text())
+
 
     def attachObserver(self, observer):
         """adds an of observers to its own list
