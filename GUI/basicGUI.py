@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit, QRadioButton
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtCore import Qt
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from Hardware_Comms.ESPHTTPTopics import ARM, SetJSONVars
-
+from Robot_Locomotion.MotorEnums import PWMVals
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
         This is a basic GUI which has simple features.          
@@ -26,7 +25,6 @@ class MainWindow(QMainWindow):
         #make widgets
         self.makeButtons()
         self.makeComboBoxes()
-        self.makeSliders()
         self.makeLabels()
         self.makeRadioButtons()
 
@@ -52,22 +50,24 @@ class MainWindow(QMainWindow):
         armAll_x = 2 * self.arm_weapon_radio_button.width() +  2 * sectionSpacing + start_x
         self.arm_radio_button.move(armAll_x, disarm_line2_y)
         #intelligence state combo box
-        intelligenceCombo_y = disarm_line2_y + 2 * self.arm_weapon_radio_button.height() + sectionSpacing
+        intelligenceCombo_y = disarm_line2_y + self.arm_weapon_radio_button.height() + sectionSpacing
         self.intelligenceStateComboBoxLabel.move(start_x, intelligenceCombo_y)
         intelligenceComboLabelWidth = self.getLabelWidth(self.intelligenceStateComboBoxLabel)
         self.intelligenceStateComboBox.move(start_x + intelligenceComboLabelWidth + widgetSpacing, intelligenceCombo_y)
-        #PWM Slider
-        sliderLabel_y = intelligenceCombo_y + self.getLabelHeight(self.intelligenceStateComboBoxLabel) + sectionSpacing
-        self.pwmLabel.move(start_x, sliderLabel_y)
-        self.sendPWMButton.move(start_x + self.pwmLabel.width() + widgetSpacing, sliderLabel_y)
-        pwmSlider_y = sliderLabel_y + 2 * self.getLabelHeight(self.pwmLabel) + widgetSpacing
-        self.pwmQLineEdit.move(start_x, pwmSlider_y)
-        qEditWidth = 100
-        self.pwmQLineEdit.setFixedWidth(qEditWidth)
-        pwmSlider_x = start_x + widgetSpacing + qEditWidth
-        self.pwmSlider.move(pwmSlider_x, pwmSlider_y)
+        #PWM for motors
+        pwmTitle_y = intelligenceCombo_y + self.getLabelHeight(self.intelligenceStateComboBoxLabel) + sectionSpacing
+        self.pwmLabel.move(start_x, pwmTitle_y)
+        pwmLabel1_y = pwmTitle_y + widgetSpacing + self.pwmLabel.height()
+        self.motor1_pwmQLineEdit.move(start_x, pwmLabel1_y)
+        self.sendMotor1_PWMButton.move(start_x + widgetSpacing + self.motor1_pwmQLineEdit.width(), pwmLabel1_y)
+        pwmLabel2_y = pwmLabel1_y + self.sendMotor1_PWMButton.height() + sectionSpacing
+        self.motor2_pwmQLineEdit.move(start_x, pwmLabel2_y)
+        self.sendMotor2_PWMButton.move(start_x + widgetSpacing + self.motor2_pwmQLineEdit.width(), pwmLabel2_y)
+        pwmLabel3_y = pwmLabel2_y + self.sendMotor2_PWMButton.height() + sectionSpacing
+        self.weapon_pwmQLineEdit.move(start_x, pwmLabel3_y)
+        self.sendWeaponPWMButton.move(start_x + widgetSpacing + self.weapon_pwmQLineEdit.width(), pwmLabel3_y)
         #Movement
-        movementLabel_y = pwmSlider_y + self.getLabelHeight(self.sendPWMButton) + sectionSpacing
+        movementLabel_y = pwmLabel3_y + self.getLabelHeight(self.sendMotor1_PWMButton) + 2*sectionSpacing
         self.movementLabel.move(start_x, movementLabel_y)
         self.movementTypeButton.move(start_x + self.getLabelWidth(self.movementLabel) + widgetSpacing, movementLabel_y)
         chooseMovement_y = movementLabel_y + 2 * self.getLabelHeight(self.movementTypeButton) + widgetSpacing
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
 
         max_y = sensor_y + 2 * self.getLabelHeight(self.aPosLabel) + widgetSpacing
         max_x = armAll_x + self.arm_radio_button.width() + widgetSpacing
-        self.setGeometry(start_x, start_y, 1000, 1000)
+        self.setGeometry(start_x, start_y, 1000, max_y)
 
     def makeRadioButtons(self):
         self.disarm_radio_button = QRadioButton( ARM.DISARM_ALL.value, self.mainWidget)
@@ -116,9 +116,21 @@ class MainWindow(QMainWindow):
         self.ESTOPButton.clicked.connect(self.ESTOP)
 
         #make send PWM button
-        self.sendPWMButton = QPushButton(self.mainWidget)
-        self.sendPWMButton.setText("Send PWM")
-        self.sendPWMButton.clicked.connect(self.sendPWM)
+        self.sendMotor1_PWMButton = QPushButton(self.mainWidget)
+        self.sendMotor1_PWMButton.setText("Send Motor 1 PWM")
+        self.sendMotor1_PWMButton.clicked.connect(lambda: self.sendPWM(self.motor1_pwmQLineEdit, SetJSONVars.MOTOR1_PWM))
+
+        # make send PWM button
+        self.sendMotor2_PWMButton = QPushButton(self.mainWidget)
+        self.sendMotor2_PWMButton.setText("Send Motor 2 PWM")
+        self.sendMotor2_PWMButton.clicked.connect(lambda: self.sendPWM(self.motor2_pwmQLineEdit, SetJSONVars.MOTOR2_PWM))
+
+        # make send PWM button
+        self.sendWeaponPWMButton = QPushButton(self.mainWidget)
+        self.sendWeaponPWMButton.setText("Send Weapon PWM")
+        self.sendWeaponPWMButton.clicked.connect(lambda: self.sendPWM(self.weapon_pwmQLineEdit, SetJSONVars.WEAPON_PWM))
+
+
 
 
     def makeComboBoxes(self):
@@ -147,27 +159,6 @@ class MainWindow(QMainWindow):
         self.movementTypeButton.setText("Send Movement Info")
         self.movementTypeButton.clicked.connect(self.sendMovement)
 
-    
-    def makeSliders(self):
-        """makes a PWM slider
-        """        
-        #create pwm slider label (just shows the word PWM over the slider) 
-        self.pwmLabel = QLabel(self.mainWidget)
-        self.pwmLabel.setText("PWM")
-
-        #create pwm qedit (corresponds to value of slider)
-        self.pwmQLineEdit = QLineEdit("1660", self.mainWidget)
-        self.pwmQLineEdit.setValidator(QIntValidator())
-        self.pwmQLineEdit.setMaxLength(4)
-        self.pwmQLineEdit.textEdited.connect(self.PWMValueChanged)
-
-        #create pwm slider (corresponds to value of QLineEdit)
-        self.pwmSlider = QSlider(Qt.Horizontal, self.mainWidget)
-        self.pwmSlider.setRange(1000, 2000)
-        self.pwmSlider.setSingleStep(1)
-        self.pwmSlider.valueChanged.connect(self.PWMValueChanged)
-        self.pwmSlider.setFixedWidth(500)
-
 
     def makeLabels(self):
         """makes labels for data read
@@ -178,7 +169,46 @@ class MainWindow(QMainWindow):
         self.aPosLabel.setText("Angular Position: ")
         self.aPosDataLabel.setText(str(self.getAPos()))
 
-    
+        self.pwmLabel = QLabel(self.mainWidget)
+        self.pwmLabel.setText("Individually set PWMs")
+        qEditWidth = 100
+        #create pwm qedit (corresponds to value of slider)
+        self.motorValidator = QIntValidator(int(PWMVals.FULL_CCW.value), int(PWMVals.FULL_CW.value))
+        self.motor1_pwmQLineEdit = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
+        self.motor1_pwmQLineEdit.setValidator(self.motorValidator)
+        self.motor1_pwmQLineEdit.setMaxLength(4)
+        self.motor1_pwmQLineEdit.setFixedWidth(qEditWidth)
+     #   self.motor1_pwmQLineEdit.textEdited.connect(lambda: self.PWMValueChanged(self.motor1_pwmQLineEdit))
+
+        self.motor2_pwmQLineEdit = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
+        self.motor2_pwmQLineEdit.setValidator(self.motorValidator)
+        self.motor2_pwmQLineEdit.setMaxLength(4)
+        self.motor2_pwmQLineEdit.setFixedWidth(qEditWidth)
+      #  self.motor2_pwmQLineEdit.textEdited.connect(lambda: self.PWMValueChanged(self.motor2_pwmQLineEdit))
+
+        self.weapon_pwmQLineEdit = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
+        self.weapon_pwmQLineEdit.setValidator(self.motorValidator)
+        self.weapon_pwmQLineEdit.setMaxLength(4)
+        self.weapon_pwmQLineEdit.setFixedWidth(qEditWidth)
+       # self.weapon_pwmQLineEdit.textEdited.connect(lambda: self.PWMValueChanged(self.weapon_pwmQLineEdit))
+
+    #
+    # def PWMValueChanged(self, qLineEdit):
+    #     """a callback for when pwm value is changed
+    #     ensures the slider and qlineEdit agree
+    #     ensures value is in range [0,100]
+    #     Args:
+    #         value (int): the new Pwm value
+    #     """
+    #     value = qLineEdit.text()
+    #     if not value:
+    #         return
+    #     elif int(value) > PWMVals.FULL_CW:
+    #         value = PWMVals.FULL_CW
+    #     elif int(value) < PWMVals.FULL_CCW:
+    #         value = PWMVals.FULL_CCW
+    #     qLineEdit.setText(str(value))
+
     def getLabelHeight(self, label):
         """returns the height of a label
 
@@ -201,26 +231,16 @@ class MainWindow(QMainWindow):
             int: the width of the label
         """    
         return label.fontMetrics().boundingRect(label.text()).width()
-    
-    def PWMValueChanged(self, value):
-        """a callback for when pwm value is changed
-        ensures the slider and qlineEdit agree
-        ensures value is in range [0,100]
 
-        Args:
-            value (int): the new Pwm value
-        """
-        if not value:
-            return
-        elif int(value) > 2000:
-            value = 2000
-        self.pwmSlider.setValue(int(value))
-        self.pwmQLineEdit.setText(str(value))
-
-    def sendPWM(self):
+    def sendPWM(self, qLineEdit, motor):
         """alerts observers of change in pwm
         """
-        self.notifyObservers(BehavioralStates.PWM, self.pwmQLineEdit.text())
+        val = int(qLineEdit.text())
+        #TODO maybe implement stuff with self.motorValidator, I couldn't gget it working
+        if val < int(PWMVals.FULL_CCW.value) or val > int(PWMVals.FULL_CW.value):
+            print("Not sending. Value not in range. Range is " + PWMVals.FULL_CCW.value + " to " + PWMVals.FULL_CW.value)
+            return
+        self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
 
     def getAPos(self):
         """gets the angular position of the robot

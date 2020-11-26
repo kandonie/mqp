@@ -6,6 +6,5 @@ class PWMVals(Enum):
     FULL_CCW = "1000"
     STOPPED = "1500"
 
-
     # values from 1000 - 2000
     # with 1660 being stopped

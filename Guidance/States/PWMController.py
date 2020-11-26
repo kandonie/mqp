@@ -1,4 +1,6 @@
 from Guidance.GuidanceEnums import BehavioralStates, RobotDataTopics
+from Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from Robot_Locomotion.MotorEnums import PWMVals
 
 class PWMController():
 
@@ -11,15 +13,16 @@ class PWMController():
         """
         self.drive = drive
         self.hasSent = False
-        self.pwm = "0"
+        self.motorVals = {SetJSONVars.MOTOR1_PWM:PWMVals.STOPPED,  SetJSONVars.MOTOR2_PWM:PWMVals.STOPPED, SetJSONVars.WEAPON_PWM:PWMVals.STOPPED, }
 
     def execute(self, robotData):
-        pwm = robotData[RobotDataTopics.BEHAVIOR_SPECIFIC_DATA][1]
-        if not self.hasSent or not self.pwm is pwm:
-            self.pwm = pwm
-            self.drive.drive(pwm)
+        args = robotData[RobotDataTopics.BEHAVIOR_SPECIFIC_DATA][1]
+        motor = args[0]
+        pwm = args[1]
+        if not self.hasSent or not self.motorVals[motor] == pwm:
+            self.motorVals[motor] = pwm
+            self.drive.setPWM(motor.value, pwm)
             self.hasSent = True
-
 
     def getType(self):
         return BehavioralStates.PWM

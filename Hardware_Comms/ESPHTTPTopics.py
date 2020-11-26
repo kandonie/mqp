@@ -8,7 +8,7 @@ class SetJSONVars(Enum):
     """The json variables that can be set through wifi"""
     MOTOR1_PWM = 'motor1pwm'
     MOTOR2_PWM = 'motor2pwm'
-    WEAPON_PWM = 'weaponMode'
+    WEAPON_PWM = 'weapon_pwm'
     CURRENT_HEADING = 'currentHeading'
     # These two should always be sent togther
     # robot turn heading first then moves set distance
