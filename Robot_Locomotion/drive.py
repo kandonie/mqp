@@ -56,6 +56,7 @@ class Drive:
         time.sleep(distance)
         self.stop()
 
+    #TODO make a motor class that has this,cuz this is also appicable for weapon
     def setPWM(self, motor, pwm):
         """sets the pwm of drive motors
 

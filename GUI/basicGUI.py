@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit, QRadioButton
 from PyQt5.QtGui import QIntValidator
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from Hardware_Comms.ESPHTTPTopics import ARM, SetJSONVars
+from Hardware_Comms.ESPHTTPTopics import SetJSONVars
 from Robot_Locomotion.MotorEnums import PWMVals
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
@@ -36,21 +36,21 @@ class MainWindow(QMainWindow):
         start_y = 50
         widgetSpacing = 20 #num pixels between widgets
         sectionSpacing = 60
-
+        #TODO make spacing good and consistent
         #Estop button
         estop_y = start_y
         self.ESTOPButton.move(start_x, estop_y)
         disarm_line1_y = estop_y + self.getLabelHeight(self.ESTOPButton) + sectionSpacing
         #Radio button
-        self.disarm_radio_button.move(start_x, disarm_line1_y)
-        armDrive_x = 2 * self.disarm_radio_button.width() + 2 * sectionSpacing + start_x
-        self.arm_drive_radio_button.move(armDrive_x, disarm_line1_y)
-        disarm_line2_y = disarm_line1_y + self.disarm_radio_button.height() + widgetSpacing
-        self.arm_weapon_radio_button.move(start_x, disarm_line2_y)
-        armAll_x = 2 * self.arm_weapon_radio_button.width() +  2 * sectionSpacing + start_x
-        self.arm_radio_button.move(armAll_x, disarm_line2_y)
+        self.disarm_weapon_radio_button.move(start_x, disarm_line1_y)
+        armDrive_x = 2 * self.disarm_weapon_radio_button.width() + 2 * sectionSpacing + start_x
+        self.arm_weapon_radio_button.move(armDrive_x, disarm_line1_y)
+        disarm_line2_y = disarm_line1_y + self.disarm_weapon_radio_button.height() + widgetSpacing
+        self.disarm_drive_radio_button.move(start_x, disarm_line2_y)
+        armAll_x = 2 * self.disarm_drive_radio_button.width() +  2 * sectionSpacing + start_x
+        self.arm_drive_radio_button.move(armAll_x, disarm_line2_y)
         #intelligence state combo box
-        intelligenceCombo_y = disarm_line2_y + self.arm_weapon_radio_button.height() + sectionSpacing
+        intelligenceCombo_y = disarm_line2_y + self.disarm_drive_radio_button.height() + sectionSpacing
         self.intelligenceStateComboBoxLabel.move(start_x, intelligenceCombo_y)
         intelligenceComboLabelWidth = self.getLabelWidth(self.intelligenceStateComboBoxLabel)
         self.intelligenceStateComboBox.move(start_x + intelligenceComboLabelWidth + widgetSpacing, intelligenceCombo_y)
@@ -77,25 +77,40 @@ class MainWindow(QMainWindow):
         self.aPosLabel.move(start_x, sensor_y)
         self.aPosDataLabel.move(start_x + self.getLabelWidth(self.aPosLabel) + widgetSpacing, sensor_y)
 
+        #TODO actually use these
         max_y = sensor_y + 2 * self.getLabelHeight(self.aPosLabel) + widgetSpacing
-        max_x = armAll_x + self.arm_radio_button.width() + widgetSpacing
+        max_x = armAll_x + self.arm_drive_radio_button.width() + widgetSpacing
         self.setGeometry(start_x, start_y, 1000, max_y)
 
     def makeRadioButtons(self):
-        self.disarm_radio_button = QRadioButton( ARM.DISARM_ALL.value, self.mainWidget)
-        self.disarm_radio_button.toggled.connect(lambda:self.changeInArm(self.disarm_radio_button))
-        self.arm_drive_radio_button = QRadioButton(ARM.ARM_DRIVE.value, self.mainWidget)
-        self.arm_drive_radio_button.toggled.connect(lambda:self.changeInArm(self.arm_drive_radio_button))
-        self.arm_weapon_radio_button = QRadioButton(ARM.ARM_WEAPON.value, self.mainWidget)
-        self.arm_weapon_radio_button.toggled.connect(lambda: self.changeInArm(self.arm_weapon_radio_button))
-        self.arm_radio_button = QRadioButton(ARM.ARM_ALL.value,self.mainWidget)
-        self.arm_radio_button.toggled.connect(lambda: self.changeInArm(self.arm_radio_button))
+        self.weapon_armed_widget = QWidget(self.mainWidget)
+        self.drive_armed_widget = QWidget(self.mainWidget)
+        self.disarm_weapon_radio_button = QRadioButton("DISARM WEAPON", self.weapon_armed_widget)
+        self.disarm_weapon_radio_button.toggled.connect(lambda:self.changeInWeaponArm(self.disarm_weapon_radio_button))
+        self.arm_weapon_radio_button = QRadioButton("ARM WEAPON", self.weapon_armed_widget)
+        self.arm_weapon_radio_button.toggled.connect(lambda:self.changeInWeaponArm(self.arm_weapon_radio_button))
+        self.disarm_drive_radio_button = QRadioButton("DISARM DRIVE", self.drive_armed_widget)
+        self.disarm_drive_radio_button.toggled.connect(lambda: self.changeInDriveArm(self.disarm_drive_radio_button))
+        self.arm_drive_radio_button = QRadioButton("ARM DRIVE", self.drive_armed_widget)
+        self.arm_drive_radio_button.toggled.connect(lambda: self.changeInDriveArm(self.arm_drive_radio_button))
         #start in the disarm state
-        self.disarm_radio_button.setChecked(True)
+        self.disarm_weapon_radio_button.setChecked(True)
+        self.disarm_drive_radio_button.setChecked(True)
 
-    def changeInArm(self, arm_button):
+
+    def changeInDriveArm(self, arm_button):
         if arm_button.isChecked():
-            self.notifyObservers(SetJSONVars.ARM_DISARM_SYSTEMS, arm_button.text())
+            if arm_button == self.arm_drive_radio_button:
+                self.notifyObservers(SetJSONVars.ARM_DRIVE, "true")
+            else:
+                self.notifyObservers(SetJSONVars.ARM_DRIVE, "false")
+
+    def changeInWeaponArm(self, arm_button):
+        if arm_button.isChecked():
+            if arm_button == self.arm_weapon_radio_button:
+                self.notifyObservers(SetJSONVars.ARM_WEAPON, "true")
+            else:
+                self.notifyObservers(SetJSONVars.ARM_WEAPON, "false")
 
 
     def attachObserver(self, observer):

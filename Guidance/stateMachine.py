@@ -4,7 +4,7 @@ from Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates, RobotDa
 from Guidance.States.IdleState import IdleState
 from Guidance.States.MovementTests import PolygonalMovement
 from Guidance.States.PWMController import PWMController
-from Hardware_Comms.ESPHTTPTopics import ARM, SetJSONVars
+from Hardware_Comms.ESPHTTPTopics import SetJSONVars
 import threading
 
 
@@ -21,14 +21,14 @@ class StateMachine():
         self.wifi = wifi
         #set initial arm state to disarm
         #TODO maybe put this somewhere else
-        self.wifi.sendInfo(SetJSONVars.ARM_DISARM_SYSTEMS, ARM.DISARM_ALL)
+        self.wifi.sendInfo(SetJSONVars.ARM_WEAPON, "false")
+        self.wifi.sendInfo(SetJSONVars.ARM_DRIVE, "false")
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
         self.state = IdleState(self.drive, self.weapon)
         self.intelligenceState = IntelligenceStates.IDLE
         self.robotData = {}
         self.robotDataLock = threading.Lock()
-        self.requestStateChange = False
         for topic in RobotDataTopics:
             self.robotData[topic] = None
 
@@ -62,14 +62,15 @@ class StateMachine():
             ##TODO keyboard up down left and right correspond to movement
             print("psst .... change to auto to send robot messages")
         elif self.intelligenceState == IntelligenceStates.AUTO:
-            if self.requestStateChange:
-                #switch to requested state
-                if args is not None:
-                    self.robotDataLock.acquire()
-                    self.robotData[RobotDataTopics.BEHAVIOR_SPECIFIC_DATA] = args
-                    self.switchState(self.robotData[RobotDataTopics.BEHAVIOR_SPECIFIC_DATA][0])
-                    self.robotDataLock.release()
-                    self.requestStateChange = False
+            #switch to requested state
+            if args is not None:
+                #TODO might want if args[0] in BehavioralStates if you have other things that change args in notify
+                self.robotDataLock.acquire()
+                #the folllowing line is here so don't change if in IDLE or RC
+                self.robotData[RobotDataTopics.BEHAVIORAL_STATE] = args[0]
+                self.robotData[RobotDataTopics.BEHAVIORAL_ARGS] = args[1]
+                self.switchState(self.robotData[RobotDataTopics.BEHAVIORAL_STATE])
+                self.robotDataLock.release()
 
 
     def switchState(self, nextState):
@@ -89,10 +90,12 @@ class StateMachine():
         if topic in IntelligenceStates:
             self.intelligenceState = topic
         elif topic in BehavioralStates:
-            data = self.robotData[RobotDataTopics.BEHAVIOR_SPECIFIC_DATA]
-            if data is None or topic != data[0] or value != data[1]:
-                self.requestStateChange = True
+            curr_state = self.robotData[RobotDataTopics.BEHAVIORAL_STATE]
+            curr_state_args = self.robotData[RobotDataTopics.BEHAVIORAL_ARGS]
+            #data is a tuple of (topic, value), ex: (BehavioralStates.PWM, (motor1, 1500))
+            if curr_state is None or curr_state_args is None or topic != curr_state or value != curr_state_args:
                 args = (topic, value)
         elif topic == SetJSONVars.ARM_DISARM_SYSTEMS:
+            #TODO right now we bypass the state machine but maybe we don't want to?
             self.wifi.sendInfo(topic.value, value)
         self.determineNextState(args)
