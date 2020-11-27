@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QSlider, QLineEdit, QRadioButton
+from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QButtonGroup, QLineEdit, QRadioButton
 from PyQt5.QtGui import QIntValidator
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars
@@ -83,16 +83,21 @@ class MainWindow(QMainWindow):
         self.setGeometry(start_x, start_y, 1000, max_y)
 
     def makeRadioButtons(self):
-        self.weapon_armed_widget = QWidget(self.mainWidget)
-        self.drive_armed_widget = QWidget(self.mainWidget)
-        self.disarm_weapon_radio_button = QRadioButton("DISARM WEAPON", self.weapon_armed_widget)
+        self.disarm_weapon_radio_button = QRadioButton("DISARM_WEAPON", self.mainWidget)
         self.disarm_weapon_radio_button.toggled.connect(lambda:self.changeInWeaponArm(self.disarm_weapon_radio_button))
-        self.arm_weapon_radio_button = QRadioButton("ARM WEAPON", self.weapon_armed_widget)
+        self.arm_weapon_radio_button = QRadioButton("ARM_WEAPON", self.mainWidget)
         self.arm_weapon_radio_button.toggled.connect(lambda:self.changeInWeaponArm(self.arm_weapon_radio_button))
-        self.disarm_drive_radio_button = QRadioButton("DISARM DRIVE", self.drive_armed_widget)
+        self.disarm_drive_radio_button = QRadioButton("DISARM DRIVE", self.mainWidget)
         self.disarm_drive_radio_button.toggled.connect(lambda: self.changeInDriveArm(self.disarm_drive_radio_button))
-        self.arm_drive_radio_button = QRadioButton("ARM DRIVE", self.drive_armed_widget)
+        self.arm_drive_radio_button = QRadioButton("ARM DRIVE", self.mainWidget)
         self.arm_drive_radio_button.toggled.connect(lambda: self.changeInDriveArm(self.arm_drive_radio_button))
+        #Group
+        self.weapon_armed_group = QButtonGroup()
+        self.drive_armed_group = QButtonGroup()
+        self.weapon_armed_group.addButton(self.disarm_weapon_radio_button)
+        self.weapon_armed_group.addButton(self.arm_weapon_radio_button)
+        self.drive_armed_group.addButton(self.disarm_drive_radio_button)
+        self.drive_armed_group.addButton(self.arm_drive_radio_button)
         #start in the disarm state
         self.disarm_weapon_radio_button.setChecked(True)
         self.disarm_drive_radio_button.setChecked(True)
@@ -205,24 +210,6 @@ class MainWindow(QMainWindow):
         self.weapon_pwmQLineEdit.setValidator(self.motorValidator)
         self.weapon_pwmQLineEdit.setMaxLength(4)
         self.weapon_pwmQLineEdit.setFixedWidth(qEditWidth)
-       # self.weapon_pwmQLineEdit.textEdited.connect(lambda: self.PWMValueChanged(self.weapon_pwmQLineEdit))
-
-    #
-    # def PWMValueChanged(self, qLineEdit):
-    #     """a callback for when pwm value is changed
-    #     ensures the slider and qlineEdit agree
-    #     ensures value is in range [0,100]
-    #     Args:
-    #         value (int): the new Pwm value
-    #     """
-    #     value = qLineEdit.text()
-    #     if not value:
-    #         return
-    #     elif int(value) > PWMVals.FULL_CW:
-    #         value = PWMVals.FULL_CW
-    #     elif int(value) < PWMVals.FULL_CCW:
-    #         value = PWMVals.FULL_CCW
-    #     qLineEdit.setText(str(value))
 
     def getLabelHeight(self, label):
         """returns the height of a label

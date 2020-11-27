@@ -95,7 +95,7 @@ class StateMachine():
             #data is a tuple of (topic, value), ex: (BehavioralStates.PWM, (motor1, 1500))
             if curr_state is None or curr_state_args is None or topic != curr_state or value != curr_state_args:
                 args = (topic, value)
-        elif topic == SetJSONVars.ARM_DISARM_SYSTEMS:
+        elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:
             #TODO right now we bypass the state machine but maybe we don't want to?
             self.wifi.sendInfo(topic.value, value)
         self.determineNextState(args)
