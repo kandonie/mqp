@@ -1,7 +1,8 @@
 from enum import Enum
 
 class RobotDataTopics(Enum):
-    BEHAVIOR_SPECIFIC_DATA = "behavior specific data"
+    BEHAVIORAL_ARGS = "behavior specific data"
+    BEHAVIORAL_STATE = "current behavior"
 
 class IntelligenceStates(Enum):
     """The states of autonomy of the robot

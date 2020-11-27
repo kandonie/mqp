@@ -1,5 +1,5 @@
 from Guidance.GuidanceEnums import BehavioralStates, RobotDataTopics
-import time
+
 class PolygonalMovement():
     def __init__(self, drive):
         """
@@ -11,7 +11,7 @@ class PolygonalMovement():
         self.resetVars()
 
     def execute(self, robotData):
-        numSides = robotData[RobotDataTopics.BEHAVIOR_SPECIFIC_DATA][1]
+        numSides = robotData[RobotDataTopics.BEHAVIORAL_ARGS]
         if numSides != self.goalSides:
             self.resetVars()
             self.goalSides = numSides

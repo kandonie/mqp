@@ -9,15 +9,15 @@ class WiFiComms:
         """initializes wifi connection and IP
         """        
         # esp32 IP
-        self.IP = "http://192.168.4.1"
+        self.IP = "http://192.168.49.241"
         #initialzies get vars
         self.getJson = {}
         for var in GetJSONVars:
-            self.getJson[var.name] = ''
+            self.getJson[var.value] = '0'
         #initialize set vars
         self.setJson = {}
         for var in SetJSONVars:
-            self.setJson[var.name] = ''
+            self.setJson[var.value] = '0'
         #determine is ESP is connected
         #if not done here, all http requests take forever and it slows down program
         try:
