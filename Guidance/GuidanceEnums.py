@@ -15,6 +15,7 @@ class BehavioralStates(Enum):
     """the autonomous states of the robot
     # """
     ESTOP = "ESTOP"
+    RC = "Keyboard controlled"
     MOVEMENT_TEST = "Movement tests"
     PWM = "PWM controller"
     # MATCH_START = "match start"

@@ -4,6 +4,7 @@ from Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates, RobotDa
 from Guidance.States.IdleState import IdleState
 from Guidance.States.MovementTests import PolygonalMovement
 from Guidance.States.PWMController import PWMController
+from Guidance.States.RemoteControl import RemoteControl
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars
 import threading
 
@@ -49,6 +50,8 @@ class StateMachine():
             state = PolygonalMovement(self.drive)
         elif state == BehavioralStates.PWM:
             state = PWMController(self.drive)
+        elif state == BehavioralStates.RC:
+            state = RemoteControl(self.drive, self.weapon)
         return state
 
     def determineNextState(self, args):
@@ -60,6 +63,7 @@ class StateMachine():
         elif self.intelligenceState == IntelligenceStates.RC:
             ##TODO teleop STUff
             ##TODO keyboard up down left and right correspond to movement
+            self.switchState(BehavioralStates.RC)
             print("psst .... change to auto to send robot messages")
         elif self.intelligenceState == IntelligenceStates.AUTO:
             #switch to requested state
