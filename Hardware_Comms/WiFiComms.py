@@ -1,5 +1,6 @@
 import requests
 from Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
+from Hardware_Comms.connectionData import ConnectionDataHandler
 
 
 class WiFiComms:
@@ -27,6 +28,8 @@ class WiFiComms:
         except:
             print("failed")
             self.isConnected = False
+
+        self.connectionHandler = ConnectionDataHandler()
 
     def getInfo(self, param):
         """does a get request for get json vars
@@ -63,7 +66,8 @@ class WiFiComms:
             self.setJson[topic] = value
             response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             print(response)
-            print("rtt: " + str(response.elapsed.total_seconds()))
+            self.connectionHandler.execute(response.elapsed.total_seconds())
         except:
             print("No connection could be established with ESP")
+            self.connectionHandler.loss()
             return "ESP Comms Err"
