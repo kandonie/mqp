@@ -1,0 +1,10 @@
+Each new state must have an __init__ and execute(self, robotData) function
+look at doc comments on IDLE state for more info
+MAKE EXECUTE LOOP AS SHORT AS POSSIBLE, IT CAN'T BE ITERRUPTED
+After adding the new state, add it to one of the BehavioralStates in GuidanceEnums.py
+Then in stateMachine.py, add a statement to makeState to create the new state for the given Enum
+
+This would normally be done through overriding methods but python doesn't care about
+Types so we have to write this in this file
+
+
