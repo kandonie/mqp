@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QButtonGroup, QLineEdit, QRadioButton
 from GUI.WindowEnums import WindowEnums
+from PyQt5.Qt import Qt
+from Guidance.GuidanceEnums import BehavioralStates
 
 class RCGUI(QMainWindow):
 
@@ -36,6 +38,10 @@ class RCGUI(QMainWindow):
         # self.ESTOPButton.move(start_x, estop_y)
 
         self.setGeometry(start_x, start_y, 1000, 1000)
+
+
+    def keyPressEvent(self, event):
+        self.notifyObservers(BehavioralStates.RC, event.key())
 
 
     def closeEvent(self, event):

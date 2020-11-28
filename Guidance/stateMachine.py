@@ -28,6 +28,7 @@ class StateMachine():
         self.weapon = Weapon(wifi)
         self.state = IdleState(self.drive, self.weapon)
         self.intelligenceState = IntelligenceStates.IDLE
+        # robotData is a dict with Behavioral_Args and Behavioral_State
         self.robotData = {}
         self.robotDataLock = threading.Lock()
         for topic in RobotDataTopics:
@@ -58,19 +59,24 @@ class StateMachine():
         """determines the next state of the robot 
         """
         if self.intelligenceState == IntelligenceStates.IDLE:
+            self.robotDataLock.acquire()
             self.switchState(BehavioralStates.ESTOP)
+            self.robotDataLock.release()
             print("psst  .... we are in IDLE. Change to auto to send robot messages")
         elif self.intelligenceState == IntelligenceStates.RC:
             ##TODO teleop STUff
             ##TODO keyboard up down left and right correspond to movement
-            self.robotDataLock.acquire()
-            self.switchState(BehavioralStates.RC)
-            self.robotDataLock.release()
-            print("psst .... we are in RC now!")
-            print("Space bar for ESTOP")
-            print("Up arrow key for drive forward\nDown arrow key for drive backward")
-            print("Right arrow key for rotate CW\nLeft arrow key for rotate CCW")
-            print("'w' key for toggle weapon on/off\n'/' key for stop drive motors")
+            if args is not None:
+                print("psst .... we are in RC now!")
+                print("Space bar for ESTOP")
+                print("Up arrow key for drive forward\nDown arrow key for drive backward")
+                print("Right arrow key for rotate CW\nLeft arrow key for rotate CCW")
+                print("'w' key for toggle weapon on/off\n'/' key for stop drive motors")
+                self.robotDataLock.acquire()
+                self.robotData[RobotDataTopics.BEHAVIORAL_STATE] = args[0]
+                self.robotData[RobotDataTopics.BEHAVIORAL_ARGS] = args[1]
+                self.switchState(BehavioralStates.RC)
+                self.robotDataLock.release()
         elif self.intelligenceState == IntelligenceStates.AUTO:
             #switch to requested state
             if args is not None:
@@ -85,6 +91,9 @@ class StateMachine():
 
     def switchState(self, nextState):
         if self.state.getType() != nextState:
+            if self.state is not None:
+                print("deleted " + str(self.state.getType()))
+                del self.state
             self.state = self.makeState(nextState)
 
     #this function gets called when there is new info
@@ -99,11 +108,14 @@ class StateMachine():
         args = None
         if topic in IntelligenceStates:
             self.intelligenceState = topic
+            if self.intelligenceState == IntelligenceStates.AUTO:
+                self.robotDataLock.acquire()
+                self.switchState(BehavioralStates.ESTOP)
+                self.robotDataLock.release()
         elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:
             # TODO right now we bypass the state machine but maybe we don't want to?
             self.wifi.sendInfo(topic.value, value)
         elif topic in BehavioralStates:
-            print("in auto")
             curr_state = self.robotData[RobotDataTopics.BEHAVIORAL_STATE]
             curr_state_args = self.robotData[RobotDataTopics.BEHAVIORAL_ARGS]
             #data is a tuple of (topic, value), ex: (BehavioralStates.PWM, (motor1, 1500))

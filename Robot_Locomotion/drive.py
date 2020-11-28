@@ -27,13 +27,12 @@ class Drive:
             speed (string): the speed to drive at
         """
         print("driving with PWM: " + str(speed))
-        if int(speed) < int(PWMVals.STOPPED.value):
-            #TODO one of these might need reversing
-            self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
-            self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
-        else:
-            self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
-            self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
+        if int(speed) > int(PWMVals.FULL_CW.value):
+            speed = PWMVals.FULL_CW.value
+        elif int(speed) < int(PWMVals.FULL_CCW.value):
+            speed = PWMVals.FULL_CCW.value
+        self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
+        self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
 
 
     #TODO make this method actually turn angle
@@ -64,11 +63,14 @@ class Drive:
             speed = PWMVals.FULL_CCW.value
         print("Turning with PWM: " + str(speed))
         if int(speed) > int(PWMVals.STOPPED.value):
-            #TODO one of these might need reversing
+            invertedSpeed = int(speed) - int(PWMVals.STOPPED.value)
+            invertedSpeed = str(int(PWMVals.STOPPED.value) - invertedSpeed)
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
-            self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
+            self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
         else:
-            self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
+            invertedSpeed = int(PWMVals.STOPPED.value) - int(speed)
+            invertedSpeed = str(invertedSpeed + int(PWMVals.STOPPED.value))
+            self.setPWM(SetJSONVars.MOTOR1_PWM.value, invertedSpeed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
 
 
