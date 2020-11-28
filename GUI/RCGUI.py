@@ -44,6 +44,11 @@ class RCGUI(QMainWindow):
         self.notifyObservers(BehavioralStates.RC, event.key())
 
 
+    def keyReleaseEvent(self, event):
+        if event.key() == Qt.Key_Up or event.key() == Qt.Key_Down or event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
+            self.notifyObservers(BehavioralStates.RC, Qt.Key_Slash)
+
+
     def closeEvent(self, event):
         event.accept() # let the window close
         self.returnHome()
