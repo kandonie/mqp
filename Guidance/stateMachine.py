@@ -22,8 +22,8 @@ class StateMachine():
         self.wifi = wifi
         #set initial arm state to disarm
         #TODO maybe put this somewhere else
-        self.wifi.sendInfo(SetJSONVars.ARM_WEAPON, "false")
-        self.wifi.sendInfo(SetJSONVars.ARM_DRIVE, "false")
+        self.wifi.sendInfo(SetJSONVars.ARM_WEAPON.value, "false")
+        self.wifi.sendInfo(SetJSONVars.ARM_DRIVE.value, "false")
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
         self.state = IdleState(self.drive, self.weapon)
@@ -93,13 +93,14 @@ class StateMachine():
         args = None
         if topic in IntelligenceStates:
             self.intelligenceState = topic
+
+        elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:
+            # TODO right now we bypass the state machine but maybe we don't want to?
+            self.wifi.sendInfo(topic.value, value)
         elif topic in BehavioralStates:
             curr_state = self.robotData[RobotDataTopics.BEHAVIORAL_STATE]
             curr_state_args = self.robotData[RobotDataTopics.BEHAVIORAL_ARGS]
             #data is a tuple of (topic, value), ex: (BehavioralStates.PWM, (motor1, 1500))
             if curr_state is None or curr_state_args is None or topic != curr_state or value != curr_state_args:
                 args = (topic, value)
-        elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:
-            #TODO right now we bypass the state machine but maybe we don't want to?
-            self.wifi.sendInfo(topic.value, value)
         self.determineNextState(args)
