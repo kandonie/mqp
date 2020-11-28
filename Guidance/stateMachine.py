@@ -67,11 +67,6 @@ class StateMachine():
             ##TODO teleop STUff
             ##TODO keyboard up down left and right correspond to movement
             if args is not None:
-                print("psst .... we are in RC now!")
-                print("Space bar for ESTOP")
-                print("Up arrow key for drive forward\nDown arrow key for drive backward")
-                print("Right arrow key for rotate CW\nLeft arrow key for rotate CCW")
-                print("'w' key for toggle weapon on/off\n'/' key for stop drive motors")
                 self.robotDataLock.acquire()
                 self.robotData[RobotDataTopics.BEHAVIORAL_STATE] = args[0]
                 self.robotData[RobotDataTopics.BEHAVIORAL_ARGS] = args[1]

@@ -45,7 +45,7 @@ class RCGUI(QMainWindow):
 
 
     def keyReleaseEvent(self, event):
-        if event.key() == Qt.Key_Up or event.key() == Qt.Key_Down or event.key() == Qt.Key_Left or event.key() == Qt.Key_Right:
+        if not event.isAutoRepeat() and ( event.key() == Qt.Key_Up or event.key() == Qt.Key_Down or event.key() == Qt.Key_Left or event.key() == Qt.Key_Right):
             self.notifyObservers(BehavioralStates.RC, Qt.Key_Slash)
 
 
