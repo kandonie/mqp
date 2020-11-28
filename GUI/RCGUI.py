@@ -1,8 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QButtonGroup, QLineEdit, QRadioButton
-from PyQt5.QtGui import QIntValidator
-from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars
-from Robot_Locomotion.MotorEnums import PWMVals
+from GUI.WindowEnums import WindowEnums
 
 class RCGUI(QMainWindow):
 
@@ -39,6 +36,19 @@ class RCGUI(QMainWindow):
         # self.ESTOPButton.move(start_x, estop_y)
 
         self.setGeometry(start_x, start_y, 1000, 1000)
+
+
+    def closeEvent(self, event):
+        event.accept() # let the window close
+        self.returnHome()
+
+
+    def returnHome(self):
+        """
+        open basicGUI window
+        """
+        self.notifyObservers(WindowEnums.MAIN, WindowEnums.MAIN.value)
+        pass
 
 
     def notifyObservers(self, topic, value, *args):
