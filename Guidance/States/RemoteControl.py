@@ -23,37 +23,37 @@ class RemoteControl:
 
 
     def execute(self, robotData):
-        #TODO do something with basicGUI to create a pop-up box to input weapon speeds
-
-        # based on keyboard inputs, send corresponding drive and weapon signals
-
-        key = getkey()
-        if key == keys.UP:
-            # move robot forward
-            # this might need reversing
-            self.drive.driveSpeed(PWMVals.FULL_CW.value)
-        elif key == keys.DOWN:
-            # move robot backward
-            # this might need reversing
-            self.drive.driveSpeed(PWMVals.FULL_CCW.value)
-        elif key == keys.LEFT:
-            # rotate robot CCW
-            # this might need reversing
-            self.drive.turnSpeed(PWMVals.FULL_CW.value)
-        elif key == keys.RIGHT:
-            # rotate robot CW
-            # this might need reversing
-            self.drive.turnSpeed(PWMVals.FULL_CCW.value)
-        elif key == keys.SLASH:
-            # stop drive
-            self.drive.stop()
-        elif key == 'w':
-            # toggle weapon on/off
-            self.weapon.toggle()
-        elif key == keys.SPACE:
-            # ESTOP
-            self.drive.stop()
-            self.weapon.stop()
+        self.drive.driveSpeed(PWMVals.FULL_CCW.value)
+        # #TODO do something with basicGUI to create a pop-up box to input weapon speed
+        # # based on keyboard inputs, send corresponding drive and weapon signals
+        #
+        # key = getkey()
+        # if key == keys.UP:
+        #     # move robot forward
+        #     # this might need reversing
+        #     self.drive.driveSpeed(PWMVals.FULL_CW.value)
+        # elif key == keys.DOWN:
+        #     # move robot backward
+        #     # this might need reversing
+        #     self.drive.driveSpeed(PWMVals.FULL_CCW.value)
+        # elif key == keys.LEFT:
+        #     # rotate robot CCW
+        #     # this might need reversing
+        #     self.drive.turnSpeed(PWMVals.FULL_CW.value)
+        # elif key == keys.RIGHT:
+        #     # rotate robot CW
+        #     # this might need reversing
+        #     self.drive.turnSpeed(PWMVals.FULL_CCW.value)
+        # elif key == keys.SLASH:
+        #     # stop drive
+        #     self.drive.stop()
+        # elif key == 'w':
+        #     # toggle weapon on/off
+        #     self.weapon.toggle()
+        # elif key == keys.SPACE:
+        #     # ESTOP
+        #     self.drive.stop()
+        #     self.weapon.stop()
 
 
     def getType(self):

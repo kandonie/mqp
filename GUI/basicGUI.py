@@ -268,8 +268,8 @@ class MainWindow(QMainWindow):
                 state = s
                 break
         self.notifyObservers(state, text)
-        if state == IntelligenceStates.RC:
-            self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
+        # if state == IntelligenceStates.RC:
+        #     self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
 
     def setStateToIdle(self):

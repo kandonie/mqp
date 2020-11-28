@@ -19,14 +19,14 @@ class GUIDataManager:
         self.main = MainWindow()
 
         #attach observers
-        observers.append(self)
+        #observers.append(self)
         for observer in observers:
             self.attachObserver(observer)
         self.observers = observers
 
         #execute main window app
         self.main.show()
-        self.rcgui = RCGUI(self.observers)
+        #self.rcgui = RCGUI(self.observers)
         sys.exit(app.exec_())
 
     def attachObserver(self, observer):
@@ -39,10 +39,11 @@ class GUIDataManager:
 
 
     def notify(self, topic, value):
-        if topic == WindowEnums.RC:
-            self.rcgui.show()
-            self.main.hide()
-        elif topic == WindowEnums.MAIN:
-            self.main.show()
-            self.main.setStateToIdle()
-            self.rcgui.hide()
+        # if topic == WindowEnums.RC:
+        #     self.rcgui.show()
+        #     self.main.hide()
+        # elif topic == WindowEnums.MAIN:
+        #     self.main.show()
+        #     #self.main.setStateToIdle()
+        #     self.rcgui.hide()
+        pass

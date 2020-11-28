@@ -39,7 +39,7 @@ class StateMachine():
         #TODO find better name
         while(1):
             #avoid reading from self.robotData while it is modified and state hasn't been update to match
-            self.robotDataLock.acquire(True)
+            self.robotDataLock.acquire()
             self.state.execute(self.robotData)
             self.robotDataLock.release()
 
@@ -63,7 +63,9 @@ class StateMachine():
         elif self.intelligenceState == IntelligenceStates.RC:
             ##TODO teleop STUff
             ##TODO keyboard up down left and right correspond to movement
+            self.robotDataLock.acquire()
             self.switchState(BehavioralStates.RC)
+            self.robotDataLock.release()
             print("psst .... we are in RC now!")
             print("Space bar for ESTOP")
             print("Up arrow key for drive forward\nDown arrow key for drive backward")
@@ -101,6 +103,7 @@ class StateMachine():
             # TODO right now we bypass the state machine but maybe we don't want to?
             self.wifi.sendInfo(topic.value, value)
         elif topic in BehavioralStates:
+            print("in auto")
             curr_state = self.robotData[RobotDataTopics.BEHAVIORAL_STATE]
             curr_state_args = self.robotData[RobotDataTopics.BEHAVIORAL_ARGS]
             #data is a tuple of (topic, value), ex: (BehavioralStates.PWM, (motor1, 1500))
