@@ -45,19 +45,19 @@ class RemoteControl:
         if key == Qt.Key_Up:
             # move robot forward
             # this might need reversing
-            self.drive.driveSpeed(PWMVals.FULL_CW.value)
+            self.drive.driveSpeed(PWMVals.FULL_CCW.value)
         elif key == Qt.Key_Down:
             # move robot backward
             # this might need reversing
-            self.drive.driveSpeed(PWMVals.FULL_CCW.value)
+            self.drive.driveSpeed(PWMVals.FULL_CW.value)
         elif key == Qt.Key_Left:
             # rotate robot CCW
             # this might need reversing
-            self.drive.turnSpeed(PWMVals.FULL_CW.value)
+            self.drive.turnSpeed(PWMVals.FULL_CCW.value)
         elif key == Qt.Key_Right:
             # rotate robot CW
             # this might need reversing
-            self.drive.turnSpeed(PWMVals.FULL_CCW.value)
+            self.drive.turnSpeed(PWMVals.FULL_CW.value)
         elif key == Qt.Key_Slash:
             # stop drive
             self.drive.stop()

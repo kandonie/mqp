@@ -70,8 +70,8 @@ class Drive:
         else:
             invertedSpeed = int(PWMVals.STOPPED.value) - int(speed)
             invertedSpeed = str(invertedSpeed + int(PWMVals.STOPPED.value))
-            self.setPWM(SetJSONVars.MOTOR1_PWM.value, invertedSpeed)
-            self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
+            self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
+            self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
 
 
 
