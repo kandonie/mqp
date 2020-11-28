@@ -20,7 +20,7 @@ class PolygonalMovement():
             return
 
         if self.isTurning:
-            self.drive.turn(self.angle)
+            self.drive.turnAngle(self.angle)
             self.isTurning = False
         else:
             self.drive.driveDistance(1)  # drive one meter

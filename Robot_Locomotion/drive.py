@@ -20,21 +20,24 @@ class Drive:
         self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.value, PWMVals.STOPPED.value)
         self.wifi.sendInfo(SetJSONVars.MOTOR2_PWM.value, PWMVals.STOPPED.value)
 
-    def drive(self, speed):
+    def driveSpeed(self, speed):
         """drives stright at speed
 
         Args:
             speed (string): the speed to drive at
         """
         print("driving with PWM: " + str(speed))
-        if int(speed) < 0:
+        if int(speed) < int(PWMVals.STOPPED.value):
+            #TODO one of these might need reversing
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
         else:
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
 
-    def turn(self, angle):
+
+    #TODO make this method actually turn angle
+    def turnAngle(self, angle):
         """turns the robot to angle
 
         Args:
@@ -49,12 +52,33 @@ class Drive:
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, PWMVals.FULL_CW.value)
 
 
+    def turnSpeed(self, speed):
+        """
+        turns the robot at a speed
+        Args:
+            speed (string): The speed in pwm at which to rotate
+        """
+        if int(speed) > int(PWMVals.FULL_CW.value):
+            speed = PWMVals.FULL_CW.value
+        elif int(speed) < int(PWMVals.FULL_CCW.value):
+            speed = PWMVals.FULL_CCW.value
+        print("Turning with PWM: " + str(speed))
+        if int(speed) > int(PWMVals.STOPPED.value):
+            #TODO one of these might need reversing
+            self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
+            self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
+        else:
+            self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
+            self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
+
+
 
     def driveDistance(self, distance):
         print("Driving " + str(distance) + " meters")
-        self.drive(1) #1m/s
+        self.driveSpeed(1) #1m/s
         time.sleep(distance)
         self.stop()
+
 
     #TODO make a motor class that has this,cuz this is also appicable for weapon
     def setPWM(self, motor, pwm):

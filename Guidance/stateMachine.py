@@ -59,12 +59,16 @@ class StateMachine():
         """
         if self.intelligenceState == IntelligenceStates.IDLE:
             self.switchState(BehavioralStates.ESTOP)
-            print("psst  .... change to auto to send robot messages")
+            print("psst  .... we are in IDLE. Change to auto to send robot messages")
         elif self.intelligenceState == IntelligenceStates.RC:
             ##TODO teleop STUff
             ##TODO keyboard up down left and right correspond to movement
             self.switchState(BehavioralStates.RC)
-            print("psst .... change to auto to send robot messages")
+            print("psst .... we are in RC now!")
+            print("Space bar for ESTOP")
+            print("Up arrow key for drive forward\nDown arrow key for drive backward")
+            print("Right arrow key for rotate CW\nLeft arrow key for rotate CCW")
+            print("'w' key for toggle weapon on/off\n'/' key for stop drive motors")
         elif self.intelligenceState == IntelligenceStates.AUTO:
             #switch to requested state
             if args is not None:
@@ -93,7 +97,6 @@ class StateMachine():
         args = None
         if topic in IntelligenceStates:
             self.intelligenceState = topic
-
         elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:
             # TODO right now we bypass the state machine but maybe we don't want to?
             self.wifi.sendInfo(topic.value, value)
