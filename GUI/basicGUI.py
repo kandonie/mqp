@@ -3,6 +3,8 @@ from PyQt5.QtGui import QIntValidator
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars
 from Robot_Locomotion.MotorEnums import PWMVals
+from GUI.RCGUI import RCGUI
+
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
         This is a basic GUI which has simple features.          
@@ -265,6 +267,10 @@ class MainWindow(QMainWindow):
                 state = s
                 break
         self.notifyObservers(state, text)
+        if state == IntelligenceStates.RC:
+            rcgui = RCGUI(self.observers)
+            rcgui.show()
+
 
     def sendMovement(self):
         """
