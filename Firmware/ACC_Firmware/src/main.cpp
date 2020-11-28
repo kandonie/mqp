@@ -53,7 +53,7 @@ void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  delay(1000);
+  delay(2000);
   Serial.println("I am Alive");
 
   // Setting the ESP as an access point
@@ -103,7 +103,7 @@ void setup()
     [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
     
 
-      char json[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";  
+      char json[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";  
       // TODO actual memory safety 
       int jsonIndex = 0;
       for (size_t i = 0; i < len; i++) {
@@ -133,8 +133,9 @@ void setup()
       }
 
       motor1PWM = doc["motor1pwm"];
-      Serial.print("JSON TEST Print  ");
-      Serial.println(motor1PWM);
+      motor2PWM = doc["motor2pwm"];
+      //Serial.print("JSON TEST Print  ");
+      //Serial.println(motor1PWM);
 
 
       Serial.println();
