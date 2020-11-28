@@ -11,19 +11,26 @@ class Weapon:
             wifi (WiFiComms): wifi comms
         """
         self.wifi = wifi
+        self.isOn = False
 
     def stop(self):
         """sets the weapon speed to 0
         """
         self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.STOPPED.value)
+        self.isOn = False
 
-    def toggle(self, isOn):
-        """turns the weapon on or off 
 
-        Args:
-            isOn (bool): if isOn, set the weapon on, else, turn weapon off
+    def toggle(self):
+        """turns the weapon on or off based on its current state
         """
-        if isOn:
-            self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.FULL_CCW.value)
+        if not self.isOn:
+            self.turnOn()
         else:
-            self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.STOPPED.value)
+            self.stop()
+
+
+    def turnOn(self):
+        """turns the weapon on
+        """
+        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.FULL_CCW.value)
+        self.isOn = True

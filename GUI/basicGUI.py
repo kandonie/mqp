@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QButtonGroup, QLineEdit, QRadioButton
 from PyQt5.QtGui import QIntValidator
+from PyQt5.QtCore import Qt
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars
 from Robot_Locomotion.MotorEnums import PWMVals
+from GUI.WindowEnums import WindowEnums
+
 class MainWindow(QMainWindow):
     """This class contains a main window for the application. 
         This is a basic GUI which has simple features.          
@@ -265,6 +268,16 @@ class MainWindow(QMainWindow):
                 state = s
                 break
         self.notifyObservers(state, text)
+        if state == IntelligenceStates.RC:
+            self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
+
+
+    def setStateToIdle(self):
+        self.intelligenceStateChanged(IntelligenceStates.IDLE.value)
+        index = self.intelligenceStateComboBox.findText(IntelligenceStates.IDLE.value, Qt.MatchFixedString)
+        if index >= 0:
+            self.intelligenceStateComboBox.setCurrentIndex(index)
+
 
     def sendMovement(self):
         """
