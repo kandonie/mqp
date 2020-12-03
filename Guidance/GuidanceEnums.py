@@ -1,8 +1,9 @@
 from enum import Enum
 
+#this might end up including GETJSONVARs and CV or something like that
+#TODO use or delete
 class RobotDataTopics(Enum):
-    BEHAVIORAL_ARGS = "behavior specific data"
-    BEHAVIORAL_STATE = "current behavior"
+    PLACEHOLDER = "Placeholder"
 
 class IntelligenceStates(Enum):
     """The states of autonomy of the robot
@@ -14,10 +15,10 @@ class IntelligenceStates(Enum):
 class BehavioralStates(Enum):
     """the autonomous states of the robot
     # """
-    ESTOP = "ESTOP"
-    RC = "Keyboard controlled"
-    MOVEMENT_TEST = "Movement tests"
-    PWM = "PWM controller"
+    ESTOP = "ESTOP State"
+    RC = "RC State"
+    MOVEMENT_TEST = "Polygonal Movement State"
+    PWM = "PWM Controlling State"
     # MATCH_START = "match start"
     # UPSIDE_DOWN_DISAGREEMENT = "upside down disagreement"
     # UPSIDE_DOWN = "upside down"

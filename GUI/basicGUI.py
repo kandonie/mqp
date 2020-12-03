@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 from Robot_Locomotion.MotorEnums import PWMVals
 from GUI.WindowEnums import WindowEnums
 
@@ -189,8 +189,9 @@ class MainWindow(QMainWindow):
         #angular position label
         self.aPosLabel = QLabel(self.mainWidget)
         self.aPosDataLabel = QLabel(self.mainWidget)
+        self.aPosDataLabel.setFixedWidth(100)
         self.aPosLabel.setText("Angular Position: ")
-        self.aPosDataLabel.setText(str(self.getAPos()))
+        self.aPosDataLabel.setText("   0")
 
         self.pwmLabel = QLabel(self.mainWidget)
         self.pwmLabel.setText("Individually set PWMs")
@@ -247,14 +248,6 @@ class MainWindow(QMainWindow):
             return
         self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
 
-    def getAPos(self):
-        """gets the angular position of the robot
-
-        Returns:
-            int: the angular position of the robot
-        """
-        #TODO
-        return 0
 
     def intelligenceStateChanged(self, text):
         """notfies observers of change in intelligence state
@@ -309,4 +302,6 @@ class MainWindow(QMainWindow):
             observer.notify(topic, value)
 
     def notify(self, topic, value):
-        pass
+        if topic in GetJSONVars:
+            if topic == GetJSONVars.HEADING:
+                self.aPosDataLabel.setText(value)

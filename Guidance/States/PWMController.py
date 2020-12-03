@@ -15,10 +15,9 @@ class PWMController():
         self.hasSent = False
         self.motorVals = {SetJSONVars.MOTOR1_PWM:PWMVals.STOPPED,  SetJSONVars.MOTOR2_PWM:PWMVals.STOPPED, SetJSONVars.WEAPON_PWM:PWMVals.STOPPED, }
 
-    def execute(self, robotData):
-        args = robotData[RobotDataTopics.BEHAVIORAL_ARGS]
-        motor = args[0]
-        pwm = args[1]
+    def execute(self, robotData, stateArgs):
+        motor = stateArgs[0]
+        pwm = stateArgs[1]
         if not self.hasSent or not self.motorVals[motor] == pwm:
             self.motorVals[motor] = pwm
             self.drive.setPWM(motor.value, pwm)
