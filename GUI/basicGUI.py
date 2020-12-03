@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         #TODO actually use these
         max_y = sensor_y + 2 * self.getLabelHeight(self.aPosLabel) + widgetSpacing
         max_x = armAll_x + self.arm_drive_radio_button.width() + widgetSpacing
-        self.setGeometry(start_x, start_y, 1000, max_y)
+        self.setGeometry(700, start_y, 1000, max_y)
 
     def makeRadioButtons(self):
         self.disarm_weapon_radio_button = QRadioButton("DISARM_WEAPON", self.mainWidget)

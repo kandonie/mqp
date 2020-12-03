@@ -41,4 +41,4 @@ if __name__ == "__main__":
         else:
             main(False)
     else:
-        main(False)
+        main(True)
