@@ -33,8 +33,8 @@ class RCGUI(QMainWindow):
         text = "Space bar for ESTOP\n"
         text += "Up arrow key for drive forward\nDown arrow key for drive backward\n"
         text += "Right arrow key for rotate CW\nLeft arrow key for rotate CCW\n"
-        text += "'w' key for toggle weapon on/off\n'/' key for stop drive motors"
-        text += "close this window to return to the main window"
+        text += "'w' key for toggle weapon on/off\n'/' key for stop drive motors\n"
+        text += "close this window to return to the main window\n"
         self.instructionsLabel.setText(text)
 
 

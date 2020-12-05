@@ -23,11 +23,6 @@ class RemoteControl:
         self.weapon = weapon
 
         self.key = None
-        print("psst .... we are in RC now!")
-        print("Space bar for ESTOP")
-        print("Up arrow key for drive forward\nDown arrow key for drive backward")
-        print("Right arrow key for rotate CW\nLeft arrow key for rotate CCW")
-        print("'w' key for toggle weapon on/off\n'/' key for stop drive motors")
 
 
     def execute(self, robotData, stateArgs):
