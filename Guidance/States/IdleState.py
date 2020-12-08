@@ -19,6 +19,10 @@ class IdleState():
             self.drive.stop()
             self.weapon.stop()
             self.sent = True
+        return False
 
     def getType(self):
         return BehavioralStates.ESTOP
+
+    def getNextState(self):
+        return None
