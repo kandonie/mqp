@@ -10,8 +10,8 @@ class PolygonalMovement():
         self.drive = drive
         self.resetVars()
 
-    def execute(self, robotData):
-        numSides = robotData[RobotDataTopics.BEHAVIORAL_ARGS]
+    def execute(self, robotData, stateArgs):
+        numSides = stateArgs
         if numSides != self.goalSides:
             self.resetVars()
             self.goalSides = numSides

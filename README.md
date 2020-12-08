@@ -1,5 +1,8 @@
 To run:
-    python3 main.py
+    python3 main.py <shouldConnectToWiFi>
+
+shouldConnectToWiFi defaults to True. True tries to connect to WiFi. False will never try to connect
+but will also load faster. Good for testing without the ESP
 
 Currently, things happen based on the GUI. When there is
 a change in the GUI, the GUI notifies the state machine (which 

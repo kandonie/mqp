@@ -7,7 +7,7 @@ from GUI.WindowEnums import WindowEnums
 class GUIDataManager:
     """Displays a main window
     """
-    def __init__(self, observers):
+    def __init__(self, observers, observees):
         """initializes variables and shows main window
 
         Args:
@@ -23,10 +23,14 @@ class GUIDataManager:
         for observer in observers:
             self.attachObserver(observer)
         self.observers = observers
+        
+        for observee in observees:
+            observee.attachObserver(self.main)
 
         #execute main window app
         self.main.show()
         self.rcgui = RCGUI(self.observers)
+        
         sys.exit(app.exec_())
 
     def attachObserver(self, observer):

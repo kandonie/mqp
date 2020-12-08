@@ -23,14 +23,9 @@ class RemoteControl:
         self.weapon = weapon
 
         self.key = None
-        print("psst .... we are in RC now!")
-        print("Space bar for ESTOP")
-        print("Up arrow key for drive forward\nDown arrow key for drive backward")
-        print("Right arrow key for rotate CW\nLeft arrow key for rotate CCW")
-        print("'w' key for toggle weapon on/off\n'/' key for stop drive motors")
 
 
-    def execute(self, robotData):
+    def execute(self, robotData, stateArgs):
         """
 
         :param robotData: [{items in RobotDataTopics}]  RobotDataTopics.BEHAVIORAL_ARGS is in the dict and is a key press
@@ -40,7 +35,7 @@ class RemoteControl:
         #TODO do something with basicGUI to create a pop-up box to input weapon speed
         # based on keyboard inputs, send corresponding drive and weapon signals
 
-        key = robotData[RobotDataTopics.BEHAVIORAL_ARGS]
+        key = stateArgs
         if key is not self.key:
             self.key = key
             self.keyMap(key)

@@ -14,7 +14,7 @@ class IdleState():
         #TODO remove
         self.sent = False
 
-    def execute(self, robotData):
+    def execute(self, robotData, stateArgs):
         if not self.sent:
             self.drive.stop()
             self.weapon.stop()

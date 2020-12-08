@@ -23,8 +23,19 @@ class RCGUI(QMainWindow):
         #important for setting locations of QWidgets
         self.observers = observers
 
+        self.makeInstructions()
+
         self.setWidgetLocations()
         print("done RC GUI creation")
+
+    def makeInstructions(self):
+        self.instructionsLabel = QLabel(self.mainWidget)
+        text = "Space bar for ESTOP\n"
+        text += "Up arrow key for drive forward\nDown arrow key for drive backward\n"
+        text += "Right arrow key for rotate CW\nLeft arrow key for rotate CCW\n"
+        text += "'w' key for toggle weapon on/off\n'/' key for stop drive motors\n"
+        text += "close this window to return to the main window\n"
+        self.instructionsLabel.setText(text)
 
 
     def setWidgetLocations(self):
@@ -33,11 +44,11 @@ class RCGUI(QMainWindow):
         widgetSpacing = 20 #num pixels between widgets
         sectionSpacing = 60
         #TODO make spacing good and consistent
-        #Estop button
-        # estop_y = start_y
-        # self.ESTOPButton.move(start_x, estop_y)
+        instruccionsY = start_y
+        self.instructionsLabel.move(start_x, instruccionsY )
 
-        self.setGeometry(start_x, start_y, 1000, 1000)
+
+        self.setGeometry(500, start_y, 1000, 1000)
 
 
     def keyPressEvent(self, event):
