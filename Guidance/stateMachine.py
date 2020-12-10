@@ -5,6 +5,7 @@ from Guidance.States.IdleState import IdleState
 from Guidance.States.MovementTests import PolygonalMovement
 from Guidance.States.PWMController import PWMController
 from Guidance.States.RemoteControl import RemoteControl
+from Guidance.States.ESTOP import ESTOP
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 import threading
 
@@ -25,7 +26,7 @@ class StateMachine():
         self.wifi.sendInfo(SetJSONVars.ARM_DRIVE.value, "false")
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
-        self.state = self.makeState(BehavioralStates.ESTOP)
+        self.state = self.makeState(BehavioralStates.STOP)
         self.stateArgs = None
         self.intelligenceState = IntelligenceStates.IDLE
         # robotData is a dict with Behavioral_Args and Behavioral_State
@@ -52,7 +53,7 @@ class StateMachine():
 
 
     def makeState(self, state):
-        if state == BehavioralStates.ESTOP:
+        if state == BehavioralStates.STOP:
             state = IdleState(self.drive, self.weapon)
         elif state == BehavioralStates.MOVEMENT_TEST:
             state = PolygonalMovement(self.drive)
@@ -60,13 +61,15 @@ class StateMachine():
             state = PWMController(self.drive)
         elif state == BehavioralStates.RC:
             state = RemoteControl(self.drive, self.weapon)
+        elif state == BehavioralStates.ESTOP:
+            state = ESTOP(self.drive, self.weapon)
         return state
 
     def determineNextState(self, args):
         """determines the next state of the robot 
         """
         if args is not None:
-            if self.intelligenceState == IntelligenceStates.IDLE:
+            if self.intelligenceState == IntelligenceStates.IDLE and args[0] != BehavioralStates.ESTOP:
                 #don't change the behavioral state if in IDLE
                 print("psst  .... we are in IDLE. Change to auto to send robot messages")
             else:
@@ -96,13 +99,16 @@ class StateMachine():
         #TODO account for don't switch if in ESTOP and Stuff like that
         #TODO edge case for race cases with mux
         args = None
+        if topic == BehavioralStates.ESTOP:
+            self.drive.stop()
+            self.weapon.stop()
         if topic in IntelligenceStates:
             #if we are requesting to change the state
             if self.intelligenceState != topic:
                 self.intelligenceState = topic
                 #if in idle, switch to ESTOP, if in AUTO, also switch to ESTOP to stop prev state
                 if topic == IntelligenceStates.IDLE or topic == IntelligenceStates.AUTO:
-                    args = (BehavioralStates.ESTOP, "")
+                    args = (BehavioralStates.STOP, "")
                 elif topic == IntelligenceStates.RC:
                     args = (BehavioralStates.RC, "")
         elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:

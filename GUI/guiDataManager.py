@@ -1,4 +1,4 @@
-from GUI.basicGUI import MainWindow
+from GUI.mainWindow import MainWindow
 from PyQt5 import QtWidgets
 import sys  # We need sys so that we can pass argv to QApplication
 from GUI.RCGUI import RCGUI

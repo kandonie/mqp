@@ -1,6 +1,6 @@
 from Guidance.GuidanceEnums import BehavioralStates
 
-class IdleState():
+class ESTOP():
 
 
     def __init__(self, drive, weapon):
@@ -11,14 +11,11 @@ class IdleState():
         """
         self.drive = drive
         self.weapon = weapon
-        #TODO remove
-        self.sent = False
 
     def execute(self, robotData, stateArgs):
-        if not self.sent:
-            self.drive.stop()
-            self.weapon.stop()
-            self.sent = True
+        self.drive.stop()
+        self.weapon.stop()
+        self.sent = True
 
     def getType(self):
-        return BehavioralStates.STOP
+        return BehavioralStates.ESTOP
