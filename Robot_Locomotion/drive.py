@@ -19,6 +19,7 @@ class Drive:
         """
         self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.value, PWMVals.STOPPED.value)
         self.wifi.sendInfo(SetJSONVars.MOTOR2_PWM.value, PWMVals.STOPPED.value)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
     def driveSpeed(self, speed):
         """drives stright at speed
@@ -33,7 +34,7 @@ class Drive:
             speed = PWMVals.FULL_CCW.value
         self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
         self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
-
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
     def turnAngle(self, angle):
         """turns the robot to angle
@@ -42,8 +43,8 @@ class Drive:
             angle (string): The global angle to turn to in degrees
         """
         print("Turning " + str(angle) + " degrees")
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE)
         self.wifi.sendInfo(SetJSONVars.DESIRED_HEADING.value, str(angle))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE)
 
 
     def turnSpeed(self, speed):
@@ -67,13 +68,13 @@ class Drive:
             invertedSpeed = str(invertedSpeed + int(PWMVals.STOPPED.value))
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
-
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
 
     def driveDistance(self, distance):
         print("Driving " + str(distance) + " meters")
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE)
         self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(distance))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE)
 
 
     #TODO make a motor class that has this,cuz this is also appicable for weapon
@@ -83,5 +84,4 @@ class Drive:
         Args:
             pwm (string): the pwm to set the motors to
         """
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
         self.wifi.sendInfo(motor, pwm)
