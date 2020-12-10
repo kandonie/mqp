@@ -1,4 +1,4 @@
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
 from Robot_Locomotion.MotorEnums import PWMVals
 import time
 
@@ -19,6 +19,7 @@ class Drive:
         """
         self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.value, PWMVals.STOPPED.value)
         self.wifi.sendInfo(SetJSONVars.MOTOR2_PWM.value, PWMVals.STOPPED.value)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
     def driveSpeed(self, speed):
         """drives stright at speed
@@ -33,9 +34,8 @@ class Drive:
             speed = PWMVals.FULL_CCW.value
         self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
         self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
-
-    #TODO make this method actually turn angle
     def turnAngle(self, angle):
         """turns the robot to angle
 
@@ -43,12 +43,8 @@ class Drive:
             angle (string): The global angle to turn to in degrees
         """
         print("Turning " + str(angle) + " degrees")
-        if int(angle) > 0:
-            self.setPWM(SetJSONVars.MOTOR1_PWM.value, PWMVals.FULL_CW.value)
-            self.setPWM(SetJSONVars.MOTOR2_PWM.value, PWMVals.FULL_CCW.value)
-        else:
-            self.setPWM(SetJSONVars.MOTOR1_PWM.value, PWMVals.FULL_CCW.value)
-            self.setPWM(SetJSONVars.MOTOR2_PWM.value, PWMVals.FULL_CW.value)
+        self.wifi.sendInfo(SetJSONVars.DESIRED_HEADING.value, str(angle))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE)
 
 
     def turnSpeed(self, speed):
@@ -61,7 +57,7 @@ class Drive:
             speed = PWMVals.FULL_CW.value
         elif int(speed) < int(PWMVals.FULL_CCW.value):
             speed = PWMVals.FULL_CCW.value
-        print("Turning with PWM: " + str(speed))
+        print("Turning speed")
         if int(speed) > int(PWMVals.STOPPED.value):
             invertedSpeed = int(speed) - int(PWMVals.STOPPED.value)
             invertedSpeed = str(int(PWMVals.STOPPED.value) - invertedSpeed)
@@ -72,14 +68,13 @@ class Drive:
             invertedSpeed = str(invertedSpeed + int(PWMVals.STOPPED.value))
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
-
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
 
     def driveDistance(self, distance):
         print("Driving " + str(distance) + " meters")
-        self.driveSpeed(1) #1m/s
-        time.sleep(distance)
-        self.stop()
+        self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(distance))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE)
 
 
     #TODO make a motor class that has this,cuz this is also appicable for weapon
