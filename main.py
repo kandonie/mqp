@@ -2,7 +2,7 @@ import sys
 import threading
 sys.path.insert(1, '~/mqp')
 from Guidance.stateMachine import StateMachine
-from GUI.guiDataManager import GUIDataManager
+from GUI.GUIManager import GUIManager
 from Hardware_Comms.WiFiComms import WiFiComms
 from Sensing.cv import CV
 from Sensing.imu import IMU
@@ -25,7 +25,7 @@ def main(connectToWiFi):
         print("Couldn't start state machine")
 
     #start GUI (won't return until GUI window is closed )
-    GUIDataManager([sm], [wifi])###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
+    GUIManager([sm], [wifi])###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
     sys.exit()
     #TODO these lines were never run before and are now erroring.
     #TODO fix the errors, they didn't run previously because the GUIDataManager
