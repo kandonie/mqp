@@ -26,16 +26,16 @@ class GUIManager:
         self.observers = observers
         self.rcgui = RCGUI(self.observers)
 
-        self.graph_gui = GraphGUI(self.observers)
+        #self.graph_gui = GraphGUI(self.observers)
 
 
         for observee in observees:
             observee.attachObserver(self.main)
-            observee.attachObserver(self.graph_gui)
+            #observee.attachObserver(self.graph_gui)
 
         #execute main window app
         self.main.show()
-        self.graph_gui.show()
+        #self.graph_gui.show()
 
         sys.exit(app.exec_())
 
@@ -51,11 +51,11 @@ class GUIManager:
     def notify(self, topic, value):
         if topic == WindowEnums.RC:
             self.rcgui.show()
-            self.graph_gui.hide()
+            #self.graph_gui.hide()
             self.main.hide()
         elif topic == WindowEnums.MAIN:
             self.main.show()
-            self.graph_gui.show()
+           # self.graph_gui.show()
             self.main.setStateToIdle()
             self.rcgui.hide()
         pass
