@@ -16,12 +16,9 @@ class MplCanvas(FigureCanvasQTAgg):
         super(MplCanvas, self).__init__(fig)
 
 
-class GraphGUI(QtWidgets.QMainWindow):
+class dataGraph(QtWidgets.QMainWindow):
 
-    def notify(self, topic, value):
-        pass
-
-    def __init__(self, observers):
+    def __init__(self):
         super().__init__()
         self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
         self.setCentralWidget(self.canvas)

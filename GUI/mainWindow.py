@@ -6,8 +6,7 @@ from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 from Robot_Locomotion.MotorEnums import PWMVals
 from GUI.WindowEnums import WindowEnums
-
-
+from GUI.DataGraph import dataGraph
 
 class MainWindow(QMainWindow):
     """This class contains a main window for the application.
@@ -36,6 +35,10 @@ class MainWindow(QMainWindow):
         self.makeRadioButtons()
 
         self.setWidgetLocations()
+
+        self.graph = dataGraph()
+        self.layout.addWidget(self.graph)
+
         self.mainWidget.setLayout(self.layout)
 
         print("done GUI creation")
