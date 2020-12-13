@@ -33,15 +33,17 @@ class MainWindow(QMainWindow):
         self.makeComboBoxes()
         self.makeLabels()
         self.makeRadioButtons()
+        self.makeGraphs()
 
         self.setWidgetLocations()
-
-        self.graph = dataGraph()
-        self.layout.addWidget(self.graph)
-
         self.mainWidget.setLayout(self.layout)
 
         print("done GUI creation")
+
+    def makeGraphs(self):
+        self.sensorGraphs = {}
+        for sensor in GetJSONVars:
+            self.sensorGraphs[sensor] = dataGraph(sensor.value)
 
     def setWidgetLocations(self):
         self.layout = QHBoxLayout(self.mainWidget)
@@ -104,8 +106,16 @@ class MainWindow(QMainWindow):
         sensorHBox.addWidget(self.aPosDataLabel)
         first_col.addLayout(sensorHBox)
 
-        #add first col to layout
         self.layout.addLayout(first_col)
+
+        #Second col: Graphs
+        second_col = QVBoxLayout(self.mainWidget)
+
+        for graph in list(self.sensorGraphs.values()):
+            second_col.addWidget(graph)
+
+        self.layout.addLayout(second_col)
+
 
 
     def makeRadioButtons(self):
@@ -319,5 +329,8 @@ class MainWindow(QMainWindow):
 
     def notify(self, topic, value):
         if topic in GetJSONVars:
+            graph = self.sensorGraphs[topic]
+            if value != graph.getCurrData():
+                graph.update_plot(value)
             if topic == GetJSONVars.HEADING:
                 self.aPosDataLabel.setText(value)

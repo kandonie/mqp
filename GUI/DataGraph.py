@@ -1,4 +1,3 @@
-import random
 import matplotlib
 matplotlib.use('Qt5Agg')
 
@@ -10,39 +9,44 @@ from matplotlib.figure import Figure
 
 class MplCanvas(FigureCanvasQTAgg):
 
-    def __init__(self, parent=None, width=10, height=10, dpi=100):
+    def __init__(self, plot_title, parent=None, width=10, height=10, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        print(plot_title)
+        self.axes = fig.add_subplot(111, title=str(plot_title))
         super(MplCanvas, self).__init__(fig)
 
 
 class dataGraph(QtWidgets.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, title):
         super().__init__()
-        self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
+        self.canvas = MplCanvas(title, width=5, height=4, dpi=100)
         self.setCentralWidget(self.canvas)
 
         n_data = 50
         self.xdata = list(range(n_data))
-        self.ydata = [random.randint(0, 10) for i in range(n_data)]
+        self.ydata = [0 for i in range(n_data)]
 
         # We need to store a reference to the plotted line
         # somewhere, so we can apply the new data to it.
         self._plot_ref = None
-        self.update_plot()
+        self.update_plot(0)
 
         self.show()
 
         # Setup a timer to trigger the redraw by calling update_plot.
         self.timer = QtCore.QTimer()
         self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.update_plot)
+        self.timer.timeout.connect(self.graph)
         self.timer.start()
 
-    def update_plot(self):
+    def update_plot(self, newData):
+        self.currData = newData
+
+    def graph(self):
+        newData = int(self.currData)
         # Drop off the first y element, append a new one.
-        self.ydata = self.ydata[1:] + [random.randint(0, 10)]
+        self.ydata = self.ydata[1:] + [newData]
 
         # Note: we no longer need to clear the axis.
         if self._plot_ref is None:
@@ -57,3 +61,6 @@ class dataGraph(QtWidgets.QMainWindow):
 
         # Trigger the canvas to update and redraw.
         self.canvas.draw()
+
+    def getCurrData(self):
+        return self.currData
