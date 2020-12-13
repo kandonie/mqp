@@ -36,7 +36,7 @@ class dataGraph(QtWidgets.QMainWindow):
 
         # Setup a timer to trigger the redraw by calling update_plot.
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(100)
+        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
