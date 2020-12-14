@@ -33,6 +33,9 @@ class PolygonalMovement():
             self.resetVars()
             self.done = True
             self.goalSides = nSides #to make the first if false
+            return True
+
+        return False
 
     def resetVars(self):
         self.sidesCompleted = 0
@@ -44,3 +47,6 @@ class PolygonalMovement():
 
     def getType(self):
         return BehavioralStates.MOVEMENT_TEST
+
+    def getNextState(self):
+        return (BehavioralStates.STOP, None)

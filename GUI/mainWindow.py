@@ -331,7 +331,6 @@ class MainWindow(QMainWindow):
             observer.notify(topic, value)
 
     def notify(self, topic, value):
-        print("receive value of " + str(value))
         if topic in GetJSONVars:
             graph = self.sensorGraphs[topic]
             if value != graph.getCurrData():

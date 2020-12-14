@@ -69,6 +69,12 @@ class RemoteControl:
             self.drive.stop()
             self.weapon.stop()
 
+        return False
+
 
     def getType(self):
         return BehavioralStates.RC
+
+
+    def getNextState(self):
+        return None
