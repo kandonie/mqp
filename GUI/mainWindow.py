@@ -6,7 +6,8 @@ from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 from Robot_Locomotion.MotorEnums import PWMVals
 from GUI.WindowEnums import WindowEnums
-from GUI.DataGraph import dataGraph
+from GUI.DataGraph import DataGraph
+
 
 class MainWindow(QMainWindow):
     """This class contains a main window for the application.
@@ -20,6 +21,7 @@ class MainWindow(QMainWindow):
         """init initializes the QWidgets and sets the geometry of the window
         """
         super().__init__()
+
         # make main window
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
@@ -28,7 +30,7 @@ class MainWindow(QMainWindow):
         # important for setting locations of QWidgets
         self.observers = []
 
-        # make widgets
+        #make widgets
         self.makeButtons()
         self.makeComboBoxes()
         self.makeLabels()
@@ -40,10 +42,6 @@ class MainWindow(QMainWindow):
 
         print("done GUI creation")
 
-    def makeGraphs(self):
-        self.sensorGraphs = {}
-        for sensor in GetJSONVars:
-            self.sensorGraphs[sensor] = dataGraph(sensor.value)
 
     def setWidgetLocations(self):
         self.layout = QHBoxLayout(self.mainWidget)
@@ -116,6 +114,11 @@ class MainWindow(QMainWindow):
 
         self.layout.addLayout(second_col)
 
+
+    def makeGraphs(self):
+        self.sensorGraphs = {}
+        for sensor in GetJSONVars:
+            self.sensorGraphs[sensor] = DataGraph(sensor.value)
 
 
     def makeRadioButtons(self):
@@ -328,6 +331,7 @@ class MainWindow(QMainWindow):
             observer.notify(topic, value)
 
     def notify(self, topic, value):
+        print("receive value of " + str(value))
         if topic in GetJSONVars:
             graph = self.sensorGraphs[topic]
             if value != graph.getCurrData():
