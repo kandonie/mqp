@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
     def makeGraphs(self):
         self.sensorGraphs = {}
         for sensor in GetJSONVars:
-            self.sensorGraphs[sensor] = DataGraph(sensor.value)
+            self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
 
 
     def makeRadioButtons(self):

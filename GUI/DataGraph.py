@@ -1,8 +1,8 @@
 import matplotlib
 matplotlib.use('Qt5Agg')
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QThread
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -12,10 +12,10 @@ import time
 
 class MplCanvas(FigureCanvasQTAgg):
 
-    def __init__(self, plot_title, parent=None, width=10, height=10, dpi=100):
+    def __init__(self, plot_title, ylim, parent=None, width=10, height=10, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         print(plot_title)
-        self.axes = fig.add_subplot(111, title=str(plot_title))
+        self.axes = fig.add_subplot(111, title=str(plot_title), ylim = ylim)
         super(MplCanvas, self).__init__(fig)
 
 
@@ -51,6 +51,8 @@ class SensorGraphDataManager(QThread):
 
             # Trigger the canvas to update and redraw.
             self.canvas.draw()
+            ###MODIFY THIS TO CHANGE HOW OFTEN PLOT UPDATES
+            #Tradeoff between time to load graphs and how fast they update
             time.sleep(1)
 
     def update_plot(self, newData):
@@ -59,9 +61,9 @@ class SensorGraphDataManager(QThread):
 
 class DataGraph(QtWidgets.QMainWindow):
 
-    def __init__(self, title):
+    def __init__(self, title, ylim):
         QtWidgets.QMainWindow.__init__(self)
-        self.canvas = MplCanvas(title, self, width=5, height=4, dpi=100)
+        self.canvas = MplCanvas(title, ylim, self, width=5, height=4, dpi=100)
 
         self.dataManager = SensorGraphDataManager(self.canvas)
         self.dataManager.start()
