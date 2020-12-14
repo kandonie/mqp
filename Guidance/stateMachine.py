@@ -46,8 +46,14 @@ class StateMachine():
             self.robotDataLock.release()
 
             self.robotStateLock.acquire()
-            self.state.execute(data, self.stateArgs)
+            done_state = self.state.execute(data, self.stateArgs)
             self.robotStateLock.release()
+
+            if done_state:
+                new_state_with_args = self.state.getNextState()
+                if new_state_with_args == None:
+                    new_state_with_args = (BehavioralStates.ESTOP, None)
+                self.determineNextState(new_state_with_args)
 
 
 
@@ -65,7 +71,7 @@ class StateMachine():
     def determineNextState(self, args):
         """determines the next state of the robot 
         """
-        if args is not None:
+        if args is not None and len(args) == 2:
             if self.intelligenceState == IntelligenceStates.IDLE:
                 #don't change the behavioral state if in IDLE
                 print("psst  .... we are in IDLE. Change to auto to send robot messages")

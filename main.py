@@ -4,9 +4,6 @@ sys.path.insert(1, '~/mqp')
 from Guidance.stateMachine import StateMachine
 from GUI.guiDataManager import GUIDataManager
 from Hardware_Comms.WiFiComms import WiFiComms
-from Sensing.cv import CV
-from Sensing.imu import IMU
-from Sensing.motorCurrent import MotorCurrent
 
 
 def main(connectToWiFi):
@@ -27,11 +24,6 @@ def main(connectToWiFi):
     #start GUI (won't return until GUI window is closed )
     GUIDataManager([sm], [wifi])###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
     sys.exit()
-    #TODO these lines were never run before and are now erroring.
-    #TODO fix the errors, they didn't run previously because the GUIDataManager
-    #line used to loop
-    #imu = IMU()
-    #imu.attachObservers([sm, dm])
 
 
 if __name__ == "__main__":

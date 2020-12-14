@@ -22,6 +22,10 @@ class PWMController():
             self.motorVals[motor] = pwm
             self.drive.setPWM(motor.value, pwm)
             self.hasSent = True
+        return False
 
     def getType(self):
         return BehavioralStates.PWM
+
+    def getNextState(self):
+        return None
