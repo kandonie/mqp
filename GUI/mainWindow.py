@@ -332,8 +332,11 @@ class MainWindow(QMainWindow):
 
     def notify(self, topic, value):
         if topic in GetJSONVars:
+            #update specific graph
             graph = self.sensorGraphs[topic]
             if value != graph.getCurrData():
                 graph.update_plot(value)
+
+            #update label on GUI
             if topic == GetJSONVars.HEADING:
                 self.aPosDataLabel.setText(value)
