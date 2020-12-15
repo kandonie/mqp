@@ -2,7 +2,8 @@ Each new state must have an __init__ and execute(self, robotData, stateArgs) fun
 Execute must return a bool which is True if the state is done executing, false otherwise
 It must also have a getNextState() function which returns a tuple of (state, stateArgs) or None (None defaults to Estop next state)
 It must also have a getType, which returns the behavioral state
-look at doc comments on IDLE state for more info
+look at example_state for an example.
+
 MAKE EXECUTE LOOP AS SHORT AS POSSIBLE, IT CAN'T BE ITERRUPTED
 After adding the new state, add it to one of the BehavioralStates in GuidanceEnums.py
 Then in stateMachine.py, add a statement to makeState to create the new state for the given Enum
