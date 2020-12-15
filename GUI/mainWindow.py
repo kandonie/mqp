@@ -99,10 +99,12 @@ class MainWindow(QMainWindow):
         first_col.addLayout(polygonVBox)
 
         #sensor info
-        sensorHBox = QHBoxLayout(self.mainWidget)
-        sensorHBox.addWidget(self.aPosLabel)
-        sensorHBox.addWidget(self.aPosDataLabel)
-        first_col.addLayout(sensorHBox)
+        for sensor in GetJSONVars:
+            (label, data) = self.sensorLabels[sensor]
+            sensorHBox = QHBoxLayout(self.mainWidget)
+            sensorHBox.addWidget(label)
+            sensorHBox.addWidget(data)
+            first_col.addLayout(sensorHBox)
 
         self.layout.addLayout(first_col)
 
@@ -219,11 +221,14 @@ class MainWindow(QMainWindow):
         """makes labels for data read
         """
         # angular position label
-        self.aPosLabel = QLabel(self.mainWidget)
-        self.aPosDataLabel = QLabel(self.mainWidget)
-        self.aPosDataLabel.setFixedWidth(100)
-        self.aPosLabel.setText("Angular Position: ")
-        self.aPosDataLabel.setText("   0")
+        self.sensorLabels = {}
+        for sensor in GetJSONVars:
+            label = QLabel(self.mainWidget)
+            data = QLabel(self.mainWidget)
+            label.setFixedWidth(300)
+            label.setText(sensor.value)
+            data.setText("   0")
+            self.sensorLabels[sensor] = (label, data)
 
         self.pwmLabel = QLabel(self.mainWidget)
         self.pwmLabel.setText("Individually set PWMs")
