@@ -17,10 +17,12 @@ class MainWindow(QMainWindow):
         QMainWindow: This is of type QMainWindow
     """
 
-    def __init__(self):
+    def __init__(self, GUI_Graphs):
         """init initializes the QWidgets and sets the geometry of the window
         """
         super().__init__()
+
+        self.hasGraphs = GUI_Graphs
 
         # make main window
         self.mainWidget = QWidget()
@@ -35,7 +37,8 @@ class MainWindow(QMainWindow):
         self.makeComboBoxes()
         self.makeLabels()
         self.makeRadioButtons()
-        self.makeGraphs()
+        if self.hasGraphs:
+            self.makeGraphs()
 
         self.setWidgetLocations()
         self.mainWidget.setLayout(self.layout)
@@ -98,20 +101,23 @@ class MainWindow(QMainWindow):
         first_col.addLayout(polygonVBox)
 
         # sensor info
-        sensorHBox = QHBoxLayout(self.mainWidget)
-        sensorHBox.addWidget(self.aPosLabel)
-        sensorHBox.addWidget(self.aPosDataLabel)
-        first_col.addLayout(sensorHBox)
+        for sensor in GetJSONVars:
+            (label, data) = self.sensorLabels[sensor]
+            sensorHBox = QHBoxLayout(self.mainWidget)
+            sensorHBox.addWidget(label)
+            sensorHBox.addWidget(data)
+            first_col.addLayout(sensorHBox)
 
         self.layout.addLayout(first_col)
 
-        # Second col: Graphs
-        second_col = QVBoxLayout(self.mainWidget)
+        if self.hasGraphs:
+            # Second col: Graphs
+            second_col = QVBoxLayout(self.mainWidget)
 
-        for graph in list(self.sensorGraphs.values()):
-            second_col.addWidget(graph)
+            for graph in list(self.sensorGraphs.values()):
+                second_col.addWidget(graph)
 
-        self.layout.addLayout(second_col)
+            self.layout.addLayout(second_col)
 
     def makeGraphs(self):
         self.sensorGraphs = {}
@@ -216,11 +222,14 @@ class MainWindow(QMainWindow):
         """makes labels for data read
         """
         # angular position label
-        self.aPosLabel = QLabel(self.mainWidget)
-        self.aPosDataLabel = QLabel(self.mainWidget)
-        self.aPosDataLabel.setFixedWidth(100)
-        self.aPosLabel.setText("Angular Position: ")
-        self.aPosDataLabel.setText("   0")
+        self.sensorLabels = {}
+        for sensor in GetJSONVars:
+            label = QLabel(self.mainWidget)
+            data = QLabel(self.mainWidget)
+            label.setFixedWidth(300)
+            label.setText(sensor.value)
+            data.setText("   0")
+            self.sensorLabels[sensor] = (label, data)
 
         self.pwmLabel = QLabel(self.mainWidget)
         self.pwmLabel.setText("Individually set PWMs")
@@ -321,7 +330,7 @@ class MainWindow(QMainWindow):
         """notifies observers of topic with value
 
         Args:
-            topic (CommsTopics): a communication topic 
+            topic (CommsTopics): a communication topic
             value (string): the value for the comm topic
         """
         for observer in self.observers:
@@ -330,10 +339,10 @@ class MainWindow(QMainWindow):
     def notify(self, topic, value):
         if topic in GetJSONVars:
             # update specific graph
-            graph = self.sensorGraphs[topic]
-            if value != graph.getCurrData():
-                graph.update_plot(value)
+            if self.hasGraphs:
+                graph = self.sensorGraphs[topic]
+                if value != graph.getCurrData():
+                    graph.update_plot(value)
 
             # update label on GUI
-            if topic == GetJSONVars.HEADING:
-                self.aPosDataLabel.setText(value)
+            self.sensorLabels[topic][1].setText(value)
