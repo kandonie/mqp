@@ -6,21 +6,22 @@ from Robot_Locomotion.MotorEnums import PWMVals
 
 class WiFiComms:
     """communiation over wifi"""
+
     def __init__(self, shouldConnectToWiFi):
         """initializes wifi connection and IP
-        """        
+        """
         # esp32 IP
         self.IP = "http://192.168.50.129"
-        #initialzies get vars
+        # initialzies get vars
         self.getJson = {}
         for var in GetJSONVars:
             self.getJson[var.value] = PWMVals.STOPPED.value
-        #initialize set vars
+        # initialize set vars
         self.setJson = {}
         for var in SetJSONVars:
             self.setJson[var.value] = PWMVals.STOPPED.value
-        #determine is ESP is connected
-        #if not done here, all http requests take forever and it slows down program
+        # determine is ESP is connected
+        # if not done here, all http requests take forever and it slows down program
         if shouldConnectToWiFi == True:
             try:
                 print("Trying to connect to ESP...")
@@ -44,14 +45,14 @@ class WiFiComms:
 
         Returns:
             string: topic information
-        """        
+        """
         print("Notifying of " + str(param))
         if not self.isConnected:
             return "No ESP Connected"
         # sending get request and saving the response as response object
         try:
             r = requests.get(url=self.IP + HTTPTopics.MAIN.value)
-            #TODO get the param
+            # TODO get the param
             return r.content
         except:
             print("No connection could be established with ESP")
@@ -78,13 +79,12 @@ class WiFiComms:
             self.connectionHandler.loss()
             return "ESP Comms Err"
 
-
     def parseResponse(self, response):
         print(response)
-        #for item in response
-            #if diff from self.GetJSON
-                #change val in self.GETJSON
-                #notify observers
+        # for item in response
+        # if diff from self.GetJSON
+        # change val in self.GETJSON
+        # notify observers
 
     def notifyObservers(self, topic, value):
         for observer in self.observers:

@@ -75,7 +75,7 @@ class StateMachine():
         """determines the next state of the robot 
         """
         if args is not None and len(args) == 2:
-            #Bypass for ESTOP
+            # Bypass for ESTOP
             if self.intelligenceState == IntelligenceStates.IDLE and args[0] != BehavioralStates.ESTOP:
                 # don't change the behavioral state if in IDLE
                 if self.state.getType() != BehavioralStates.STOP:

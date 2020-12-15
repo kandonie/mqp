@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
         # important for setting locations of QWidgets
         self.observers = []
 
-        #make widgets
+        # make widgets
         self.makeButtons()
         self.makeComboBoxes()
         self.makeLabels()
@@ -42,33 +42,32 @@ class MainWindow(QMainWindow):
 
         print("done GUI creation")
 
-
     def setWidgetLocations(self):
         self.layout = QHBoxLayout(self.mainWidget)
         first_col = QVBoxLayout(self.mainWidget)
 
-        #estop at top
+        # estop at top
         first_col.addWidget(self.ESTOPButton)
 
-        #followed by weapon radio buttons
+        # followed by weapon radio buttons
         weapon_radio_button_hbox = QHBoxLayout(self.mainWidget)
         weapon_radio_button_hbox.addWidget(self.disarm_weapon_radio_button)
         weapon_radio_button_hbox.addWidget(self.arm_weapon_radio_button)
         first_col.addLayout(weapon_radio_button_hbox)
 
-        #followed by drive radio buttons
+        # followed by drive radio buttons
         drive_radio_button_hbox = QHBoxLayout(self.mainWidget)
         drive_radio_button_hbox.addWidget(self.disarm_drive_radio_button)
         drive_radio_button_hbox.addWidget(self.arm_drive_radio_button)
         first_col.addLayout(drive_radio_button_hbox)
 
-        #followed by intelligence state combo box
+        # followed by intelligence state combo box
         intelligenceHBox = QHBoxLayout(self.mainWidget)
         intelligenceHBox.addWidget(self.intelligenceStateComboBoxLabel)
         intelligenceHBox.addWidget(self.intelligenceStateComboBox)
         first_col.addLayout(intelligenceHBox)
 
-        #PWM control
+        # PWM control
         pwmVBox = QVBoxLayout(self.mainWidget)
         pwmVBox.addWidget(self.pwmLabel)
 
@@ -89,7 +88,7 @@ class MainWindow(QMainWindow):
 
         first_col.addLayout(pwmVBox)
 
-        #Polygon
+        # Polygon
         polygonVBox = QVBoxLayout(self.mainWidget)
         polygonVBox.addWidget(self.movementLabel)
         polygonHBox = QHBoxLayout(self.mainWidget)
@@ -98,7 +97,7 @@ class MainWindow(QMainWindow):
         polygonVBox.addLayout(polygonHBox)
         first_col.addLayout(polygonVBox)
 
-        #sensor info
+        # sensor info
         sensorHBox = QHBoxLayout(self.mainWidget)
         sensorHBox.addWidget(self.aPosLabel)
         sensorHBox.addWidget(self.aPosDataLabel)
@@ -106,7 +105,7 @@ class MainWindow(QMainWindow):
 
         self.layout.addLayout(first_col)
 
-        #Second col: Graphs
+        # Second col: Graphs
         second_col = QVBoxLayout(self.mainWidget)
 
         for graph in list(self.sensorGraphs.values()):
@@ -114,12 +113,10 @@ class MainWindow(QMainWindow):
 
         self.layout.addLayout(second_col)
 
-
     def makeGraphs(self):
         self.sensorGraphs = {}
         for sensor in GetJSONVars:
             self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
-
 
     def makeRadioButtons(self):
         self.disarm_weapon_radio_button = QRadioButton("DISARM_WEAPON", self.mainWidget)
@@ -332,11 +329,11 @@ class MainWindow(QMainWindow):
 
     def notify(self, topic, value):
         if topic in GetJSONVars:
-            #update specific graph
+            # update specific graph
             graph = self.sensorGraphs[topic]
             if value != graph.getCurrData():
                 graph.update_plot(value)
 
-            #update label on GUI
+            # update label on GUI
             if topic == GetJSONVars.HEADING:
                 self.aPosDataLabel.setText(value)

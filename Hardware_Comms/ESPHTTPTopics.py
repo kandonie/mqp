@@ -1,13 +1,16 @@
 from enum import Enum
 
+
 class HTTPTopics(Enum):
     """ topic used for wifi comms"""
     MAIN = "/generaltest"
+
 
 class RobotMovementType(Enum):
     PWM_CONTROLLED = "rcMode"
     DRIVE_DISTANCE = "distanceMode"
     TURN_ANGLE = "gyroMode"
+
 
 class SetJSONVars(Enum):
     """The json variables that can be set through wifi"""
@@ -20,8 +23,9 @@ class SetJSONVars(Enum):
     DESIRED_HEADING = 'desiredHeading'
     DESIRED_DISTANCE = 'desiredDist'
     MOVEMENT_TYPE = "RobotMovementType"
-    ARM_WEAPON =  'Weapon Armed State'
+    ARM_WEAPON = 'Weapon Armed State'
     ARM_DRIVE = "Arm Drive State"
+
 
 class GetJSONVars(Enum):
     """The json variables the can be acquired through wifi"""

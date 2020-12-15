@@ -1,9 +1,11 @@
 from enum import Enum
 
-#this might end up including GETJSONVARs and CV or something like that
-#TODO use or delete
+
+# this might end up including GETJSONVARs and CV or something like that
+# TODO use or delete
 class RobotDataTopics(Enum):
     PLACEHOLDER = "Placeholder"
+
 
 class IntelligenceStates(Enum):
     """The states of autonomy of the robot
@@ -11,6 +13,7 @@ class IntelligenceStates(Enum):
     IDLE = "Idle"
     RC = "Remote Control"
     AUTO = "Autonomous"
+
 
 class BehavioralStates(Enum):
     """the autonomous states of the robot

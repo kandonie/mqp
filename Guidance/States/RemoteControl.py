@@ -3,6 +3,7 @@ from Guidance.GuidanceEnums import RobotDataTopics
 from Robot_Locomotion.MotorEnums import PWMVals
 from PyQt5.Qt import Qt
 
+
 class RemoteControl:
 
     def __init__(self, drive, weapon):
@@ -24,7 +25,6 @@ class RemoteControl:
 
         self.key = None
 
-
     def execute(self, robotData, stateArgs):
         """
 
@@ -32,14 +32,13 @@ class RemoteControl:
         :return:
         """
         # self.drive.driveSpeed(PWMVals.FULL_CCW.value)
-        #TODO do something with basicGUI to create a pop-up box to input weapon speed
+        # TODO do something with basicGUI to create a pop-up box to input weapon speed
         # based on keyboard inputs, send corresponding drive and weapon signals
 
         key = stateArgs
         if key is not self.key:
             self.key = key
             self.keyMap(key)
-
 
     def keyMap(self, key):
         if key == Qt.Key_Up:
@@ -71,10 +70,8 @@ class RemoteControl:
 
         return False
 
-
     def getType(self):
         return BehavioralStates.RC
-
 
     def getNextState(self):
         return None

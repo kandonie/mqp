@@ -2,16 +2,18 @@ from Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
 from Robot_Locomotion.MotorEnums import PWMVals
 import time
 
+
 class Drive:
     """the computer representation of the drive
     """
+
     def __init__(self, wifi):
         """initialized the wifi
 
         Args:
             wifi (WiFiComms): a wifi commms
         """
-        #TODO might want to make wifi static methods
+        # TODO might want to make wifi static methods
         self.wifi = wifi
 
     def stop(self):
@@ -46,7 +48,6 @@ class Drive:
         self.wifi.sendInfo(SetJSONVars.DESIRED_HEADING.value, str(angle))
         self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE)
 
-
     def turnSpeed(self, speed):
         """
         turns the robot at a speed
@@ -70,14 +71,12 @@ class Drive:
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
         self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
 
-
     def driveDistance(self, distance):
         print("Driving " + str(distance) + " meters")
         self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(distance))
         self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE)
 
-
-    #TODO make a motor class that has this,cuz this is also appicable for weapon
+    # TODO make a motor class that has this,cuz this is also appicable for weapon
     def setPWM(self, motor, pwm):
         """sets the pwm of drive motors
 

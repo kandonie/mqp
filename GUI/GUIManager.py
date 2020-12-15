@@ -4,9 +4,11 @@ import sys  # We need sys so that we can pass argv to QApplication
 from GUI.RCGUI import RCGUI
 from GUI.WindowEnums import WindowEnums
 
+
 class GUIManager:
     """Displays a main window
     """
+
     def __init__(self, observers, observees):
         """initializes variables and shows main window
 
@@ -14,11 +16,11 @@ class GUIManager:
             observers ([observers]): a list of observers to be notified of GUI events.
         """
 
-        #create main window
+        # create main window
         app = QtWidgets.QApplication(sys.argv)
         self.main = MainWindow()
 
-        #attach observers
+        # attach observers
         observers.append(self)
         for observer in observers:
             self.attachObserver(observer)
@@ -28,7 +30,7 @@ class GUIManager:
         for observee in observees:
             observee.attachObserver(self.main)
 
-        #execute main window app
+        # execute main window app
         self.main.show()
 
         sys.exit(app.exec_())
@@ -38,9 +40,8 @@ class GUIManager:
 
         Args:
             observer (Observer): must have a notify function that takes 2 params. 
-        """        
+        """
         self.main.attachObserver(observer)
-
 
     def notify(self, topic, value):
         if topic == WindowEnums.RC:

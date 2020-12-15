@@ -1,4 +1,5 @@
 import matplotlib
+
 matplotlib.use('Qt5Agg')
 
 from PyQt5 import QtWidgets
@@ -15,7 +16,7 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, plot_title, ylim, parent=None, width=10, height=10, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         print(plot_title)
-        self.axes = fig.add_subplot(111, title=str(plot_title), ylim = ylim)
+        self.axes = fig.add_subplot(111, title=str(plot_title), ylim=ylim)
         super(MplCanvas, self).__init__(fig)
 
 
@@ -52,7 +53,7 @@ class SensorGraphDataManager(QThread):
             # Trigger the canvas to update and redraw.
             self.canvas.draw()
             ###MODIFY THIS TO CHANGE HOW OFTEN PLOT UPDATES
-            #Tradeoff between time to load graphs and how fast they update
+            # Tradeoff between time to load graphs and how fast they update
             time.sleep(1)
 
     def update_plot(self, newData):
@@ -69,7 +70,6 @@ class DataGraph(QtWidgets.QMainWindow):
         self.dataManager.start()
 
         self.setCentralWidget(self.canvas)
-
 
         # We need to store a reference to the plotted line
         # somewhere, so we can apply the new data to it.

@@ -1,7 +1,7 @@
 from Guidance.GuidanceEnums import BehavioralStates
 
-class ESTOP():
 
+class ESTOP():
 
     def __init__(self, drive, weapon):
         """

@@ -1,5 +1,6 @@
 from Guidance.GuidanceEnums import BehavioralStates, RobotDataTopics
 
+
 class PolygonalMovement():
     def __init__(self, drive):
         """
@@ -32,7 +33,7 @@ class PolygonalMovement():
             nSides = self.sidesCompleted
             self.resetVars()
             self.done = True
-            self.goalSides = nSides #to make the first if false
+            self.goalSides = nSides  # to make the first if false
             return True
 
         return False
@@ -43,7 +44,6 @@ class PolygonalMovement():
         self.angle = 0
         self.isTurning = False
         self.done = False
-
 
     def getType(self):
         return BehavioralStates.MOVEMENT_TEST
