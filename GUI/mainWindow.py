@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
         QMainWindow: This is of type QMainWindow
     """
 
-    def __init__(self):
+    def __init__(self, GUI_Graphs):
         """init initializes the QWidgets and sets the geometry of the window
         """
         super().__init__()
@@ -35,15 +35,16 @@ class MainWindow(QMainWindow):
         self.makeComboBoxes()
         self.makeLabels()
         self.makeRadioButtons()
-        self.makeGraphs()
+        if GUI_Graphs:
+            self.makeGraphs()
 
-        self.setWidgetLocations()
+        self.setWidgetLocations(GUI_Graphs)
         self.mainWidget.setLayout(self.layout)
 
         print("done GUI creation")
 
 
-    def setWidgetLocations(self):
+    def setWidgetLocations(self, GUI_Graphs):
         self.layout = QHBoxLayout(self.mainWidget)
         first_col = QVBoxLayout(self.mainWidget)
 
@@ -108,13 +109,14 @@ class MainWindow(QMainWindow):
 
         self.layout.addLayout(first_col)
 
-        #Second col: Graphs
-        second_col = QVBoxLayout(self.mainWidget)
+        if GUI_Graphs:
+            #Second col: Graphs
+            second_col = QVBoxLayout(self.mainWidget)
 
-        for graph in list(self.sensorGraphs.values()):
-            second_col.addWidget(graph)
+            for graph in list(self.sensorGraphs.values()):
+                second_col.addWidget(graph)
 
-        self.layout.addLayout(second_col)
+            self.layout.addLayout(second_col)
 
 
     def makeGraphs(self):

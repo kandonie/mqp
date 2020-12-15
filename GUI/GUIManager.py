@@ -7,7 +7,7 @@ from GUI.WindowEnums import WindowEnums
 class GUIManager:
     """Displays a main window
     """
-    def __init__(self, observers, observees):
+    def __init__(self, observers, observees, GUI_Graphs):
         """initializes variables and shows main window
 
         Args:
@@ -16,7 +16,7 @@ class GUIManager:
 
         #create main window
         app = QtWidgets.QApplication(sys.argv)
-        self.main = MainWindow()
+        self.main = MainWindow(GUI_Graphs)
 
         #attach observers
         observers.append(self)
