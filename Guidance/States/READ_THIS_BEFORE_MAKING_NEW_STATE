@@ -1,14 +1,20 @@
-Each new state must have an __init__ and execute(self, robotData, stateArgs) function.
-Execute must return a bool which is True if the state is done executing, false otherwise
-It must also have a getNextState() function which returns a tuple of (state, stateArgs) or None (None defaults to Estop next state)
-It must also have a getType, which returns the behavioral state
+Each new state must have the following:
+    __init__(...)
+        can have whatever params
+    execute(self, robotData, stateArgs)
+        it will be called in a loop
+        MAKE EXECUTE AS SHORT AS POSSIBLE, IT CAN'T BE ITERRUPTED
+        returns a bool which is True if the state is done executing, False otherwise
+    getNextState()
+        returns a tuple of (state, stateArgs) or None (None defaults to Estop next state)
+    getType()
+        returns the behavioral state
+
 look at example_state for an example.
 
-MAKE EXECUTE LOOP AS SHORT AS POSSIBLE, IT CAN'T BE ITERRUPTED
-After adding the new state, add it to one of the BehavioralStates in GuidanceEnums.py
-Then in stateMachine.py, add a statement to makeState to create the new state for the given Enum
+After adding the new state
+    1. add it to one of the BehavioralStates in GuidanceEnums.py
+    2. in stateMachine.py, add a statement to makeState to create the new state for the given Enum
 
-This would normally be done through overriding methods but python doesn't care about
-Types so we have to write this in this file
 
 

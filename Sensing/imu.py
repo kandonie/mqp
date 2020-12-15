@@ -2,6 +2,7 @@ from Hardware_Comms import WiFiComms
 from Hardware_Comms import ESPHTTPTopics
 
 
+# TODO @Kristen document
 class IMU:
     def __init__(self):
         self.heading = self.read()

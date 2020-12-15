@@ -5,15 +5,14 @@ from Guidance.GuidanceEnums import BehavioralStates
 
 
 class RCGUI(QMainWindow):
-    """This class contains a main window for the application.
-        This is a basic GUI which has simple features.
-
-    Args:
-        QMainWindow: This is of type QMainWindow
+    """
+    This class contains a window for the RC mode.
     """
 
     def __init__(self, observers):
-        """init initializes the QWidgets and sets the geometry of the window
+        """
+        init initializes the QWidgets and sets the geometry of the window
+        :param observers: the classes that observe this GUI
         """
         super().__init__()
         # make main window
@@ -30,6 +29,9 @@ class RCGUI(QMainWindow):
         print("done RC GUI creation")
 
     def makeInstructions(self):
+        """
+        makes the label that displays the RC instructions on the GUI
+        """
         self.instructionsLabel = QLabel(self.mainWidget)
         text = "Space bar for ESTOP\n"
         text += "Up arrow key for drive forward\nDown arrow key for drive backward\n"
@@ -39,25 +41,43 @@ class RCGUI(QMainWindow):
         self.instructionsLabel.setText(text)
 
     def setWidgetLocations(self):
+        """
+        sets the locations of the widgets
+        """
         start_x = 50
         start_y = 50
         widgetSpacing = 20  # num pixels between widgets
         sectionSpacing = 60
-        # TODO make spacing good and consistent
         instruccionsY = start_y
         self.instructionsLabel.move(start_x, instruccionsY)
 
         self.setGeometry(500, start_y, 1000, 1000)
 
     def keyPressEvent(self, event):
+        """
+        when a key is pressed, notify the observers
+        :param event: a key press
+        """
         self.notifyObservers(BehavioralStates.RC, event.key())
 
     def keyReleaseEvent(self, event):
+        """
+        notify the observers of the key released
+        :param event: the key released
+        """
+        # The autorepeat debounces
         if not event.isAutoRepeat() and (
-                event.key() == Qt.Key_Up or event.key() == Qt.Key_Down or event.key() == Qt.Key_Left or event.key() == Qt.Key_Right):
+                event.key() == Qt.Key_Up
+                or event.key() == Qt.Key_Down
+                or event.key() == Qt.Key_Left
+                or event.key() == Qt.Key_Right):
             self.notifyObservers(BehavioralStates.RC, Qt.Key_Slash)
 
     def closeEvent(self, event):
+        """
+        when the window closes, exit
+        :param event: the window closing event
+        """
         event.accept()  # let the window close
         self.returnHome()
 
@@ -66,14 +86,12 @@ class RCGUI(QMainWindow):
         open basicGUI window
         """
         self.notifyObservers(WindowEnums.MAIN, WindowEnums.MAIN.value)
-        pass
 
-    def notifyObservers(self, topic, value, *args):
-        """notifies observers of topic with value
-
-        Args:
-            topic (CommsTopics): a communication topic
-            value (string): the value for the comm topic
+    def notifyObservers(self, topic, value):
+        """
+        notifies observers of topic with value
+        :param topic: the topic
+        :param value: the value
         """
         for observer in self.observers:
             observer.notify(topic, value)

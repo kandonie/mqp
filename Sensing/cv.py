@@ -1,2 +1,0 @@
-class CV:
-    pass

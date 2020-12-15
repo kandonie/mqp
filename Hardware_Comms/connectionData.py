@@ -1,5 +1,5 @@
 class ConnectionDataHandler:
-
+    # TODO Comment this @Kristen
     def __init__(self):
         self.packetID = 0
         self.packetHistory = []

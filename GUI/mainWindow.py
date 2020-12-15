@@ -1,5 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QButtonGroup, QHBoxLayout, \
-    QVBoxLayout, QLineEdit, QRadioButton
+from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
+                             QComboBox, QLabel, QButtonGroup,
+                             QHBoxLayout, QVBoxLayout, QLineEdit,
+                             QRadioButton)
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
@@ -10,15 +12,14 @@ from GUI.DataGraph import DataGraph
 
 
 class MainWindow(QMainWindow):
-    """This class contains a main window for the application.
-        This is a basic GUI which has simple features.
-
-    Args:
-        QMainWindow: This is of type QMainWindow
+    """
+    This class contains a main window for the application.
     """
 
     def __init__(self, GUI_Graphs):
-        """init initializes the QWidgets and sets the geometry of the window
+        """
+        init initializes the QWidgets and sets the geometry of the window
+        :param GUI_Graphs: [Bool] True to display graphs, False otherwise
         """
         super().__init__()
 
@@ -46,6 +47,10 @@ class MainWindow(QMainWindow):
         print("done GUI creation")
 
     def setWidgetLocations(self):
+        """
+        sets the locations of all widgets on the GUI
+        """
+        # TODO helper functions
         self.layout = QHBoxLayout(self.mainWidget)
         first_col = QVBoxLayout(self.mainWidget)
 
@@ -120,11 +125,17 @@ class MainWindow(QMainWindow):
             self.layout.addLayout(second_col)
 
     def makeGraphs(self):
+        """
+        makes all of the graphs
+        """
         self.sensorGraphs = {}
         for sensor in GetJSONVars:
             self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
 
     def makeRadioButtons(self):
+        """
+        makes all of the radio buttons
+        """
         self.disarm_weapon_radio_button = QRadioButton("DISARM_WEAPON", self.mainWidget)
         self.disarm_weapon_radio_button.toggled.connect(lambda: self.changeInWeaponArm(self.disarm_weapon_radio_button))
         self.arm_weapon_radio_button = QRadioButton("ARM_WEAPON", self.mainWidget)
@@ -145,6 +156,10 @@ class MainWindow(QMainWindow):
         self.disarm_drive_radio_button.setChecked(True)
 
     def changeInDriveArm(self, arm_button):
+        """
+        callback for driveing armed state radio button
+        :param arm_button: [QRadioButton] the button that's been changed
+        """
         if arm_button.isChecked():
             if arm_button == self.arm_drive_radio_button:
                 self.notifyObservers(SetJSONVars.ARM_DRIVE, "true")
@@ -152,6 +167,10 @@ class MainWindow(QMainWindow):
                 self.notifyObservers(SetJSONVars.ARM_DRIVE, "false")
 
     def changeInWeaponArm(self, arm_button):
+        """
+        callback for weapon armed state radio button
+        :param arm_button: [QRadioButton] the button that's been changed
+        """
         if arm_button.isChecked():
             if arm_button == self.arm_weapon_radio_button:
                 self.notifyObservers(SetJSONVars.ARM_WEAPON, "true")
@@ -159,16 +178,15 @@ class MainWindow(QMainWindow):
                 self.notifyObservers(SetJSONVars.ARM_WEAPON, "false")
 
     def attachObserver(self, observer):
-        """adds an of observers to its own list
-
-        Args:
-            observer (Observer): must have a notify function that takes 2 args.
-                 It's notify will be called upon information changes
+        """
+        adds an of observers to its own list
+        :param observer: [Observer] must have a notify function that takes 2 args.
         """
         self.observers.append(observer)
 
     def makeButtons(self):
-        """Creates the ESTOP and sendPWM buttons
+        """
+        creates all the push buttons
         """
         # make ESTOP
         self.ESTOPButton = QPushButton(self.mainWidget)
@@ -193,7 +211,8 @@ class MainWindow(QMainWindow):
         self.sendWeaponPWMButton.clicked.connect(lambda: self.sendPWM(self.weapon_pwmQLineEdit, SetJSONVars.WEAPON_PWM))
 
     def makeComboBoxes(self):
-        """makes the Intelligence state combo box, along with corresponding label
+        """
+        makes all of the combo boxes and their corresponding labels
         """
         # make label
         self.intelligenceStateComboBoxLabel = QLabel(self.mainWidget)
@@ -219,7 +238,8 @@ class MainWindow(QMainWindow):
         self.movementTypeButton.clicked.connect(self.sendMovement)
 
     def makeLabels(self):
-        """makes labels for data read
+        """
+        makes labels which are not accounted for by other functions
         """
         # angular position label
         self.sensorLabels = {}
@@ -253,44 +273,22 @@ class MainWindow(QMainWindow):
         self.weapon_pwmQLineEdit.setMaxLength(4)
         self.weapon_pwmQLineEdit.setFixedWidth(qEditWidth)
 
-    def getLabelHeight(self, label):
-        """returns the height of a label
-
-        Args:
-            label (QLabel): the label to get the height of
-
-        Returns:
-            int: the height of the label
-        """
-        return label.fontMetrics().boundingRect(label.text()).height()
-
-    def getLabelWidth(self, label):
-        """returns the width of a label
-
-        Args:
-            label (QLabel): the label to get the width of
-
-        Returns:
-            int: the width of the label
-        """
-        return label.fontMetrics().boundingRect(label.text()).width()
-
     def sendPWM(self, qLineEdit, motor):
-        """alerts observers of change in pwm
+        """
+        alerts observers of change in pwm
         """
         val = int(qLineEdit.text())
-        # TODO maybe implement stuff with self.motorValidator, I couldn't gget it working
         if val < int(PWMVals.FULL_CCW.value) or val > int(PWMVals.FULL_CW.value):
             print(
-                "Not sending. Value not in range. Range is " + PWMVals.FULL_CCW.value + " to " + PWMVals.FULL_CW.value)
+                "Not sending. Value not in range. Range is " + PWMVals.FULL_CCW.value
+                + " to " + PWMVals.FULL_CW.value)
             return
         self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
 
     def intelligenceStateChanged(self, text):
-        """notfies observers of change in intelligence state
-
-        Args:
-            text (String): The new intelligence state (must correspond to an IntelligenceStateEnum)
+        """
+        notfies observers of change in intelligence state
+        :param text: [String] The new intelligence state (must correspond to an IntelligenceStateEnum)
         """
         state = None
         for s in IntelligenceStates:
@@ -302,6 +300,9 @@ class MainWindow(QMainWindow):
             self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
     def setStateToIdle(self):
+        """
+        sets the current state to IDLE
+        """
         self.intelligenceStateChanged(IntelligenceStates.IDLE.value)
         index = self.intelligenceStateComboBox.findText(IntelligenceStates.IDLE.value, Qt.MatchFixedString)
         if index >= 0:
@@ -310,8 +311,6 @@ class MainWindow(QMainWindow):
     def sendMovement(self):
         """
         notifies observers of change in movement desired with desired value
-        :param text: the box chosen in the combo box
-        :return:
         """
         value = self.movementQLineEdit.text()
         if not value:
@@ -322,21 +321,26 @@ class MainWindow(QMainWindow):
         self.notifyObservers(BehavioralStates.MOVEMENT_TEST, int(value))
 
     def ESTOP(self):
-        """alerts observers that an ESTOP is requested
+        """
+        alerts observers that an ESTOP is requested
         """
         self.notifyObservers(BehavioralStates.ESTOP, "ESTOP")
 
-    def notifyObservers(self, topic, value, *args):
-        """notifies observers of topic with value
-
-        Args:
-            topic (CommsTopics): a communication topic
-            value (string): the value for the comm topic
+    def notifyObservers(self, topic, value):
+        """
+        notifies observers of topic with value
+        :param topic:  a topic
+        :param value: a value
         """
         for observer in self.observers:
             observer.notify(topic, value)
 
     def notify(self, topic, value):
+        """
+        notify the observers of (topic, value)
+        :param topic: the topic
+        :param value: the value
+        """
         if topic in GetJSONVars:
             # update specific graph
             if self.hasGraphs:

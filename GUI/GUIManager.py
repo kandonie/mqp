@@ -6,14 +6,16 @@ from GUI.WindowEnums import WindowEnums
 
 
 class GUIManager:
-    """Displays a main window
+    """
+    Creates and displays/hides various windows on appropriate events
     """
 
     def __init__(self, observers, observees, GUI_Graphs):
-        """initializes variables and shows main window
-
-        Args:
-            observers ([observers]): a list of observers to be notified of GUI events.
+        """
+        initializes GUIs and shows main window
+        :param observers: [Observers[]] the observers of the GUI_Manager
+        :param observees: [Observees[]]the classes the GUI_Manager observes
+        :param GUI_Graphs: [Bool] True if we want to display graphs, False otherwise
         """
 
         # create main window
@@ -36,14 +38,18 @@ class GUIManager:
         sys.exit(app.exec_())
 
     def attachObserver(self, observer):
-        """attaches observers to the main window
-
-        Args:
-            observer (Observer): must have a notify function that takes 2 params. 
+        """
+        attaches observers to the main window
+        :param observer: [Observer]: must have a notify function that takes 2 params.
         """
         self.main.attachObserver(observer)
 
     def notify(self, topic, value):
+        """
+        the function that should be called to notify this class of somethign
+        :param topic: [any] the topic of the notification
+        :param value: [any] the value of the notification
+        """
         if topic == WindowEnums.RC:
             self.rcgui.show()
             self.main.hide()
@@ -51,4 +57,3 @@ class GUIManager:
             self.main.show()
             self.main.setStateToIdle()
             self.rcgui.hide()
-        pass

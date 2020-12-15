@@ -2,6 +2,8 @@ from Hardware_Comms import WiFiComms
 from Hardware_Comms import ESPHTTPTopics
 
 
+# TODO @Kristen Document
+
 class MotorCurrent:
     def __init__(self):
         self.drive_current = self.read()
