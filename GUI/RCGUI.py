@@ -66,12 +66,14 @@ class RCGUI(QMainWindow):
         :param event: the key released
         """
         # The autorepeat debounces
-        if not event.isAutoRepeat() and (
-                event.key() == Qt.Key_Up
-                or event.key() == Qt.Key_Down
-                or event.key() == Qt.Key_Left
-                or event.key() == Qt.Key_Right):
-            self.notifyObservers(BehavioralStates.RC, Qt.Key_Slash)
+        if not event.isAutoRepeat():
+            if  event.key() == Qt.Key_Up or event.key() == Qt.Key_Down or (
+                event.key() == Qt.Key_Left) or event.key() == Qt.Key_Right:
+                self.notifyObservers(BehavioralStates.RC, Qt.Key_Slash)
+            #this is so the next time we press w we know it's a new key
+            elif event.key() == Qt.Key_W:
+                self.notifyObservers(BehavioralStates.RC, Qt.Key_Q)
+
 
     def closeEvent(self, event):
         """

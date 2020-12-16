@@ -22,10 +22,10 @@ class StateMachine():
 
         # init vars
         self.wifi = wifi
-        # set initial arm state to disarm
+        # set initial enabled state to disabled
         # TODO maybe put this somewhere else
-        self.wifi.sendInfo(SetJSONVars.ARM_WEAPON.value, "false")
-        self.wifi.sendInfo(SetJSONVars.ARM_DRIVE.value, "false")
+        self.wifi.sendInfo(SetJSONVars.WEAPON_ENABLE_CHANGE.value, "false")
+        self.wifi.sendInfo(SetJSONVars.DRIVE_ENABLE_CHANGE.value, "false")
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
         self.state = self.makeState(BehavioralStates.STOP)
@@ -145,8 +145,8 @@ class StateMachine():
                     args = (BehavioralStates.STOP, "")
                 elif topic == IntelligenceStates.RC:
                     args = (BehavioralStates.RC, "")
-        elif topic == SetJSONVars.ARM_DRIVE or topic == SetJSONVars.ARM_WEAPON:
-            # Bypass state machine to send arming info to the robot
+        elif topic == SetJSONVars.DRIVE_ENABLE_CHANGE or topic == SetJSONVars.WEAPON_ENABLE_CHANGE:
+            # Bypass state machine to send enabling info to the robot
             # There is no associated state
             self.wifi.sendInfo(topic.value, value)
         elif topic in BehavioralStates:

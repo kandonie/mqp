@@ -64,7 +64,7 @@ class RemoteControl:
         elif key == Qt.Key_Slash:
             # stop drive
             self.drive.stop()
-        elif key == 'w':
+        elif key == Qt.Key_W:
             # toggle weapon on/off
             self.weapon.toggle()
         elif key == Qt.Key_Space:
