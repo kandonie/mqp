@@ -32,14 +32,20 @@ class RemoteControl:
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
 
-        # TODO do something with basicGUI to create a pop-up box to input weapon speed
+        #short circuit if bad args passed to RC, first arg is always "", so bad
+        if len(stateArgs) <= 1:
+            print("bad args for RC. Wanted (key, speed) but got " + str(stateArgs))
+            self.first = False
+            return False
+
         # based on keyboard inputs, send corresponding drive and weapon signals
-        key = stateArgs
+        key = stateArgs[0]
+        speed = int(stateArgs[1])
         if key is not self.key:
             self.key = key
-            self.keyMap(key)
+            self.keyMap(key, speed)
 
-    def keyMap(self, key):
+    def keyMap(self, key, speed):
         """
         commands the robot to do an action depending
         on the key pressed
@@ -47,20 +53,20 @@ class RemoteControl:
         """
         if key == Qt.Key_Up:
             # move robot forward
-            # this might need reversing
-            self.drive.driveSpeed(PWMVals.FULL_CCW.value)
+            speed = int(PWMVals.STOPPED.value) - speed
+            self.drive.driveSpeed(str(speed))
         elif key == Qt.Key_Down:
             # move robot backward
-            # this might need reversing
-            self.drive.driveSpeed(PWMVals.FULL_CW.value)
+            speed = int(PWMVals.STOPPED.value) + speed
+            self.drive.driveSpeed(str(speed))
         elif key == Qt.Key_Left:
             # rotate robot CCW
-            # this might need reversing
-            self.drive.turnSpeed(PWMVals.FULL_CCW.value)
+            speed = int(PWMVals.STOPPED.value) - speed
+            self.drive.turnSpeed(int(speed))
         elif key == Qt.Key_Right:
             # rotate robot CW
-            # this might need reversing
-            self.drive.turnSpeed(PWMVals.FULL_CW.value)
+            speed = int(PWMVals.STOPPED.value) + speed
+            self.drive.turnSpeed(int(speed))
         elif key == Qt.Key_Slash:
             # stop drive
             self.drive.stop()

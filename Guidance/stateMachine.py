@@ -144,7 +144,7 @@ class StateMachine():
                 if topic == IntelligenceStates.IDLE or topic == IntelligenceStates.AUTO:
                     args = (BehavioralStates.STOP, "")
                 elif topic == IntelligenceStates.RC:
-                    args = (BehavioralStates.RC, "")
+                    args = (BehavioralStates.RC, ("", "0"))
         elif topic == SetJSONVars.DRIVE_ENABLE_CHANGE or topic == SetJSONVars.WEAPON_ENABLE_CHANGE:
             # Bypass state machine to send enabling info to the robot
             # There is no associated state
