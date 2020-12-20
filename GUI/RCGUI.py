@@ -71,7 +71,7 @@ class RCGUI(QMainWindow):
     def makeSpeedOption(self, layout):
         maxPWMDiff = int(PWMVals.FULL_CW.value) - int(PWMVals.STOPPED.value)
         label = QLabel(self.mainWidget)
-        label.setText("Motor speed (PWM Diff from 0 for each motor, 0-" + str(maxPWMDiff))
+        label.setText("Motor speed (PWM Diff from 0 for each motor, 0-" + str(maxPWMDiff) + ")")
         layout.addWidget(label)
 
         hbox = QHBoxLayout(self.mainWidget)
