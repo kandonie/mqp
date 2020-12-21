@@ -67,6 +67,10 @@ class MainWindow(QMainWindow):
             self.makeGraphs(second_col)
             self.layout.addLayout(second_col)
 
+        thirdCol = QVBoxLayout(self.mainWidget)
+        self.makeBeginMatchButton(thirdCol)
+        self.layout.addLayout(thirdCol)
+
     def makeESTOPButton(self, layout):
         """
         make the ESTOP button and add it to layout
@@ -284,6 +288,14 @@ class MainWindow(QMainWindow):
         for sensor in GetJSONVars:
             self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
             layout.addWidget(self.sensorGraphs[sensor])
+
+    def makeBeginMatchButton(self, layout):
+        button = QPushButton("Begin Match")
+        button.clicked.connect(self.startMatch)
+        layout.addWidget(button)
+
+    def startMatch(self):
+        self.notifyObservers(BehavioralStates.MATCH_START, None)
 
     def notify(self, topic, value):
         """

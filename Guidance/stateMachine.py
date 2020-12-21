@@ -1,10 +1,11 @@
 from Robot_Locomotion.drive import Drive
 from Robot_Locomotion.weapon import Weapon
 from Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
-from Guidance.States.IdleState import IdleState
-from Guidance.States.MovementTests import PolygonalMovement
+from Guidance.States.stop import Stop
+from Guidance.States.PolygonalMovement import PolygonalMovement
 from Guidance.States.PWMController import PWMController
 from Guidance.States.RemoteControl import RemoteControl
+from Guidance.States.match_start import MatchStart
 from Guidance.States.ESTOP import ESTOP
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 import threading
@@ -70,7 +71,7 @@ class StateMachine():
         :return: the new state
         """
         if state == BehavioralStates.STOP:
-            state = IdleState(self.drive, self.weapon)
+            state = Stop(self.drive, self.weapon)
         elif state == BehavioralStates.MOVEMENT_TEST:
             state = PolygonalMovement(self.drive)
         elif state == BehavioralStates.PWM:
@@ -79,6 +80,8 @@ class StateMachine():
             state = RemoteControl(self.drive, self.weapon)
         elif state == BehavioralStates.ESTOP:
             state = ESTOP(self.drive, self.weapon)
+        elif state == BehavioralStates.MATCH_START:
+            state = MatchStart()
         return state
 
     def determineNextState(self, args):
