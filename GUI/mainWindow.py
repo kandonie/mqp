@@ -45,6 +45,13 @@ class MainWindow(QMainWindow):
         """
         self.observers.append(observer)
 
+    def reset(self):
+        self.setStateToIdle()
+        self.drive_enabled_group.buttons()[0].setChecked(True)
+        self.weapon_enabled_group.buttons()[0].setChecked(True)
+        for label in self.sensorLabels.values():
+            label[1].setText("0")
+
     def initializeLayout(self):
         """
         sets the locations of all widgets on the GUI
@@ -69,6 +76,8 @@ class MainWindow(QMainWindow):
 
         thirdCol = QVBoxLayout(self.mainWidget)
         self.makeBeginMatchButton(thirdCol)
+        self.makeEndMatchButton(thirdCol)
+        self.makeResetButton(thirdCol)
         self.layout.addLayout(thirdCol)
 
     def makeESTOPButton(self, layout):
@@ -94,7 +103,7 @@ class MainWindow(QMainWindow):
         :param layout: the layout to add the radio buttons to
         """
         # dict of label to params for notifying of click (topic, value)
-        #For testing
+        # For testing
         self.enablingButtons = []
 
         self.enablingLabels = {}
@@ -231,7 +240,7 @@ class MainWindow(QMainWindow):
             if val < int(PWMVals.FULL_CCW.value):
                 val = int(PWMVals.FULL_CCW.value)
             else:
-                val =int(PWMVals.FULL_CW.value)
+                val = int(PWMVals.FULL_CW.value)
         self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
 
     def makePolygonalMovement(self, layout):
@@ -261,7 +270,6 @@ class MainWindow(QMainWindow):
             print("Polygon needs at least 2 sides")
             return
         self.notifyObservers(BehavioralStates.MOVEMENT_TEST, int(value))
-
 
     def makeSensorLabels(self, layout):
         self.sensorLabels = {}
@@ -297,6 +305,19 @@ class MainWindow(QMainWindow):
     def startMatch(self):
         self.notifyObservers(BehavioralStates.MATCH_START, None)
 
+    def makeEndMatchButton(self, layout):
+        button = QPushButton("Match Over")
+        button.clicked.connect(self.endMatch)
+        layout.addWidget(button)
+
+    def endMatch(self):
+        self.notifyObservers(BehavioralStates.END_MATCH, None)
+
+    def makeResetButton(self, layout):
+        button = QPushButton("Reset Match")
+        button.clicked.connect(self.reset)
+        layout.addWidget(button)
+
     def notify(self, topic, value):
         """
         get notified of
@@ -327,6 +348,7 @@ class MainWindow(QMainWindow):
         sets the current state to IDLE
         """
         self.intelligenceStateChanged(IntelligenceStates.IDLE.value)
+        self.notifyObservers(BehavioralStates.STOP, None)
         index = self.intelligenceStateComboBox.findText(IntelligenceStates.IDLE.value, Qt.MatchFixedString)
         if index >= 0:
             self.intelligenceStateComboBox.setCurrentIndex(index)

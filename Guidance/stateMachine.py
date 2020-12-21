@@ -6,6 +6,7 @@ from Guidance.States.PolygonalMovement import PolygonalMovement
 from Guidance.States.PWMController import PWMController
 from Guidance.States.RemoteControl import RemoteControl
 from Guidance.States.match_start import MatchStart
+from Guidance.States.EndMatch import MatchEnd
 from Guidance.States.ESTOP import ESTOP
 from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 import threading
@@ -82,6 +83,8 @@ class StateMachine():
             state = ESTOP(self.drive, self.weapon)
         elif state == BehavioralStates.MATCH_START:
             state = MatchStart()
+        elif state == BehavioralStates.END_MATCH:
+            state = MatchEnd()
         return state
 
     def determineNextState(self, args):
