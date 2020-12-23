@@ -1,5 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QPushButton, QMainWindow, QComboBox, QLabel, QButtonGroup, QHBoxLayout, \
-    QVBoxLayout, QLineEdit, QRadioButton
+from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
+                             QComboBox, QLabel, QButtonGroup,
+                             QHBoxLayout, QVBoxLayout, QLineEdit,
+                             QRadioButton)
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
@@ -10,17 +12,18 @@ from GUI.DataGraph import DataGraph
 
 
 class MainWindow(QMainWindow):
-    """This class contains a main window for the application.
-        This is a basic GUI which has simple features.
-
-    Args:
-        QMainWindow: This is of type QMainWindow
+    """
+    This class contains a main window for the application.
     """
 
     def __init__(self, GUI_Graphs):
-        """init initializes the QWidgets and sets the geometry of the window
+        """
+        init initializes the QWidgets and sets the geometry of the window
+        :param GUI_Graphs: [Bool] True to display graphs, False otherwise
         """
         super().__init__()
+
+        self.hasGraphs = GUI_Graphs
 
         # make main window
         self.mainWidget = QWidget()
@@ -30,268 +33,134 @@ class MainWindow(QMainWindow):
         # important for setting locations of QWidgets
         self.observers = []
 
-        #make widgets
-        self.makeButtons()
-        self.makeComboBoxes()
-        self.makeLabels()
-        self.makeRadioButtons()
-        if GUI_Graphs:
-            self.makeGraphs()
-
-        self.setWidgetLocations(GUI_Graphs)
+        self.initializeLayout()
         self.mainWidget.setLayout(self.layout)
 
         print("done GUI creation")
 
-
-    def setWidgetLocations(self, GUI_Graphs):
-        self.layout = QHBoxLayout(self.mainWidget)
-        first_col = QVBoxLayout(self.mainWidget)
-
-        #estop at top
-        first_col.addWidget(self.ESTOPButton)
-
-        #followed by weapon radio buttons
-        weapon_radio_button_hbox = QHBoxLayout(self.mainWidget)
-        weapon_radio_button_hbox.addWidget(self.disarm_weapon_radio_button)
-        weapon_radio_button_hbox.addWidget(self.arm_weapon_radio_button)
-        first_col.addLayout(weapon_radio_button_hbox)
-
-        #followed by drive radio buttons
-        drive_radio_button_hbox = QHBoxLayout(self.mainWidget)
-        drive_radio_button_hbox.addWidget(self.disarm_drive_radio_button)
-        drive_radio_button_hbox.addWidget(self.arm_drive_radio_button)
-        first_col.addLayout(drive_radio_button_hbox)
-
-        #followed by intelligence state combo box
-        intelligenceHBox = QHBoxLayout(self.mainWidget)
-        intelligenceHBox.addWidget(self.intelligenceStateComboBoxLabel)
-        intelligenceHBox.addWidget(self.intelligenceStateComboBox)
-        first_col.addLayout(intelligenceHBox)
-
-        #PWM control
-        pwmVBox = QVBoxLayout(self.mainWidget)
-        pwmVBox.addWidget(self.pwmLabel)
-
-        motor1PwmHBox = QHBoxLayout(self.mainWidget)
-        motor1PwmHBox.addWidget(self.motor1_pwmQLineEdit)
-        motor1PwmHBox.addWidget(self.sendMotor1_PWMButton)
-        pwmVBox.addLayout(motor1PwmHBox)
-
-        motor2PwmHBox = QHBoxLayout(self.mainWidget)
-        motor2PwmHBox.addWidget(self.motor2_pwmQLineEdit)
-        motor2PwmHBox.addWidget(self.sendMotor2_PWMButton)
-        pwmVBox.addLayout(motor2PwmHBox)
-
-        weaponPwmHBox = QHBoxLayout(self.mainWidget)
-        weaponPwmHBox.addWidget(self.weapon_pwmQLineEdit)
-        weaponPwmHBox.addWidget(self.sendWeaponPWMButton)
-        pwmVBox.addLayout(weaponPwmHBox)
-
-        first_col.addLayout(pwmVBox)
-
-        #Polygon
-        polygonVBox = QVBoxLayout(self.mainWidget)
-        polygonVBox.addWidget(self.movementLabel)
-        polygonHBox = QHBoxLayout(self.mainWidget)
-        polygonHBox.addWidget(self.movementQLineEdit)
-        polygonHBox.addWidget(self.movementTypeButton)
-        polygonVBox.addLayout(polygonHBox)
-        first_col.addLayout(polygonVBox)
-
-        #sensor info
-        for sensor in GetJSONVars:
-            (label, data) = self.sensorLabels[sensor]
-            sensorHBox = QHBoxLayout(self.mainWidget)
-            sensorHBox.addWidget(label)
-            sensorHBox.addWidget(data)
-            first_col.addLayout(sensorHBox)
-
-        self.layout.addLayout(first_col)
-
-        if GUI_Graphs:
-            #Second col: Graphs
-            second_col = QVBoxLayout(self.mainWidget)
-
-            for graph in list(self.sensorGraphs.values()):
-                second_col.addWidget(graph)
-
-            self.layout.addLayout(second_col)
-
-
-    def makeGraphs(self):
-        self.sensorGraphs = {}
-        for sensor in GetJSONVars:
-            self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
-
-
-    def makeRadioButtons(self):
-        self.disarm_weapon_radio_button = QRadioButton("DISARM_WEAPON", self.mainWidget)
-        self.disarm_weapon_radio_button.toggled.connect(lambda: self.changeInWeaponArm(self.disarm_weapon_radio_button))
-        self.arm_weapon_radio_button = QRadioButton("ARM_WEAPON", self.mainWidget)
-        self.arm_weapon_radio_button.toggled.connect(lambda: self.changeInWeaponArm(self.arm_weapon_radio_button))
-        self.disarm_drive_radio_button = QRadioButton("DISARM DRIVE", self.mainWidget)
-        self.disarm_drive_radio_button.toggled.connect(lambda: self.changeInDriveArm(self.disarm_drive_radio_button))
-        self.arm_drive_radio_button = QRadioButton("ARM DRIVE", self.mainWidget)
-        self.arm_drive_radio_button.toggled.connect(lambda: self.changeInDriveArm(self.arm_drive_radio_button))
-        # Group
-        self.weapon_armed_group = QButtonGroup()
-        self.drive_armed_group = QButtonGroup()
-        self.weapon_armed_group.addButton(self.disarm_weapon_radio_button)
-        self.weapon_armed_group.addButton(self.arm_weapon_radio_button)
-        self.drive_armed_group.addButton(self.disarm_drive_radio_button)
-        self.drive_armed_group.addButton(self.arm_drive_radio_button)
-        # start in the disarm state
-        self.disarm_weapon_radio_button.setChecked(True)
-        self.disarm_drive_radio_button.setChecked(True)
-
-    def changeInDriveArm(self, arm_button):
-        if arm_button.isChecked():
-            if arm_button == self.arm_drive_radio_button:
-                self.notifyObservers(SetJSONVars.ARM_DRIVE, "true")
-            else:
-                self.notifyObservers(SetJSONVars.ARM_DRIVE, "false")
-
-    def changeInWeaponArm(self, arm_button):
-        if arm_button.isChecked():
-            if arm_button == self.arm_weapon_radio_button:
-                self.notifyObservers(SetJSONVars.ARM_WEAPON, "true")
-            else:
-                self.notifyObservers(SetJSONVars.ARM_WEAPON, "false")
-
     def attachObserver(self, observer):
-        """adds an of observers to its own list
-
-        Args:
-            observer (Observer): must have a notify function that takes 2 args.
-                 It's notify will be called upon information changes
+        """
+        adds an of observers to its own list
+        :param observer: [Observer] must have a notify function that takes 2 args.
         """
         self.observers.append(observer)
 
-    def makeButtons(self):
-        """Creates the ESTOP and sendPWM buttons
+    def initializeLayout(self):
         """
-        # make ESTOP
+        sets the locations of all widgets on the GUI
+        """
+        self.layout = QHBoxLayout(self.mainWidget)
+        first_col = QVBoxLayout(self.mainWidget)
+
+        # add widgets to first col
+        self.makeESTOPButton(first_col)
+        self.makeRobotSystemEnablingButtons(first_col)
+        self.makeIntelligenceStateComboBox(first_col)
+        self.makePWMButtons(first_col)
+        self.makePolygonalMovement(first_col)
+        self.makeSensorLabels(first_col)
+
+        self.layout.addLayout(first_col)
+
+        if self.hasGraphs:
+            second_col = QVBoxLayout(self.mainWidget)
+            self.makeGraphs(second_col)
+            self.layout.addLayout(second_col)
+
+    def makeESTOPButton(self, layout):
+        """
+        make the ESTOP button and add it to layout
+        :param layout: the layout to add the ESTOP to
+        """
         self.ESTOPButton = QPushButton(self.mainWidget)
         self.ESTOPButton.setText("Estop")
         self.ESTOPButton.clicked.connect(self.ESTOP)
 
-        # make send PWM button
-        self.sendMotor1_PWMButton = QPushButton(self.mainWidget)
-        self.sendMotor1_PWMButton.setText("Send Motor 1 PWM")
-        self.sendMotor1_PWMButton.clicked.connect(
-            lambda: self.sendPWM(self.motor1_pwmQLineEdit, SetJSONVars.MOTOR1_PWM))
+        layout.addWidget(self.ESTOPButton)
 
-        # make send PWM button
-        self.sendMotor2_PWMButton = QPushButton(self.mainWidget)
-        self.sendMotor2_PWMButton.setText("Send Motor 2 PWM")
-        self.sendMotor2_PWMButton.clicked.connect(
-            lambda: self.sendPWM(self.motor2_pwmQLineEdit, SetJSONVars.MOTOR2_PWM))
-
-        # make send PWM button
-        self.sendWeaponPWMButton = QPushButton(self.mainWidget)
-        self.sendWeaponPWMButton.setText("Send Weapon PWM")
-        self.sendWeaponPWMButton.clicked.connect(lambda: self.sendPWM(self.weapon_pwmQLineEdit, SetJSONVars.WEAPON_PWM))
-
-    def makeComboBoxes(self):
-        """makes the Intelligence state combo box, along with corresponding label
+    def ESTOP(self):
         """
+        alerts observers that an ESTOP is requested
+        """
+        self.notifyObservers(BehavioralStates.ESTOP, "ESTOP")
+
+    def makeRobotSystemEnablingButtons(self, layout):
+        """
+        makes the radio buttons that toggle drive enabled on/pff
+        :param layout: the layout to add the radio buttons to
+        """
+        # dict of label to params for notifying of click (topic, value)
+        self.enablingLabels = {}
+        self.enablingLabels["Disable Drive"] = (SetJSONVars.DRIVE_ENABLE_CHANGE, "false")
+        self.enablingLabels["Enable Drive"] = (SetJSONVars.DRIVE_ENABLE_CHANGE, "true")
+        self.enablingLabels["Disable Weapon"] = (SetJSONVars.WEAPON_ENABLE_CHANGE, "false")
+        self.enablingLabels["Enable Weapon"] = (SetJSONVars.WEAPON_ENABLE_CHANGE, "true")
+
+        driveRadioHBox = QHBoxLayout(self.mainWidget)
+        self.drive_enabled_group = QButtonGroup()
+        weaponRadioHBox = QHBoxLayout(self.mainWidget)
+        self.weapon_enabled_group = QButtonGroup()
+
+        count = 0
+        for label in self.enablingLabels.keys():
+            button = self.makeRadioButton(label)
+            if count < 2:
+                driveRadioHBox.addWidget(button)
+                self.drive_enabled_group.addButton(button)
+            else:
+                weaponRadioHBox.addWidget(button)
+                self.weapon_enabled_group.addButton(button)
+            if count % 2 == 0:
+                button.setChecked(True)
+            else:
+                button.setChecked(False)
+            count += 1
+
+        layout.addLayout(driveRadioHBox)
+        layout.addLayout(weaponRadioHBox)
+
+    def makeRadioButton(self, label):
+        """
+        makes a radio button
+        is in a function cuz python loop scope bad
+        :param label: [String]
+        :return: [QRadioButton] the button
+        """
+        button = QRadioButton(label, self.mainWidget)
+        button.toggled.connect(lambda: self.enableChanged(button))
+        return button
+
+    def enableChanged(self, button):
+        """
+        callback for system enabled radio buttons (drive, weapon)
+        :param arm_button: [QRadioButton] the button that's been changed
+        """
+        if button.isChecked():
+            if button.text() in self.enablingLabels.keys():
+                params = self.enablingLabels[button.text()]
+                self.notifyObservers(params[0], params[1])
+
+    def makeIntelligenceStateComboBox(self, layout):
         # make label
-        self.intelligenceStateComboBoxLabel = QLabel(self.mainWidget)
-        self.intelligenceStateComboBoxLabel.setText("Intelligence State")
+        label = QLabel(self.mainWidget)
+        label.setText("Intelligence State")
+
         # make combobox
+        # Is self because setToIdle needs it
         self.intelligenceStateComboBox = QComboBox(self.mainWidget)
-        # addd in each state in intelligence state as an option
-        intelligenceOptions = []
-        for state in IntelligenceStates:
-            intelligenceOptions.append(state.value)
-        self.intelligenceStateComboBox.addItems(intelligenceOptions)
-        # finalize box
+        self.intelligenceStateComboBox.addItems(IntelligenceStates.list_states())
         self.intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
 
-        # straight/turn/square
-        self.movementLabel = QLabel(self.mainWidget)
-        self.movementLabel.setText("Drive polygon, n sides")
-        self.movementQLineEdit = QLineEdit("3", self.mainWidget)
-        self.movementQLineEdit.setValidator(QIntValidator())
-        self.movementQLineEdit.setMaxLength(1)
-        self.movementTypeButton = QPushButton(self.mainWidget)
-        self.movementTypeButton.setText("Send Movement Info")
-        self.movementTypeButton.clicked.connect(self.sendMovement)
-
-    def makeLabels(self):
-        """makes labels for data read
-        """
-        # angular position label
-        self.sensorLabels = {}
-        for sensor in GetJSONVars:
-            label = QLabel(self.mainWidget)
-            data = QLabel(self.mainWidget)
-            label.setFixedWidth(300)
-            label.setText(sensor.value)
-            data.setText("   0")
-            self.sensorLabels[sensor] = (label, data)
-
-        self.pwmLabel = QLabel(self.mainWidget)
-        self.pwmLabel.setText("Individually set PWMs")
-        qEditWidth = 100
-        # create pwm qedit (corresponds to value of slider)
-        self.motorValidator = QIntValidator(int(PWMVals.FULL_CCW.value), int(PWMVals.FULL_CW.value))
-        self.motor1_pwmQLineEdit = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
-        self.motor1_pwmQLineEdit.setValidator(self.motorValidator)
-        self.motor1_pwmQLineEdit.setMaxLength(4)
-        self.motor1_pwmQLineEdit.setFixedWidth(qEditWidth)
-        #   self.motor1_pwmQLineEdit.textEdited.connect(lambda: self.PWMValueChanged(self.motor1_pwmQLineEdit))
-
-        self.motor2_pwmQLineEdit = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
-        self.motor2_pwmQLineEdit.setValidator(self.motorValidator)
-        self.motor2_pwmQLineEdit.setMaxLength(4)
-        self.motor2_pwmQLineEdit.setFixedWidth(qEditWidth)
-        #  self.motor2_pwmQLineEdit.textEdited.connect(lambda: self.PWMValueChanged(self.motor2_pwmQLineEdit))
-
-        self.weapon_pwmQLineEdit = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
-        self.weapon_pwmQLineEdit.setValidator(self.motorValidator)
-        self.weapon_pwmQLineEdit.setMaxLength(4)
-        self.weapon_pwmQLineEdit.setFixedWidth(qEditWidth)
-
-    def getLabelHeight(self, label):
-        """returns the height of a label
-
-        Args:
-            label (QLabel): the label to get the height of
-
-        Returns:
-            int: the height of the label
-        """
-        return label.fontMetrics().boundingRect(label.text()).height()
-
-    def getLabelWidth(self, label):
-        """returns the width of a label
-
-        Args:
-            label (QLabel): the label to get the width of
-
-        Returns:
-            int: the width of the label
-        """
-        return label.fontMetrics().boundingRect(label.text()).width()
-
-    def sendPWM(self, qLineEdit, motor):
-        """alerts observers of change in pwm
-        """
-        val = int(qLineEdit.text())
-        # TODO maybe implement stuff with self.motorValidator, I couldn't gget it working
-        if val < int(PWMVals.FULL_CCW.value) or val > int(PWMVals.FULL_CW.value):
-            print(
-                "Not sending. Value not in range. Range is " + PWMVals.FULL_CCW.value + " to " + PWMVals.FULL_CW.value)
-            return
-        self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
+        # followed by intelligence state combo box
+        intelligenceHBox = QHBoxLayout(self.mainWidget)
+        intelligenceHBox.addWidget(label)
+        intelligenceHBox.addWidget(self.intelligenceStateComboBox)
+        layout.addLayout(intelligenceHBox)
 
     def intelligenceStateChanged(self, text):
-        """notfies observers of change in intelligence state
-
-        Args:
-            text (String): The new intelligence state (must correspond to an IntelligenceStateEnum)
+        """
+        notfies observers of change in intelligence state
+        :param text: [String] The new intelligence state (must correspond to an IntelligenceStateEnum)
         """
         state = None
         for s in IntelligenceStates:
@@ -302,17 +171,78 @@ class MainWindow(QMainWindow):
         if state == IntelligenceStates.RC:
             self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
-    def setStateToIdle(self):
-        self.intelligenceStateChanged(IntelligenceStates.IDLE.value)
-        index = self.intelligenceStateComboBox.findText(IntelligenceStates.IDLE.value, Qt.MatchFixedString)
-        if index >= 0:
-            self.intelligenceStateComboBox.setCurrentIndex(index)
+    def makePWMButtons(self, layout):
+        """
+        creates all the push buttons
+        """
+        pwmLabel = QLabel(self.mainWidget)
+        pwmLabel.setText("Individually set PWMs")
+        layout.addWidget(pwmLabel)
+
+        motors = [SetJSONVars.MOTOR1_PWM, SetJSONVars.WEAPON_PWM, SetJSONVars.MOTOR2_PWM]
+
+        for motor in motors:
+            hBox = self.makeMotor(motor)
+            layout.addLayout(hBox)
+
+    def makeMotor(self, motor):
+        """
+        makes GUI stuff for each motor
+        Can't do in for loop because variable scope bad
+        :param motor: the name of the motor
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        validator = QIntValidator(int(PWMVals.FULL_CCW.value), int(PWMVals.FULL_CW.value))
+        PWMInput = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
+        PWMInput.setValidator(validator)
+        PWMInput.setMaxLength(4)
+        PWMInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(PWMInput)
+
+        sendPWMButton = QPushButton(self.mainWidget)
+        label = "Set PWM for " + motor.value
+        sendPWMButton.setText(label)
+        sendPWMButton.clicked.connect(lambda: self.sendPWM(PWMInput, motor))
+        hBox.addWidget(sendPWMButton)
+
+        return hBox
+
+    def sendPWM(self, qLineEdit, motor):
+        """
+        alerts observers of change in pwm
+        """
+        val = int(qLineEdit.text())
+        if val < int(PWMVals.FULL_CCW.value) or val > int(PWMVals.FULL_CW.value):
+            print(
+                "Not sending. Value not in range. Range is " + PWMVals.FULL_CCW.value
+                + " to " + PWMVals.FULL_CW.value)
+            return
+        self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
+
+    def makePolygonalMovement(self, layout):
+        label = QLabel(self.mainWidget)
+        label.setText("Drive polygon, n sides")
+        layout.addWidget(label)
+
+        # callback needs this to be self
+        hBox = QHBoxLayout(self.mainWidget)
+        self.movementQLineEdit = QLineEdit("3", self.mainWidget)
+        self.movementQLineEdit.setValidator(QIntValidator())
+        self.movementQLineEdit.setMaxLength(1)
+        hBox.addWidget(self.movementQLineEdit)
+
+        button = QPushButton(self.mainWidget)
+        button.setText("Send Movement Info")
+        button.clicked.connect(self.sendMovement)
+        hBox.addWidget(button)
+        layout.addLayout(hBox)
 
     def sendMovement(self):
         """
         notifies observers of change in movement desired with desired value
-        :param text: the box chosen in the combo box
-        :return:
         """
         value = self.movementQLineEdit.text()
         if not value:
@@ -322,28 +252,62 @@ class MainWindow(QMainWindow):
             return
         self.notifyObservers(BehavioralStates.MOVEMENT_TEST, int(value))
 
-    def ESTOP(self):
-        """alerts observers that an ESTOP is requested
+    def makeSensorLabels(self, layout):
+        self.sensorLabels = {}
+        for sensor in GetJSONVars:
+            hbox = QHBoxLayout(self.mainWidget)
+
+            label = QLabel(self.mainWidget)
+            label.setFixedWidth(300)
+            label.setText(sensor.value)
+            hbox.addWidget(label)
+
+            data = QLabel(self.mainWidget)
+            data.setText("   0")
+            hbox.addWidget(data)
+
+            layout.addLayout(hbox)
+            self.sensorLabels[sensor] = (label, data)
+
+    def makeGraphs(self, layout):
         """
-        self.notifyObservers(BehavioralStates.ESTOP, "ESTOP")
+        makes all of the graphs
+        """
+        self.sensorGraphs = {}
+        for sensor in GetJSONVars:
+            self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
+            layout.addWidget(self.sensorGraphs[sensor])
 
-    def notifyObservers(self, topic, value, *args):
-        """notifies observers of topic with value
+    def notify(self, topic, value):
+        """
+        get notified of
+        :param topic: the topic
+        :param value: the value
+        """
+        if topic in GetJSONVars:
+            # update specific graph
+            if self.hasGraphs:
+                graph = self.sensorGraphs[topic]
+                if value != graph.getCurrData():
+                    graph.update_plot(value)
 
-        Args:
-            topic (CommsTopics): a communication topic 
-            value (string): the value for the comm topic
+            # update label on GUI
+            self.sensorLabels[topic][1].setText(value)
+
+    def notifyObservers(self, topic, value):
+        """
+        notifies observers of topic with value
+        :param topic:  a topic
+        :param value: a value
         """
         for observer in self.observers:
             observer.notify(topic, value)
 
-    def notify(self, topic, value):
-        if topic in GetJSONVars:
-            #update specific graph
-            graph = self.sensorGraphs[topic]
-            if value != graph.getCurrData():
-                graph.update_plot(value)
-
-            #update label on GUI
-            if topic == GetJSONVars.HEADING:
-                self.aPosDataLabel.setText(value)
+    def setStateToIdle(self):
+        """
+        sets the current state to IDLE
+        """
+        self.intelligenceStateChanged(IntelligenceStates.IDLE.value)
+        index = self.intelligenceStateComboBox.findText(IntelligenceStates.IDLE.value, Qt.MatchFixedString)
+        if index >= 0:
+            self.intelligenceStateComboBox.setCurrentIndex(index)
