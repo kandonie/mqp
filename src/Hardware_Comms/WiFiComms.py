@@ -1,7 +1,7 @@
 import requests
-from Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
-from Hardware_Comms.connectionData import ConnectionDataHandler
-from Robot_Locomotion.MotorEnums import PWMVals
+from src.Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
+from src.Hardware_Comms.connectionData import ConnectionDataHandler
+from src.Robot_Locomotion.MotorEnums import PWMVals
 
 
 class WiFiComms:

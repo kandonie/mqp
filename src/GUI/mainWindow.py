@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
                              QRadioButton)
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
-from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
-from Robot_Locomotion.MotorEnums import PWMVals
-from GUI.WindowEnums import WindowEnums
-from GUI.DataGraph import DataGraph
+from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
+from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.GUI.WindowEnums import WindowEnums
+from src.GUI.DataGraph import DataGraph
 
 
 class MainWindow(QMainWindow):

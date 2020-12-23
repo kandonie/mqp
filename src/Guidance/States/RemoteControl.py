@@ -1,5 +1,5 @@
-from Guidance.GuidanceEnums import BehavioralStates
-from Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates
+from src.Robot_Locomotion.MotorEnums import PWMVals
 from PyQt5.Qt import Qt
 
 
