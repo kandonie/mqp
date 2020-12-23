@@ -1,13 +1,13 @@
-from GUI.basicGUI import MainWindow
+from GUI.mainWindow import MainWindow
 from PyQt5 import QtWidgets
 import sys  # We need sys so that we can pass argv to QApplication
 from GUI.RCGUI import RCGUI
 from GUI.WindowEnums import WindowEnums
 
-class GUIDataManager:
+class GUIManager:
     """Displays a main window
     """
-    def __init__(self, observers, observees):
+    def __init__(self, observers, observees, GUI_Graphs):
         """initializes variables and shows main window
 
         Args:
@@ -16,21 +16,21 @@ class GUIDataManager:
 
         #create main window
         app = QtWidgets.QApplication(sys.argv)
-        self.main = MainWindow()
+        self.main = MainWindow(GUI_Graphs)
 
         #attach observers
         observers.append(self)
         for observer in observers:
             self.attachObserver(observer)
         self.observers = observers
-        
+        self.rcgui = RCGUI(self.observers)
+
         for observee in observees:
             observee.attachObserver(self.main)
 
         #execute main window app
         self.main.show()
-        self.rcgui = RCGUI(self.observers)
-        
+
         sys.exit(app.exec_())
 
     def attachObserver(self, observer):

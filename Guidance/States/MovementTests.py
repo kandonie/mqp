@@ -49,4 +49,4 @@ class PolygonalMovement():
         return BehavioralStates.MOVEMENT_TEST
 
     def getNextState(self):
-        return None
+        return (BehavioralStates.STOP, None)
