@@ -1,0 +1,8 @@
+To run tests:
+    python -m pytest tests
+you will need to install pytest
+if you want to make new tests, you NEED to have an __init__.py in every directory
+used for an import or it will complain along the lines of "Can't import Module 'xxx'"
+
+for example, from src.GUI.mainWindow import MainWindow
+needs a __init__.py file in the src/ and src/GUI directories
