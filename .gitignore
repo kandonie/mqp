@@ -2,3 +2,4 @@
 __pycache__/
 .vscode/
 get-pip.py
+.pytest_cache

@@ -1,6 +1,6 @@
-from Guidance.GuidanceEnums import BehavioralStates
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars
-from Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from src.Robot_Locomotion.MotorEnums import PWMVals
 
 
 class PWMController():

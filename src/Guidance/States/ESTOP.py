@@ -1,14 +1,16 @@
-from Guidance.GuidanceEnums import BehavioralStates
+from src.Guidance.GuidanceEnums import BehavioralStates
 
 
-class ExampleState():
+class ESTOP():
 
-    def __init__(self):
+    def __init__(self, drive, weapon):
         """
-        initialize the state
+        intialize the ESTOP State
+        :param drive: [Drive] the drive instance
+        :param weapon: [Weapon] the weapon instance
         """
-        # This function can have whatever params you want.
-        pass
+        self.drive = drive
+        self.weapon = weapon
 
     def execute(self, robotData, stateArgs):
         """
@@ -17,17 +19,18 @@ class ExampleState():
         :param stateArgs: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
-        return False
+        self.drive.stop()
+        self.weapon.stop()
 
     def getType(self):
         """
-        :return: the the type of behavior state this is
+        :return: the behavior state
         """
-        return BehavioralStates.STOP
+        return BehavioralStates.ESTOP
 
     def getNextState(self):
         """
         Returns the state to transition to after this one
-        :return: [(BehavioralState, (args...))] the next state as (state, stateArgs), or None for STOP
+        :return: [(BehavioralState, (args...))] the next state as (state, stateArgs)
         """
-        return (BehavioralStates.STOP, None)
+        return None

@@ -2,9 +2,9 @@ import sys
 import threading
 
 sys.path.insert(1, '~/mqp')
-from Guidance.stateMachine import StateMachine
-from GUI.GUIManager import GUIManager
-from Hardware_Comms.WiFiComms import WiFiComms
+from src.Guidance.stateMachine import StateMachine
+from src.GUI.GUIManager import GUIManager
+from src.Hardware_Comms.WiFiComms import WiFiComms
 
 
 def main(connectToWiFi, GUI_Graphs):

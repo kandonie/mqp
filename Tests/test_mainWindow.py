@@ -1,11 +1,11 @@
 import pytest
-from GUI.mainWindow import MainWindow
+from src.GUI.mainWindow import MainWindow
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
-from GUI.WindowEnums import WindowEnums
-from Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars
-from Robot_Locomotion.MotorEnums import PWMVals
+from src.GUI.WindowEnums import WindowEnums
+from src.Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from src.Robot_Locomotion.MotorEnums import PWMVals
 
 
 class Observer(QWidget):

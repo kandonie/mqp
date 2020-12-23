@@ -1,22 +1,22 @@
-from Hardware_Comms import WiFiComms
-from Hardware_Comms import ESPHTTPTopics
+from src.Hardware_Comms import ESPHTTPTopics, WiFiComms
 
 
-# TODO @Kristen document
-class IMU:
+# TODO @Kristen Document
+
+class MotorCurrent:
     def __init__(self):
-        self.heading = self.read()
-        self.topic = ESPHTTPTopics.GetJSONVars.HEADING
+        self.drive_current = self.read()
+        self.topic = ESPHTTPTopics.GetJSONVars.DRIVE_CURRENT
         self.observers = []
 
     # read IMU heading
     def read(self):
-        self.heading = WiFiComms.getInfo(self.topic)
+        self.drive_current = WiFiComms.getInfo(self.topic)
         self.notifyObservers()
 
     def notifyObservers(self):
         for observer in self.observers:
-            observer.notify(self.topic, self.heading)
+            observer.notify(self.topic, self.drive_current)
 
     def attachObservers(self, observers):
         for observer in observers:
