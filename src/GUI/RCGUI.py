@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QMainWindow, QLabel, QHBoxLayout, QVBoxLayout, QSlider
-from GUI.WindowEnums import WindowEnums
+from src.GUI.WindowEnums import WindowEnums
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QKeyEvent
-from Guidance.GuidanceEnums import BehavioralStates
-from Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates
+from src.Robot_Locomotion.MotorEnums import PWMVals
 
 class myDumbSlider(QSlider):
     """

@@ -1,8 +1,8 @@
-from GUI.mainWindow import MainWindow
+from src.GUI.mainWindow import MainWindow
 from PyQt5 import QtWidgets
 import sys  # We need sys so that we can pass argv to QApplication
-from GUI.RCGUI import RCGUI
-from GUI.WindowEnums import WindowEnums
+from src.GUI.RCGUI import RCGUI
+from src.GUI.WindowEnums import WindowEnums
 
 
 class GUIManager:

@@ -1,5 +1,8 @@
-To run:
+To run application:
     python3 main.py <shouldConnectToWiFi> <Display_Graphs>
+
+To run tests:
+    python -m pytest tests
 
 shouldConnectToWiFi defaults to True. True tries to connect to WiFi. False will never try to connect
 but will also load faster. Good for testing without the ESP

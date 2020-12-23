@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
                              QRadioButton)
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
-from Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
-from Robot_Locomotion.MotorEnums import PWMVals
-from GUI.WindowEnums import WindowEnums
-from GUI.DataGraph import DataGraph
+from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
+from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.GUI.WindowEnums import WindowEnums
+from src.GUI.DataGraph import DataGraph
 
 
 class MainWindow(QMainWindow):
@@ -67,6 +67,10 @@ class MainWindow(QMainWindow):
             self.makeGraphs(second_col)
             self.layout.addLayout(second_col)
 
+        thirdCol = QVBoxLayout(self.mainWidget)
+        self.makeBeginMatchButton(thirdCol)
+        self.layout.addLayout(thirdCol)
+
     def makeESTOPButton(self, layout):
         """
         make the ESTOP button and add it to layout
@@ -90,6 +94,9 @@ class MainWindow(QMainWindow):
         :param layout: the layout to add the radio buttons to
         """
         # dict of label to params for notifying of click (topic, value)
+        #For testing
+        self.enablingButtons = []
+
         self.enablingLabels = {}
         self.enablingLabels["Disable Drive"] = (SetJSONVars.DRIVE_ENABLE_CHANGE, "false")
         self.enablingLabels["Enable Drive"] = (SetJSONVars.DRIVE_ENABLE_CHANGE, "true")
@@ -128,6 +135,7 @@ class MainWindow(QMainWindow):
         """
         button = QRadioButton(label, self.mainWidget)
         button.toggled.connect(lambda: self.enableChanged(button))
+        self.enablingButtons.append(button)
         return button
 
     def enableChanged(self, button):
@@ -175,11 +183,12 @@ class MainWindow(QMainWindow):
         """
         creates all the push buttons
         """
+        self.motors = []
         pwmLabel = QLabel(self.mainWidget)
         pwmLabel.setText("Individually set PWMs")
         layout.addWidget(pwmLabel)
 
-        motors = [SetJSONVars.MOTOR1_PWM, SetJSONVars.WEAPON_PWM, SetJSONVars.MOTOR2_PWM]
+        motors = [SetJSONVars.MOTOR1_PWM, SetJSONVars.MOTOR2_PWM, SetJSONVars.WEAPON_PWM]
 
         for motor in motors:
             hBox = self.makeMotor(motor)
@@ -207,7 +216,7 @@ class MainWindow(QMainWindow):
         sendPWMButton.setText(label)
         sendPWMButton.clicked.connect(lambda: self.sendPWM(PWMInput, motor))
         hBox.addWidget(sendPWMButton)
-
+        self.motors.append((PWMInput, sendPWMButton, motor))
         return hBox
 
     def sendPWM(self, qLineEdit, motor):
@@ -219,7 +228,10 @@ class MainWindow(QMainWindow):
             print(
                 "Not sending. Value not in range. Range is " + PWMVals.FULL_CCW.value
                 + " to " + PWMVals.FULL_CW.value)
-            return
+            if val < int(PWMVals.FULL_CCW.value):
+                val = int(PWMVals.FULL_CCW.value)
+            else:
+                val =int(PWMVals.FULL_CW.value)
         self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
 
     def makePolygonalMovement(self, layout):
@@ -234,10 +246,10 @@ class MainWindow(QMainWindow):
         self.movementQLineEdit.setMaxLength(1)
         hBox.addWidget(self.movementQLineEdit)
 
-        button = QPushButton(self.mainWidget)
-        button.setText("Send Movement Info")
-        button.clicked.connect(self.sendMovement)
-        hBox.addWidget(button)
+        self.movementButton = QPushButton(self.mainWidget)
+        self.movementButton.setText("Send Movement Info")
+        self.movementButton.clicked.connect(self.sendMovement)
+        hBox.addWidget(self.movementButton)
         layout.addLayout(hBox)
 
     def sendMovement(self):
@@ -245,12 +257,11 @@ class MainWindow(QMainWindow):
         notifies observers of change in movement desired with desired value
         """
         value = self.movementQLineEdit.text()
-        if not value:
-            value = '0'
-        elif int(value) < 3:
+        if not value or int(value) < 3:
             print("Polygon needs at least 2 sides")
             return
         self.notifyObservers(BehavioralStates.MOVEMENT_TEST, int(value))
+
 
     def makeSensorLabels(self, layout):
         self.sensorLabels = {}
@@ -277,6 +288,14 @@ class MainWindow(QMainWindow):
         for sensor in GetJSONVars:
             self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
             layout.addWidget(self.sensorGraphs[sensor])
+
+    def makeBeginMatchButton(self, layout):
+        button = QPushButton("Begin Match")
+        button.clicked.connect(self.startMatch)
+        layout.addWidget(button)
+
+    def startMatch(self):
+        self.notifyObservers(BehavioralStates.MATCH_START, None)
 
     def notify(self, topic, value):
         """

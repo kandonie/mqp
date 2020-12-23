@@ -1,22 +1,29 @@
-from Guidance.GuidanceEnums import BehavioralStates
+from src.Guidance.GuidanceEnums import BehavioralStates
 
 
-class ExampleState():
+class Stop():
 
-    def __init__(self):
+    def __init__(self, drive, weapon):
         """
-        initialize the state
+        sends stop once then does nothing
+        :param drive: the drive
+        :param weapon: the weapon
         """
-        # This function can have whatever params you want.
-        pass
+        self.drive = drive
+        self.weapon = weapon
+        self.sent = False
 
     def execute(self, robotData, stateArgs):
         """
-        repeatedly sends STOP to the drive and weapon, should be as short as possible
+        Sends stop once then does nothing and always returns false
         :param robotData: the robot data (sensor info, CV, so on)
         :param stateArgs: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
+        if not self.sent:
+            self.drive.stop()
+            self.weapon.stop()
+            self.sent = True
         return False
 
     def getType(self):
@@ -30,4 +37,4 @@ class ExampleState():
         Returns the state to transition to after this one
         :return: [(BehavioralState, (args...))] the next state as (state, stateArgs), or None for STOP
         """
-        return (BehavioralStates.STOP, None)
+        return None
