@@ -1,6 +1,19 @@
-To run tests:
+To run tests, from the mqp directory:
     python -m pytest tests
-you will need to install pytest
+
+For test coverage:
+in Windows
+    python -m pytest --cov=<PathToMQP>\mqp tests --cov-report html --cov-report term-missing
+ex)
+ I apologize for my Windows path
+ python -m pytest --cov=C:\Users\lhatf\Documents\GitHub\mqp tests --cov-report html --cov-report term-missing
+
+for Linux just use Linux path with / instead of \
+
+this will create a htmlcov directory which shows coverage results. Look at index.htm first then other .html
+files for specific lines hit/missed on each file
+
+you will want to do a pip install pytest-cov
 if you want to make new tests, you NEED to have an __init__.py in every directory
 used for an import or it will complain along the lines of "Can't import Module 'xxx'"
 
