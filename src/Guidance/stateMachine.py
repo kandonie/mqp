@@ -9,6 +9,7 @@ from src.Guidance.States.match_start import MatchStart
 from src.Guidance.States.ESTOP import ESTOP
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 import threading
+from src.Sensing.RobotDataManager import RobotDataManager
 
 
 class StateMachine():
@@ -33,7 +34,9 @@ class StateMachine():
         self.stateArgs = None
         self.intelligenceState = IntelligenceStates.IDLE
         # robotData is a dict with Behavioral_Args and Behavioral_State
-        self.robotData = {}
+        self.robotDataManager = RobotDataManager.getInstance()
+        self.robotData = self.robotDataManager.getRobotData()
+        self.robotDataManager.attachObserver(self)
 
         # locks for accessing state/robotData
         self.robotDataLock = threading.Lock()
