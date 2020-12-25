@@ -1,5 +1,5 @@
 from src.Guidance.GuidanceEnums import BehavioralStates
-
+import time
 
 class ESTOP():
 
@@ -21,6 +21,8 @@ class ESTOP():
         """
         self.drive.stop()
         self.weapon.stop()
+        time.sleep(1)
+
 
     def getType(self):
         """

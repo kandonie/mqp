@@ -72,6 +72,7 @@ class WiFiComms:
         print("asking " + str(value) + " of " + str(topic))
         if not self.isConnected:
             self.notifyObservers(GetJSONVars.HEADING, str(self.heading))
+            #for testing purposes
             self.heading += 10
             self.heading %= 100
             return

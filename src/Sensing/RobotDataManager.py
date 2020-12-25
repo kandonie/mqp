@@ -1,5 +1,5 @@
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
-
+import threading
 
 class RobotDataManager:
 
@@ -25,17 +25,24 @@ class RobotDataManager:
             for topic in GetJSONVars:
                 self.robotData[topic] = None
             self.observers = []
+            self.robotDataLock = threading.Lock()
 
     def getRobotData(self):
-        return self.robotData
+        self.robotDataLock.acquire(True)
+        data = self.robotData
+        self.robotDataLock.release()
+        return data
 
     def notify(self, topic, value):
         # if we've had a change or is first time
-        if not topic in self.robotData.keys() or \
-                (topic in self.robotData.keys() and value != self.robotData[topic]):
+        self.robotDataLock.acquire(True)
+        if not topic in self.robotData.keys() or value != self.robotData[topic]:
             self.robotData[topic] = value
+            self.robotDataLock.release()
             self.notifyObservers(topic, value)
             self.checkForProblems()
+        else:
+            self.robotDataLock.release()
 
     def checkForProblems(self):
         pass
@@ -46,22 +53,3 @@ class RobotDataManager:
 
     def attachObserver(self, observer):
         self.observers.append(observer)
-
-
-# WifiComms will notify RobotData, and RobotData needs to notify everyone else that something changed
-# Singleton design pattern for RobotData, WifiComms
-
-# This is going to check the robotData dict and based on what the values are, notify() stateMachine that
-# a change in state (a topic!) is needed
-#
-# E.g.
-# check the current, whoa look it's too high
-# we need to go into back_off state
-# notify() state machine and give it the back_off state topic
-#
-# E.g
-# go into PWMController state with a specific speed
-# call notify() state machine and give it the pwm controller topic with whatever speed as the value
-#
-# IMPORTANT NOTE:
-# need to attach observers: stateMachine (maybe more later)

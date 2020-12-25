@@ -35,14 +35,9 @@ class StateMachine():
         self.intelligenceState = IntelligenceStates.IDLE
         # robotData is a dict with Behavioral_Args and Behavioral_State
         self.robotDataManager = RobotDataManager.getInstance()
-        self.robotData = self.robotDataManager.getRobotData()
         self.robotDataManager.attachObserver(self)
-
-        # locks for accessing state/robotData
-        self.robotDataLock = threading.Lock()
+        # locks for accessing state
         self.robotStateLock = threading.Lock()
-        for topic in SetJSONVars:
-            self.robotData[topic] = None
 
     def runStateMachine(self):
         """
@@ -50,9 +45,7 @@ class StateMachine():
         """
         while True:
             # get a copy of the current robot data
-            self.robotDataLock.acquire()
-            data = self.robotData
-            self.robotDataLock.release()
+            data = self.robotDataManager.getRobotData()
 
             # execute state with that data
             self.robotStateLock.acquire()
@@ -163,9 +156,4 @@ class StateMachine():
             # if anything has changed, request a state change
             if curr_state is None or curr_state_args is None or topic != curr_state or value != curr_state_args:
                 args = (topic, value)
-        elif topic in GetJSONVars:
-            # update robot data
-            self.robotDataLock.acquire()
-            self.robotData[topic] = value
-            self.robotDataLock.release()
         self.determineNextState(args)
