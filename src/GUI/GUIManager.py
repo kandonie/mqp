@@ -10,7 +10,7 @@ class GUIManager:
     Creates and displays/hides various windows on appropriate events
     """
 
-    def __init__(self, observers, observees, GUI_Graphs):
+    def __init__(self, observers, GUI_Graphs):
         """
         initializes GUIs and shows main window
         :param observers: [Observers[]] the observers of the GUI_Manager
@@ -28,9 +28,6 @@ class GUIManager:
             self.attachObserver(observer)
         self.observers = observers
         self.rcgui = RCGUI(self.observers)
-
-        for observee in observees:
-            observee.attachObserver(self.main)
 
         # execute main window app
         self.main.show()

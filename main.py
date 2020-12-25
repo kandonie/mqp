@@ -31,7 +31,7 @@ def main(connectToWiFi, GUI_Graphs):
         print("Couldn't start state machine")
 
     # start GUI (won't return until GUI window is closed )
-    GUIManager([sm], [], GUI_Graphs)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
+    GUIManager([sm], GUI_Graphs)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
     sys.exit()
 
 
