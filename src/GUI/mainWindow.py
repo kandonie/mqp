@@ -46,6 +46,13 @@ class MainWindow(QMainWindow):
         """
         self.observers.append(observer)
 
+    def reset(self):
+        self.setStateToIdle()
+        self.drive_enabled_group.buttons()[0].setChecked(True)
+        self.weapon_enabled_group.buttons()[0].setChecked(True)
+        for label in self.sensorLabels.values():
+            label[1].setText("0")
+
     def initializeLayout(self):
         """
         sets the locations of all widgets on the GUI
@@ -70,6 +77,8 @@ class MainWindow(QMainWindow):
 
         thirdCol = QVBoxLayout(self.mainWidget)
         self.makeBeginMatchButton(thirdCol)
+        self.makeEndMatchButton(thirdCol)
+        self.makeResetButton(thirdCol)
         self.layout.addLayout(thirdCol)
 
     def makeESTOPButton(self, layout):
@@ -304,6 +313,19 @@ class MainWindow(QMainWindow):
 
     def startMatch(self):
         self.notifyObservers(BehavioralStates.MATCH_START, None)
+
+    def makeEndMatchButton(self, layout):
+        button = QPushButton("Match Over")
+        button.clicked.connect(self.endMatch)
+        layout.addWidget(button)
+
+    def endMatch(self):
+        self.notifyObservers(BehavioralStates.END_MATCH, None)
+
+    def makeResetButton(self, layout):
+        button = QPushButton("Reset Match")
+        button.clicked.connect(self.reset)
+        layout.addWidget(button)
 
     def notify(self, topic, value):
         """
