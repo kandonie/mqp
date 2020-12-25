@@ -9,6 +9,7 @@ from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 from src.Robot_Locomotion.MotorEnums import PWMVals
 from src.GUI.WindowEnums import WindowEnums
 from src.GUI.DataGraph import DataGraph
+from src.Sensing.RobotDataManager import RobotDataManager
 
 
 class MainWindow(QMainWindow):
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
         self.initializeLayout()
         self.mainWidget.setLayout(self.layout)
 
-        print("done GUI creation")
+        RobotDataManager.getInstance().attachObserver(self)
 
     def attachObserver(self, observer):
         """
@@ -107,10 +108,14 @@ class MainWindow(QMainWindow):
         self.enablingButtons = []
 
         self.enablingLabels = {}
-        self.enablingLabels["Disable Drive"] = (SetJSONVars.DRIVE_ENABLE_CHANGE, "false")
-        self.enablingLabels["Enable Drive"] = (SetJSONVars.DRIVE_ENABLE_CHANGE, "true")
-        self.enablingLabels["Disable Weapon"] = (SetJSONVars.WEAPON_ENABLE_CHANGE, "false")
-        self.enablingLabels["Enable Weapon"] = (SetJSONVars.WEAPON_ENABLE_CHANGE, "true")
+        self.enablingLabels["Disable Drive"] = (
+            SetJSONVars.DRIVE_ENABLE_CHANGE, "false")
+        self.enablingLabels["Enable Drive"] = (
+            SetJSONVars.DRIVE_ENABLE_CHANGE, "true")
+        self.enablingLabels["Disable Weapon"] = (
+            SetJSONVars.WEAPON_ENABLE_CHANGE, "false")
+        self.enablingLabels["Enable Weapon"] = (
+            SetJSONVars.WEAPON_ENABLE_CHANGE, "true")
 
         driveRadioHBox = QHBoxLayout(self.mainWidget)
         self.drive_enabled_group = QButtonGroup()
@@ -165,8 +170,10 @@ class MainWindow(QMainWindow):
         # make combobox
         # Is self because setToIdle needs it
         self.intelligenceStateComboBox = QComboBox(self.mainWidget)
-        self.intelligenceStateComboBox.addItems(IntelligenceStates.list_states())
-        self.intelligenceStateComboBox.activated[str].connect(self.intelligenceStateChanged)
+        self.intelligenceStateComboBox.addItems(
+            IntelligenceStates.list_states())
+        self.intelligenceStateComboBox.activated[str].connect(
+            self.intelligenceStateChanged)
 
         # followed by intelligence state combo box
         intelligenceHBox = QHBoxLayout(self.mainWidget)
@@ -197,7 +204,8 @@ class MainWindow(QMainWindow):
         pwmLabel.setText("Individually set PWMs")
         layout.addWidget(pwmLabel)
 
-        motors = [SetJSONVars.MOTOR1_PWM, SetJSONVars.MOTOR2_PWM, SetJSONVars.WEAPON_PWM]
+        motors = [SetJSONVars.MOTOR1_PWM,
+                  SetJSONVars.MOTOR2_PWM, SetJSONVars.WEAPON_PWM]
 
         for motor in motors:
             hBox = self.makeMotor(motor)
@@ -213,7 +221,8 @@ class MainWindow(QMainWindow):
         qEditWidth = 100
 
         hBox = QHBoxLayout(self.mainWidget)
-        validator = QIntValidator(int(PWMVals.FULL_CCW.value), int(PWMVals.FULL_CW.value))
+        validator = QIntValidator(
+            int(PWMVals.FULL_CCW.value), int(PWMVals.FULL_CW.value))
         PWMInput = QLineEdit(PWMVals.STOPPED.value, self.mainWidget)
         PWMInput.setValidator(validator)
         PWMInput.setMaxLength(4)
@@ -348,7 +357,7 @@ class MainWindow(QMainWindow):
         sets the current state to IDLE
         """
         self.intelligenceStateChanged(IntelligenceStates.IDLE.value)
-        self.notifyObservers(BehavioralStates.STOP, None)
-        index = self.intelligenceStateComboBox.findText(IntelligenceStates.IDLE.value, Qt.MatchFixedString)
+        index = self.intelligenceStateComboBox.findText(
+            IntelligenceStates.IDLE.value, Qt.MatchFixedString)
         if index >= 0:
             self.intelligenceStateComboBox.setCurrentIndex(index)
