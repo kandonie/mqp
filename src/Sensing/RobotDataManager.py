@@ -45,6 +45,15 @@ class RobotDataManager:
             self.robotDataLock.release()
 
     def checkForProblems(self):
+        #TODO
+        #if bad connection
+            #bad conn state
+        #elif robot upside donw
+            #Right self state
+        #elif weapon curr too high / motor can't move
+            #back off
+        #elif weapon malfuntion/stall
+           #weapon malfunction state?
         pass
 
     def notifyObservers(self, topic, value):
