@@ -1,5 +1,5 @@
-from src.Guidance.GuidanceEnums import BehavioralStates
-from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates_T
+from src.Robot_Locomotion.MotorEnums import PWMVals_T
 from PyQt5.Qt import Qt
 
 
@@ -24,23 +24,23 @@ class RemoteControl:
 
         self.key = None
 
-    def execute(self, robotData, stateArgs):
+    def execute(self, robot_data, state_args):
         """
         controls the robot based on which key is pressed/released
-        :param robotData: the robot data (sensor info, CV, so on)
-        :param stateArgs: the arguments for this state
+        :param robot_data: the robot data (sensor info, CV, so on)
+        :param state_args: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
 
         #short circuit if bad args passed to RC, first arg is always "", so bad
-        if len(stateArgs) <= 1:
-            print("bad args for RC. Wanted (key, speed) but got " + str(stateArgs))
+        if len(state_args) <= 1:
+            print("bad args for RC. Wanted (key, speed) but got " + str(state_args))
             self.first = False
             return False
 
         # based on keyboard inputs, send corresponding drive and weapon signals
-        key = stateArgs[0]
-        speed = int(stateArgs[1])
+        key = state_args[0]
+        speed = int(state_args[1])
         if key is not self.key:
             self.key = key
             self.keyMap(key, speed)
@@ -53,19 +53,19 @@ class RemoteControl:
         """
         if key == Qt.Key_Up:
             # move robot forward
-            speed = int(PWMVals.STOPPED.value) - speed
+            speed = int(PWMVals_T.STOPPED.value) - speed
             self.drive.driveSpeed(str(speed))
         elif key == Qt.Key_Down:
             # move robot backward
-            speed = int(PWMVals.STOPPED.value) + speed
+            speed = int(PWMVals_T.STOPPED.value) + speed
             self.drive.driveSpeed(str(speed))
         elif key == Qt.Key_Left:
             # rotate robot CCW
-            speed = int(PWMVals.STOPPED.value) - speed
+            speed = int(PWMVals_T.STOPPED.value) - speed
             self.drive.turnSpeed(int(speed))
         elif key == Qt.Key_Right:
             # rotate robot CW
-            speed = int(PWMVals.STOPPED.value) + speed
+            speed = int(PWMVals_T.STOPPED.value) + speed
             self.drive.turnSpeed(int(speed))
         elif key == Qt.Key_Slash:
             # stop drive
@@ -84,7 +84,7 @@ class RemoteControl:
         """
         :return: the the type of behavior state this is
         """
-        return BehavioralStates.RC
+        return BehavioralStates_T.RC
 
     def getNextState(self):
         """

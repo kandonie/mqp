@@ -1,22 +1,22 @@
 class ConnectionDataHandler:
     # TODO Comment this @Kristen
     def __init__(self):
-        self.packetID = 0
-        self.packetHistory = []
-        self.historyLimit = 100
-        self.lostPackets = 0
-        self.packetLoss = 0
+        self.packet_id = 0
+        self.packet_history = []
+        self.history_limit = 100
+        self.lost_packets = 0
+        self.packet_loss = 0
 
     def execute(self, rtt):
         """
         add the packet's rtt to packetHistory and call other handlers
         :param rtt: [int]   the round trip time of the latest successful packet
         """
-        if len(self.packetHistory) >= self.historyLimit:
-            self.packetHistory.pop(0)
-        self.packetHistory.append(rtt)
+        if len(self.packet_history) >= self.history_limit:
+            self.packet_history.pop(0)
+        self.packet_history.append(rtt)
         ConnectionDataHandler.handleReturnTime(rtt)
-        self.packetLoss = ConnectionDataHandler.calculatePacketLoss(self.packetHistory, self.lostPackets)
+        self.packet_loss = ConnectionDataHandler.calculatePacketLoss(self.packet_history, self.lost_packets)
 
     @staticmethod
     def handleReturnTime(rtt):
@@ -29,15 +29,15 @@ class ConnectionDataHandler:
         print("rtt: " + str(rtt))
 
     @staticmethod
-    def calculatePacketLoss(packetHistory, lost):
+    def calculatePacketLoss(packet_history, lost):
         """
         calculate the percentage of packets lost over a set history of packets
-        :param packetHistory:   [[int]]     a list of packet rtt's for a recent history of packets
+        :param packet_history:   [[int]]     a list of packet rtt's for a recent history of packets
         :param lost:            [int]       the number of packets sent that did not go through
         :return:                [int]       the packet loss percentage, in decimal
         """
-        received = len(packetHistory)
+        received = len(packet_history)
         return lost / received
 
     def loss(self):
-        self.lostPackets += 1
+        self.lost_packets += 1

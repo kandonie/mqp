@@ -1,4 +1,4 @@
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars_T, GetJSONVars_T
 import threading
 
 class RobotDataManager:
@@ -20,29 +20,29 @@ class RobotDataManager:
             RobotDataManager.__instance = self
             # robotData is filled from WifiComms when it notifies RobotData (which means we need a notify() in this class
             self.robotData = {}
-            for topic in SetJSONVars:
+            for topic in SetJSONVars_T:
                 self.robotData[topic] = None
-            for topic in GetJSONVars:
+            for topic in GetJSONVars_T:
                 self.robotData[topic] = None
             self.observers = []
-            self.robotDataLock = threading.Lock()
+            self.robot_data_lock = threading.Lock()
 
     def getRobotData(self):
-        self.robotDataLock.acquire(True)
+        self.robot_data_lock.acquire(True)
         data = self.robotData
-        self.robotDataLock.release()
+        self.robot_data_lock.release()
         return data
 
     def notify(self, topic, value):
         # if we've had a change or is first time
-        self.robotDataLock.acquire(True)
+        self.robot_data_lock.acquire(True)
         if not topic in self.robotData.keys() or value != self.robotData[topic]:
             self.robotData[topic] = value
-            self.robotDataLock.release()
+            self.robot_data_lock.release()
             self.notifyObservers(topic, value)
             self.checkForProblems()
         else:
-            self.robotDataLock.release()
+            self.robot_data_lock.release()
 
     def checkForProblems(self):
         #TODO

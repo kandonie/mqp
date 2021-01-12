@@ -1,9 +1,9 @@
-from src.Guidance.GuidanceEnums import BehavioralStates
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
-from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates_T
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars_T
+from src.Robot_Locomotion.MotorEnums import PWMVals_T
 
 
-class PWMController():
+class PWMController:
 
     def __init__(self, drive):
         """
@@ -12,31 +12,31 @@ class PWMController():
         :param weapon: the weapon
         """
         self.drive = drive
-        self.hasSent = False
+        self.has_sent = False
         # remember prev vals, so we only send if pwm changed
-        self.motorVals = {SetJSONVars.MOTOR1_PWM: PWMVals.STOPPED, SetJSONVars.MOTOR2_PWM: PWMVals.STOPPED,
-                          SetJSONVars.WEAPON_PWM: PWMVals.STOPPED, }
+        self.motor_vals = {SetJSONVars_T.MOTOR1_PWM: PWMVals_T.STOPPED, SetJSONVars_T.MOTOR2_PWM: PWMVals_T.STOPPED,
+                           SetJSONVars_T.WEAPON_PWM: PWMVals_T.STOPPED, }
 
-    def execute(self, robotData, stateArgs):
+    def execute(self, robot_data, state_args):
         """
         sends a PWM signal from the GUI to the motors
-        :param robotData: the robot data (sensor info, CV, so on)
-        :param stateArgs: the arguments for this state
+        :param robot_data: the robot data (sensor info, CV, so on)
+        :param state_args: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
-        motor = stateArgs[0]
-        pwm = stateArgs[1]
-        if not self.hasSent or not self.motorVals[motor] == pwm:
-            self.motorVals[motor] = pwm
+        motor = state_args[0]
+        pwm = state_args[1]
+        if not self.has_sent or not self.motor_vals[motor] == pwm:
+            self.motor_vals[motor] = pwm
             self.drive.setPWM(motor.value, pwm)
-            self.hasSent = True
+            self.has_sent = True
         return False
 
     def getType(self):
         """
         :return: the the type of behavior state this is
         """
-        return BehavioralStates.PWM
+        return BehavioralStates_T.PWM
 
     def getNextState(self):
         """

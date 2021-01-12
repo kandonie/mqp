@@ -1,4 +1,4 @@
-from src.Guidance.GuidanceEnums import BehavioralStates
+from src.Guidance.GuidanceEnums import BehavioralStates_T
 
 
 class PolygonalMovement():
@@ -11,35 +11,35 @@ class PolygonalMovement():
         self.drive = drive
         self.resetVars()
 
-    def execute(self, robotData, stateArgs):
+    def execute(self, robot_data, state_args):
         """
         drives in a polygon with stateArgs number of sides
-        :param robotData: the robot data (sensor info, CV, so on)
-        :param stateArgs: the arguments for this state
+        :param robot_data: the robot data (sensor info, CV, so on)
+        :param state_args: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
-        numSides = stateArgs
-        if numSides != self.goalSides:
+        num_sides = state_args
+        if num_sides != self.goal_sides:
             self.resetVars()
-            self.goalSides = numSides
-            self.angle = (numSides - 2) * 180 / numSides
+            self.goal_sides = num_sides
+            self.angle = (num_sides - 2) * 180 / num_sides
         elif self.done:
             return True
 
-        if self.isTurning:
+        if self.is_turning:
             self.drive.turnAngle(self.angle)
-            self.isTurning = False
+            self.is_turning = False
         else:
             self.drive.driveDistance(1)  # drive one meter
-            self.sidesCompleted += 1
-            self.isTurning = True
+            self.sides_completed += 1
+            self.is_turning = True
 
-        if self.sidesCompleted == self.goalSides:
+        if self.sides_completed == self.goal_sides:
             self.drive.stop()
-            nSides = self.sidesCompleted
+            nSides = self.sides_completed
             self.resetVars()
             self.done = True
-            self.goalSides = nSides  # to make the first if false
+            self.goal_sides = nSides  # to make the first if false
             return True
 
         return False
@@ -48,21 +48,21 @@ class PolygonalMovement():
         """
         resets all of the variables to a default state
         """
-        self.sidesCompleted = 0
-        self.goalSides = 0
+        self.sides_completed = 0
+        self.goal_sides = 0
         self.angle = 0
-        self.isTurning = False
+        self.is_turning = False
         self.done = False
 
     def getType(self):
         """
         :return: the the type of behavior state this is
         """
-        return BehavioralStates.MOVEMENT_TEST
+        return BehavioralStates_T.MOVEMENT_TEST
 
     def getNextState(self):
         """
        Returns the state to transition to after this one
        :return: [(BehavioralState, (args...))] the next state as (state, stateArgs), or None for STOP
        """
-        return (BehavioralStates.STOP, None)
+        return (BehavioralStates_T.STOP, None)

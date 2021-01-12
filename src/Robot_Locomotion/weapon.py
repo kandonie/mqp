@@ -1,5 +1,5 @@
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
-from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars_T
+from src.Robot_Locomotion.MotorEnums import PWMVals_T
 
 
 class Weapon:
@@ -12,20 +12,20 @@ class Weapon:
         :param wifi: the wifi
         """
         self.wifi = wifi
-        self.isOn = False
+        self.is_on = False
 
     def stop(self):
         """
         sets the weapon speed to 0
         """
-        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.STOPPED.value)
-        self.isOn = False
+        self.wifi.sendInfo(SetJSONVars_T.WEAPON_PWM.value, PWMVals_T.STOPPED.value)
+        self.is_on = False
 
     def toggle(self):
         """
         turns the weapon on or off based on its current state
         """
-        if not self.isOn:
+        if not self.is_on:
             self.turnOn()
         else:
             self.stop()
@@ -34,5 +34,5 @@ class Weapon:
         """
         turns the weapon on
         """
-        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.FULL_CCW.value)
-        self.isOn = True
+        self.wifi.sendInfo(SetJSONVars_T.WEAPON_PWM.value, PWMVals_T.FULL_CCW.value)
+        self.is_on = True

@@ -1,14 +1,14 @@
 from enum import Enum
 
 
-class HTTPTopics(Enum):
+class HTTPTopics_T(Enum):
     """
     topic used for wifi comms
     """
     MAIN = "/generaltest"
 
 
-class RobotMovementType(Enum):
+class RobotMovementType_T(Enum):
     """
     the type of movement control for the drive
     """
@@ -17,7 +17,7 @@ class RobotMovementType(Enum):
     TURN_ANGLE = "gyroMode"
 
 
-class SetJSONVars(Enum):
+class SetJSONVars_T(Enum):
     """
     The json variables that can be set through wifi
     AKA things to set on the robot
@@ -33,7 +33,7 @@ class SetJSONVars(Enum):
     DRIVE_ENABLE_CHANGE = "Drive Enabled Changed State"
 
 
-class GetJSONVars(Enum):
+class GetJSONVars_T(Enum):
     """
     The json variables the can be acquired through wifi
     aka info received from the robot about the robot

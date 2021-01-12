@@ -2,10 +2,10 @@ import pytest
 from src.GUI.mainWindow import MainWindow
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
-from src.GUI.WindowEnums import WindowEnums
-from src.Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
-from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.GUI.WindowEnums_T import WindowEnums_T
+from src.Guidance.GuidanceEnums import BehavioralStates_T, IntelligenceStates_T
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars_T
+from src.Robot_Locomotion.MotorEnums import PWMVals_T
 
 
 class Observer(QWidget):
@@ -50,8 +50,8 @@ def test_attach_observer(observerlessWindow):
 
 def test_estop(window, qtbot):
     assert observer.data == []
-    qtbot.mouseClick(window.ESTOPButton, Qt.LeftButton)
-    assert observer.data == [(BehavioralStates.ESTOP, "ESTOP")]
+    qtbot.mouseClick(window.ESTOP_Button, Qt.LeftButton)
+    assert observer.data == [(BehavioralStates_T.ESTOP, "ESTOP")]
 
 
 def groupEnabled(enabledButton, disabledButton):
@@ -115,7 +115,7 @@ def test_drive_enabled_changed(window, qtbot):
     if enabledButton == None or disabledButton == None:
         assert False
 
-    radio_button_enable_disable_helper(enabledButton, disabledButton, SetJSONVars.DRIVE_ENABLE_CHANGE, qtbot)
+    radio_button_enable_disable_helper(enabledButton, disabledButton, SetJSONVars_T.DRIVE_ENABLE_CHANGE, qtbot)
 
 
 def test_weapon_enabled_changed(window, qtbot):
@@ -136,19 +136,19 @@ def test_weapon_enabled_changed(window, qtbot):
     if enabledButton == None or disabledButton == None:
         assert False
 
-    radio_button_enable_disable_helper(enabledButton, disabledButton, SetJSONVars.WEAPON_ENABLE_CHANGE, qtbot)
+    radio_button_enable_disable_helper(enabledButton, disabledButton, SetJSONVars_T.WEAPON_ENABLE_CHANGE, qtbot)
 
 
 def test_intelligence_state_changed(window, qtbot):
     assert observer.data == []
-    index = window.intelligenceStateComboBox.findText(IntelligenceStates.RC.value, Qt.MatchFixedString)
+    index = window.intelligence_state_combo_box.findText(IntelligenceStates_T.RC.value, Qt.MatchFixedString)
     if index < 0:
         assert False
     # TODO figure out how to do this with qtbot
-    window.intelligenceStateComboBox.setCurrentIndex(index)
-    window.intelligenceStateChanged(IntelligenceStates.RC.value)
-    assert window.intelligenceStateComboBox.currentText() == "Remote Control"
-    assert observer.data == [(IntelligenceStates.RC, 'Remote Control'), (WindowEnums.RC, 'RC GUI')]
+    window.intelligence_state_combo_box.setCurrentIndex(index)
+    window.intelligenceStateChanged(IntelligenceStates_T.RC.value)
+    assert window.intelligence_state_combo_box.currentText() == "Remote Control"
+    assert observer.data == [(IntelligenceStates_T.RC, 'Remote Control'), (WindowEnums_T.RC, 'RC GUI')]
     observer.reset()
 
 
@@ -159,37 +159,37 @@ def test_send_pwm(window, qtbot):
         assert observer.data == []
         qtbot.keyClicks(lineEdit, "1499")
         qtbot.mouseClick(button, Qt.LeftButton)
-        assert observer.data == [(BehavioralStates.PWM, (motor, '1500'))]
+        assert observer.data == [(BehavioralStates_T.PWM, (motor, '1500'))]
         observer.reset()
-        tooHigh = int(PWMVals.FULL_CW.value) + 1000
+        tooHigh = int(PWMVals_T.FULL_CW.value) + 1000
         qtbot.keyClicks(lineEdit, str(tooHigh))
         qtbot.mouseClick(button, Qt.LeftButton)
-        assert observer.data == [(BehavioralStates.PWM, (motor, startVal))]
+        assert observer.data == [(BehavioralStates_T.PWM, (motor, startVal))]
         observer.reset()
-        tooLow = int(PWMVals.FULL_CCW.value) - 1000
+        tooLow = int(PWMVals_T.FULL_CCW.value) - 1000
         qtbot.keyClicks(lineEdit, str(tooLow))
         qtbot.mouseClick(button, Qt.LeftButton)
-        assert observer.data == [(BehavioralStates.PWM, (motor, startVal))]
+        assert observer.data == [(BehavioralStates_T.PWM, (motor, startVal))]
         observer.reset()
 
 
 def test_send_movement(window, qtbot):
     assert observer.data == []
-    assert "3" == window.movementQLineEdit.text()
-    qtbot.mouseClick(window.movementButton, Qt.LeftButton)
-    assert observer.data == [(BehavioralStates.MOVEMENT_TEST, 3)]
+    assert "3" == window.movement_q_line_edit.text()
+    qtbot.mouseClick(window.movement_button, Qt.LeftButton)
+    assert observer.data == [(BehavioralStates_T.MOVEMENT_TEST, 3)]
     observer.reset()
-    qtbot.keyClick(window.movementQLineEdit, Qt.Key_Backspace)
-    qtbot.keyClicks(window.movementQLineEdit, "0")
-    qtbot.mouseClick(window.movementButton, Qt.LeftButton)
-    assert "0" == window.movementQLineEdit.text()
+    qtbot.keyClick(window.movement_q_line_edit, Qt.Key_Backspace)
+    qtbot.keyClicks(window.movement_q_line_edit, "0")
+    qtbot.mouseClick(window.movement_button, Qt.LeftButton)
+    assert "0" == window.movement_q_line_edit.text()
     assert observer.data == []
     observer.reset()
-    qtbot.keyClick(window.movementQLineEdit, Qt.Key_Backspace)
-    qtbot.keyClicks(window.movementQLineEdit, "5")
-    qtbot.mouseClick(window.movementButton, Qt.LeftButton)
-    assert "5" == window.movementQLineEdit.text()
-    assert observer.data == [(BehavioralStates.MOVEMENT_TEST, 5)]
+    qtbot.keyClick(window.movement_q_line_edit, Qt.Key_Backspace)
+    qtbot.keyClicks(window.movement_q_line_edit, "5")
+    qtbot.mouseClick(window.movement_button, Qt.LeftButton)
+    assert "5" == window.movement_q_line_edit.text()
+    assert observer.data == [(BehavioralStates_T.MOVEMENT_TEST, 5)]
     observer.reset()
 
 
@@ -200,9 +200,9 @@ def test_notify_observers(window):
 
 
 def test_set_state_to_idle(window):
-    assert window.intelligenceStateComboBox.currentText() == IntelligenceStates.IDLE.value
-    window.intelligenceStateComboBox.setCurrentIndex(1)
-    window.intelligenceStateChanged(IntelligenceStates.RC.value)
-    assert window.intelligenceStateComboBox.currentText() == IntelligenceStates.RC.value
+    assert window.intelligence_state_combo_box.currentText() == IntelligenceStates_T.IDLE.value
+    window.intelligence_state_combo_box.setCurrentIndex(1)
+    window.intelligenceStateChanged(IntelligenceStates_T.RC.value)
+    assert window.intelligence_state_combo_box.currentText() == IntelligenceStates_T.RC.value
     window.setStateToIdle()
-    assert window.intelligenceStateComboBox.currentText() == IntelligenceStates.IDLE.value
+    assert window.intelligence_state_combo_box.currentText() == IntelligenceStates_T.IDLE.value

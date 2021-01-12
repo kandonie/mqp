@@ -1,0 +1,21 @@
+classes: camel case first letter upper case
+    MyClassExample
+  exception: if there is an all upper case acronym, use _
+    AKA_MyClassExample
+
+funcions: camel case
+    myFunctionExample
+
+variables: snake case
+    my_variable_example
+
+class files: snake case
+    my_class_example.py
+
+enum class name: same as classes, but _T at the end
+    MyClassExample_T or AKA_MyClassExample_T
+
+enums item: All upper case snake
+    MY_ENUM_EXAMPLE
+
+

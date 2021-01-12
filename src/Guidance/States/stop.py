@@ -1,4 +1,4 @@
-from src.Guidance.GuidanceEnums import BehavioralStates
+from src.Guidance.GuidanceEnums import BehavioralStates_T
 
 
 class Stop():
@@ -13,11 +13,11 @@ class Stop():
         self.weapon = weapon
         self.sent = False
 
-    def execute(self, robotData, stateArgs):
+    def execute(self, robot_data, state_args):
         """
         Sends stop once then does nothing and always returns false
-        :param robotData: the robot data (sensor info, CV, so on)
-        :param stateArgs: the arguments for this state
+        :param robot_data: the robot data (sensor info, CV, so on)
+        :param state_args: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
         if not self.sent:
@@ -30,7 +30,7 @@ class Stop():
         """
         :return: the the type of behavior state this is
         """
-        return BehavioralStates.STOP
+        return BehavioralStates_T.STOP
 
     def getNextState(self):
         """

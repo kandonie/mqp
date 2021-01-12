@@ -3,7 +3,7 @@ import threading
 
 sys.path.insert(1, '~/mqp')
 from src.Guidance.stateMachine import StateMachine
-from src.GUI.GUIManager import GUIManager
+from src.GUI.GUI_Manager import GUI_Manager
 from src.Hardware_Comms.WiFiComms import WiFiComms
 from src.Sensing.RobotDataManager import RobotDataManager
 
@@ -31,7 +31,7 @@ def main(connectToWiFi, GUI_Graphs):
         print("Couldn't start state machine")
 
     # start GUI (won't return until GUI window is closed )
-    GUIManager([sm], GUI_Graphs)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
+    GUI_Manager([sm], GUI_Graphs)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
     sys.exit()
 
 

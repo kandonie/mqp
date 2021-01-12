@@ -1,4 +1,4 @@
-from src.Guidance.GuidanceEnums import BehavioralStates
+from src.Guidance.GuidanceEnums import BehavioralStates_T
 import time
 
 class ESTOP():
@@ -12,11 +12,11 @@ class ESTOP():
         self.drive = drive
         self.weapon = weapon
 
-    def execute(self, robotData, stateArgs):
+    def execute(self, robot_data, state_args):
         """
         repeatedly sends STOP to the drive and weapon, should be as short as possible
-        :param robotData: the robot data (sensor info, CV, so on)
-        :param stateArgs: the arguments for this state
+        :param robot_data: the robot data (sensor info, CV, so on)
+        :param state_args: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
         self.drive.stop()
@@ -28,7 +28,7 @@ class ESTOP():
         """
         :return: the behavior state
         """
-        return BehavioralStates.ESTOP
+        return BehavioralStates_T.ESTOP
 
     def getNextState(self):
         """

@@ -1,11 +1,11 @@
 from src.GUI.mainWindow import MainWindow
 from PyQt5 import QtWidgets
 import sys  # We need sys so that we can pass argv to QApplication
-from src.GUI.RCGUI import RCGUI
-from src.GUI.WindowEnums import WindowEnums
+from src.GUI.RC_GUI import RC_GUI
+from src.GUI.WindowEnums_T import WindowEnums_T
 
 
-class GUIManager:
+class GUI_Manager:
     """
     Creates and displays/hides various windows on appropriate events
     """
@@ -27,7 +27,7 @@ class GUIManager:
         for observer in observers:
             self.attachObserver(observer)
         self.observers = observers
-        self.rcgui = RCGUI(self.observers)
+        self.rc_gui = RC_GUI(self.observers)
 
         # execute main window app
         self.main.show()
@@ -47,10 +47,10 @@ class GUIManager:
         :param topic: [any] the topic of the notification
         :param value: [any] the value of the notification
         """
-        if topic == WindowEnums.RC:
-            self.rcgui.show()
+        if topic == WindowEnums_T.RC:
+            self.rc_gui.show()
             self.main.hide()
-        elif topic == WindowEnums.MAIN:
+        elif topic == WindowEnums_T.MAIN:
             self.main.show()
             self.main.setStateToIdle()
-            self.rcgui.hide()
+            self.rc_gui.hide()

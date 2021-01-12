@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class IntelligenceStates(Enum):
+class IntelligenceStates_T(Enum):
     """
     The states of autonomy of the robot
     """
@@ -15,7 +15,7 @@ class IntelligenceStates(Enum):
         return role_names
 
 
-class BehavioralStates(Enum):
+class BehavioralStates_T(Enum):
     """
     the behavioral states of the robot
     """

@@ -1,7 +1,7 @@
 Each new state must have the following:
     __init__(...)
         can have whatever params
-    execute(self, robotData, stateArgs)
+    execute(self, robot_data, state_args)
         it will be called in a loop
         MAKE EXECUTE AS SHORT AS POSSIBLE, IT CAN'T BE ITERRUPTED
         returns a bool which is True if the state is done executing, False otherwise

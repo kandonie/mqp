@@ -5,7 +5,7 @@ from src.Hardware_Comms import ESPHTTPTopics, WiFiComms
 class IMU:
     def __init__(self):
         self.heading = self.read()
-        self.topic = ESPHTTPTopics.GetJSONVars.HEADING
+        self.topic = ESPHTTPTopics.GetJSONVars_T.HEADING
         self.observers = []
 
     # read IMU heading
