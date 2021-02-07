@@ -5,6 +5,9 @@
 #include "iostream"
 #include "string.h"
 #include "movement.h"
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
 
 const char *ssid = "#wewantseason";
 const char *password = "ap1@Lancast";
@@ -19,6 +22,16 @@ char APOS[] = "/readAPOS";
 int motor1PWM = 1500;
 int motor2PWM = 1500;
 int weaponPWM = 0;
+boolean weaponArmed = false;
+boolean driveArmed = false;
+
+//
+String robotMovementType;
+
+//Robot State variable triggers
+boolean robotDisabled = true;
+
+
 double desiredHeading = 0;
 double currHeading = 0;
 
@@ -27,6 +40,7 @@ double driveCurrent;
 int test = 0;
 int startTime = 0;
 
+
 //Interrupt Booleans
 boolean checkGyro;
 boolean checkCurrent;
@@ -34,6 +48,35 @@ boolean checkCurrent;
 
 //JSON Library declarations
 StaticJsonDocument<200> doc;
+
+
+// BNo055 Sensor Varibles (todo break into separate c++ files)
+double xPos = 0, yPos = 0, headingVel = 0;
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 10; //how often to read data from the board
+uint16_t PRINT_DELAY_MS = 500; // how often to print the data
+uint16_t printCount = 0; //counter to avoid printing every 10MS sample
+
+//velocity = accel*dt (dt in seconds)
+//position = 0.5*accel*dt^2
+double ACCEL_VEL_TRANSITION =  (double)(BNO055_SAMPLERATE_DELAY_MS) / 1000.0;
+double ACCEL_POS_TRANSITION = 0.5 * ACCEL_VEL_TRANSITION * ACCEL_VEL_TRANSITION;
+double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outputs degrees
+unsigned long prevTime = 0; //prevtime is the previous time that the bno055 was polled
+unsigned long mainTime;
+
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+//state machine testing
+static enum stateChoices {
+  disabled,
+  teleop,
+  autonomous,
+  configureRobot
+} state;
+
+
+
+
 
 
 String readAPOS()
@@ -121,7 +164,7 @@ void setup()
       char newJson[jsonIndex+1];
       strncpy(newJson, json, jsonIndex); 
       newJson[jsonIndex] = '\0';
-      Serial.println(newJson);
+      //Serial.println(newJson); //print the whole json
 
       DeserializationError error = deserializeJson(doc, newJson);
 
@@ -132,15 +175,46 @@ void setup()
       return;
       }
 
+
+
+      //TODO MAKE THE ROBOT NOT CRASH HERE IF IT DOESN'T FIND THE KEY
+      // deserializeJSON comes from the ESPHTTPTopics.py
       motor1PWM = doc["motor1pwm"];
       motor2PWM = doc["motor2pwm"];
+      weaponPWM = doc["weapon_pwm"];
+      robotMovementType = doc["RobotMovementType"].as<const char*>();
+      auto weaponTest = doc["WeaponArmedState"].as<const char*>();  //adding this greatly increased RTT, but should be double checked
+      auto driveTest = doc["ArmDriveState"].as<const char*>();
+
+      driveArmed = doc["ArmDriveState"];
       //Serial.print("JSON TEST Print  ");
       //Serial.println(motor1PWM);
 
 
+      //this might also be fucking the RTT
+      if(strcmp(weaponTest, "false")== 0){
+        weaponArmed = false;
+      } else {
+        weaponArmed = true;
+      }
+
+      if(strcmp(driveTest, "false")== 0){
+        driveArmed = false;
+      } else {
+        driveArmed = true;
+      }
+
+      //Serial.print("Weapon Armed Status-  ");
+      //Serial.println(weaponArmed);
+      //Serial.print("Drive Armed Status-  ");
+      //Serial.println(driveArmed);
+
+      //these prints are probably slowing down the RTT
       Serial.println();
       Serial.println("About to send request");
- 
+
+      
+
       request->send(200);
       Serial.println("Response Sent");
       test = 1;
@@ -164,19 +238,112 @@ void setup()
   // check that it is really outputting 1500us on the pwm channel 
   // no power cycle after calibration 
 
-  //this is the jitter
-  setRight(1500);
-  setLeft(1500);
-  delay(10);
+  /*
+  //  BNo055 Sensor Setup
+    if (!bno.begin())
+  {
+    Serial.print("No BNO055 detected");
+    while (1);
+  }
+  */
+ //set starting state
+  state = teleop;
 
   Serial.println("End Of Calibration");
   delay(1000);
 
+  mainTime = millis();
+
+
 }
 
 void loop() {
- 
-  setRight(motor1PWM);
-  setLeft(motor2PWM);
+  /*
+  if(prevTime-mainTime > 200){
+    //lauren cares about stuff in getjsonvars
+    sensors_event_t orientationData , linearAccelData, gravityData;
+    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+    //Serial.println(orientationData.orientation.x);
+    currHeading = orientationData.orientation.x;
+    
+  }
+  */
+
+
+  switch ( (state))
+  {
+  case disabled:
+    Serial.println("State Disabled");
+    /* code */
+    disablePWM("all");
+    if(robotDisabled){
+      state = disabled;
+    } else {
+      state = configureRobot;
+      
+    }
+    break;
+
+
+  case teleop:
+
+    //movement functions need to be aware of arm and disarm states
+    //Serial.println("Teleop");
+
+
+    if(weaponArmed){
+      if(PWMWeaponDisabled()){
+        enablePWM("weapon");
+      }
+      setWeapon(weaponPWM);
+      //Serial.print(mainTime);
+      //Serial.print(" -  ");
+      //Serial.println(weaponPWM);
+    } else{
+      disablePWM("weapon");
+    }
+    
+
+    if(driveArmed){
+      if(PWMDriveDisabled()){
+        enablePWM("drive");
+      }
+      setRight(motor1PWM);
+      setLeft(motor2PWM);
+    } else {
+      disablePWM("drive");
+    }
+    
+    state = teleop;
+    
+    /* code */
+    // leave teleop if the state is changed by the control system
+    // change variable with json
+
+    
+
+    break;
+
+  case autonomous:
+    //wait for movment goals, then execute them
+    Serial.println("State Autonomous");
+
+    break;
+
+
+  case configureRobot:
+    disablePWM("all");
+    Serial.println("State configure robot");
+    
+    //disable motors
+    //ability to adjust pwm limits
+    //change PWM and motor connections
+    //leaves this state on a the main json or a separate save changes json passing into the robot
+    //maybe save changes to eeprom
+
+    break;
   
+  default:
+    break;
+  }
 }

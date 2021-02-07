@@ -15,7 +15,13 @@ class RobotMovementType(Enum):
     PWM_CONTROLLED = "rcMode"
     DRIVE_DISTANCE = "distanceMode"
     TURN_ANGLE = "gyroMode"
+    DISABLE_ROBOT = "disabled"
+    CONFIGURE = "configure"
 
+    @classmethod
+    def list_states(cls):
+        role_names = [member.value for role, member in cls.__members__.items()]
+        return role_names
 
 class SetJSONVars(Enum):
     """
@@ -29,8 +35,8 @@ class SetJSONVars(Enum):
     DESIRED_HEADING = 'desiredHeading'
     DESIRED_DISTANCE = 'desiredDist'
     MOVEMENT_TYPE = "RobotMovementType"
-    WEAPON_ENABLE_CHANGE = 'Weapon Enabled Changed State'
-    DRIVE_ENABLE_CHANGE = "Drive Enabled Changed State"
+    WEAPON_ENABLE_CHANGE = 'WeaponArmedState'
+    DRIVE_ENABLE_CHANGE = "ArmDriveState"
 
 
 class GetJSONVars(Enum):

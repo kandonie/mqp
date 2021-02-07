@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
 from src.Robot_Locomotion.MotorEnums import PWMVals
 from src.GUI.WindowEnums import WindowEnums
 from src.GUI.DataGraph import DataGraph
@@ -67,6 +67,7 @@ class MainWindow(QMainWindow):
         self.makePWMButtons(first_col)
         self.makePolygonalMovement(first_col)
         self.makeSensorLabels(first_col)
+        self.robotMovementTypeComboBox(first_col)
 
         self.layout.addLayout(first_col)
 
@@ -237,7 +238,7 @@ class MainWindow(QMainWindow):
         self.motors.append((PWMInput, sendPWMButton, motor))
         return hBox
 
-    def sendPWM(self, qLineEdit, motor):
+    def sendPWM(self, qLineEdit, motor_button):
         """
         alerts observers of change in pwm
         """
@@ -250,7 +251,7 @@ class MainWindow(QMainWindow):
                 val = int(PWMVals.FULL_CCW.value)
             else:
                 val = int(PWMVals.FULL_CW.value)
-        self.notifyObservers(BehavioralStates.PWM, (motor, qLineEdit.text()))
+        self.notifyObservers(BehavioralStates.PWM, (motor_button, qLineEdit.text()))
 
     def makePolygonalMovement(self, layout):
         label = QLabel(self.mainWidget)
@@ -296,6 +297,29 @@ class MainWindow(QMainWindow):
 
             layout.addLayout(hbox)
             self.sensorLabels[sensor] = (label, data)
+
+    def robotMovementTypeComboBox(self, layout):
+        # make label
+        label = QLabel(self.mainWidget)
+        label.setText("Robot Movement State")
+
+        # make combobox
+        # Is self because setToIdle needs it
+        robotMovementStateComboBox = QComboBox(self.mainWidget)
+        robotMovementStateComboBox.addItems(
+            RobotMovementType.list_states())
+        robotMovementStateComboBox.activated[str].connect(
+            self.robotMovementChanged)
+
+        # followed by intelligence state combo box
+        robotMovementHBox = QHBoxLayout(self.mainWidget)
+        robotMovementHBox.addWidget(label)
+        robotMovementHBox.addWidget(robotMovementStateComboBox)
+        layout.addLayout(robotMovementHBox)
+
+
+    def robotMovementChanged(self, text):
+        self.notifyObservers(SetJSONVars.MOVEMENT_TYPE, text)
 
     def makeGraphs(self, layout):
         """
