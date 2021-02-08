@@ -7,7 +7,7 @@ class ExampleState():
         """
         initialize the state
         """
-        # This function can have whatever params you want.
+        # This function can have whatever params you want. usually weapon, drive, and wifi
         pass
 
     def execute(self, robotData, stateArgs):

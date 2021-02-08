@@ -28,7 +28,8 @@ class WiFiComms:
             self.setJson[var.value] = PWMVals.STOPPED.value
         # determine is ESP is connected
         # if not done here, all http requests take forever and it slows down program
-        if shouldConnectToWiFi == True:
+        self.heading = 0
+        if shouldConnectToWiFi:
             try:
                 print("Trying to connect to ESP...")
                 requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
@@ -39,7 +40,6 @@ class WiFiComms:
                 self.isConnected = False
         else:
             self.isConnected = False
-            self.heading = 0
 
         self.connectionHandler = ConnectionDataHandler()
         self.observers = []
@@ -60,7 +60,7 @@ class WiFiComms:
             # TODO get the param
             return r.content
         except:
-            print("No connection could be established with ESP")
+            print("No connection could be established with ESP from getInfo")
             return "ESP Comms Err"
 
     def sendInfo(self, topic, value):
@@ -82,7 +82,7 @@ class WiFiComms:
             self.parseResponse(response)
             self.connectionHandler.execute(response.elapsed.total_seconds())
         except:
-            print("No connection could be established with ESP")
+            print("No connection could be established with ESP from SendInfo")
             self.connectionHandler.loss()
             return "ESP Comms Err"
 
@@ -91,6 +91,7 @@ class WiFiComms:
         given a response, parses the changed values and notifies observers of them
         :param response: the response to parse
         """
+        pass
         print(response)
         # for item in response
         #   if diff from self.GetJSON

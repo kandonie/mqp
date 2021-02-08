@@ -1,0 +1,59 @@
+{
+	"folders": [
+		{
+			"name": "lab1 3902 LEDs",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\lab1 3902 LEDs"
+		},
+		{
+			"name": "MouseMotion",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\MouseMotion"
+		},
+		{
+			"name": "ThermocoupleTest",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\ThermocoupleTest"
+		},
+		{
+			"name": "ADC Read",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\ADC Read"
+		},
+		{
+			"name": "3dPrinterController",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\3dPrinterController"
+		},
+		{
+			"name": "screenTest",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\screenTest"
+		},
+		{
+			"name": "DistanceSensorTest",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\DistanceSensorTest"
+		},
+		{
+			"name": "Motors",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\Motors"
+		},
+		{
+			"name": "esp32 Test",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\esp32 Test"
+		},
+		{
+			"name": "4320Firmware",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\4320Firmware"
+		},
+		{
+			"name": "bno055 Teensy Test",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\bno055 Teensy Test"
+		},
+		{
+			"name": "i2c Test",
+			"path": "..\\..\\..\\..\\PlatformIO\\Projects\\i2c Test"
+		},
+		{
+			"name": "ACC_Firmware",
+			"path": "ACC_Firmware"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
+}
