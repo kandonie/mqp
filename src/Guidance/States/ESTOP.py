@@ -1,16 +1,17 @@
 from src.Guidance.GuidanceEnums import BehavioralStates
 import time
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
+
 
 class ESTOP():
 
-    def __init__(self, drive, weapon):
+    def __init__(self, robot):
         """
         intialize the ESTOP State
         :param drive: [Drive] the drive instance
         :param weapon: [Weapon] the weapon instance
         """
-        self.drive = drive
-        self.weapon = weapon
+        self.robot = robot
 
     def execute(self, robotData, stateArgs):
         """
@@ -19,8 +20,9 @@ class ESTOP():
         :param stateArgs: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
-        self.drive.stop()
-        self.weapon.stop()
+        self.robot.drive.stop()
+        self.robot.weapon.stop()
+        self.robot.disable()
         time.sleep(1)
 
 

@@ -1,5 +1,6 @@
 from src.Robot_Locomotion.drive import Drive
 from src.Robot_Locomotion.weapon import Weapon
+from src.Robot_Locomotion.robot import Robot
 from src.Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
 from src.Guidance.States.stop import Stop
 from src.Guidance.States.PolygonalMovement import PolygonalMovement
@@ -31,6 +32,7 @@ class StateMachine():
         self.wifi.sendInfo(SetJSONVars.DRIVE_ENABLE_CHANGE.value, "false")
         self.drive = Drive(wifi)
         self.weapon = Weapon(wifi)
+        self.robot = Robot(self.wifi, self.drive, self.weapon)
         self.state = self.makeState(BehavioralStates.STOP)
         self.stateArgs = None
         self.intelligenceState = IntelligenceStates.IDLE
@@ -76,7 +78,7 @@ class StateMachine():
         elif state == BehavioralStates.RC:
             state = RemoteControl(self.drive, self.weapon)
         elif state == BehavioralStates.ESTOP:
-            state = ESTOP(self.drive, self.weapon)
+            state = ESTOP(self.robot)
         elif state == BehavioralStates.MATCH_START:
             state = MatchStart()
         elif state == BehavioralStates.END_MATCH:
@@ -147,7 +149,7 @@ class StateMachine():
                     args = (BehavioralStates.STOP, "")
                 elif topic == IntelligenceStates.RC:
                     args = (BehavioralStates.RC, ("", "0"))
-        elif topic == SetJSONVars.DRIVE_ENABLE_CHANGE or topic == SetJSONVars.WEAPON_ENABLE_CHANGE:
+        elif topic == SetJSONVars.DRIVE_ENABLE_CHANGE or topic == SetJSONVars.WEAPON_ENABLE_CHANGE or topic == SetJSONVars.MOVEMENT_TYPE :
             # Bypass state machine to send enabling info to the robot
             # There is no associated state
             self.wifi.sendInfo(topic.value, value)

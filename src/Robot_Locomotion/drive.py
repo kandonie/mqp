@@ -20,7 +20,7 @@ class Drive:
         """
         self.wifi.sendInfo(SetJSONVars.MOTOR1_PWM.value, PWMVals.STOPPED.value)
         self.wifi.sendInfo(SetJSONVars.MOTOR2_PWM.value, PWMVals.STOPPED.value)
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED.value)
 
     def driveSpeed(self, speed):
         """
@@ -34,7 +34,11 @@ class Drive:
             speed = PWMVals.FULL_CCW.value
         self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
         self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED.value)
+
+    def disable(self):
+        self.stop()
+
 
     def turnAngle(self, angle):
         """
@@ -43,7 +47,7 @@ class Drive:
         """
         print("Turning " + str(angle) + " degrees")
         self.wifi.sendInfo(SetJSONVars.DESIRED_HEADING.value, str(angle))
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE.value)
 
     def turnSpeed(self, speed):
         """
@@ -70,7 +74,7 @@ class Drive:
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
         # start this movement type
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.PWM_CONTROLLED.value)
 
     def driveDistance(self, distance):
         """
@@ -79,7 +83,7 @@ class Drive:
         """
         print("Driving " + str(distance) + " meters")
         self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(distance))
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE)
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
 
     def setPWM(self, motor, pwm):
         """
