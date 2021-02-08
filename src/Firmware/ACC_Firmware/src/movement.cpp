@@ -9,7 +9,7 @@ Servo Motor4;
 const int motorPin = 15;
 const int motor2Pin = 14;
 const int motor3Pin = 13;
-const int motor4Pin = 25; //must change from pin 10
+const int motor4Pin = 19; //must change from pin 10 // should be 25, temporarily chaning to 34 for testing
 
 boolean PWMDisabledDrive = false;
 boolean PWMDisabledWeapon = false;

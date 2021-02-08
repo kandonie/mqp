@@ -4,10 +4,12 @@
 #include "ESPAsyncWebServer.h"
 #include "iostream"
 #include "string.h"
-#include "movement.h"
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
+#include "movement.h"
+#include "sensors.h"
+
 
 const char *ssid = "#wewantseason";
 const char *password = "ap1@Lancast";
@@ -61,7 +63,7 @@ uint16_t printCount = 0; //counter to avoid printing every 10MS sample
 double ACCEL_VEL_TRANSITION =  (double)(BNO055_SAMPLERATE_DELAY_MS) / 1000.0;
 double ACCEL_POS_TRANSITION = 0.5 * ACCEL_VEL_TRANSITION * ACCEL_VEL_TRANSITION;
 double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outputs degrees
-unsigned long prevTime = 0; //prevtime is the previous time that the bno055 was polled
+unsigned long SensorPrevTime = 0; //prevtime is the previous time that the bno055 was polled
 unsigned long mainTime;
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
@@ -71,8 +73,10 @@ static enum stateChoices {
   disabled,
   teleop,
   autonomous,
-  configureRobot
-} state;
+  configureRobot,
+  updateSensors
+} state, previousState;
+
 
 
 
@@ -169,6 +173,8 @@ void setup()
       DeserializationError error = deserializeJson(doc, newJson);
 
         // Test if parsing succeeds.
+
+      //TODO Return 404 error
       if (error) {
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(error.f_str());
@@ -218,7 +224,7 @@ void setup()
       request->send(200);
       Serial.println("Response Sent");
       test = 1;
-      //startTime = millis();
+      mainTime = millis();
   });
 
   //start the webserver
@@ -227,6 +233,7 @@ void setup()
   //motion setup
   //if not connected to wifi nothing should move
   movementSetup();
+  sensorSetup();
 
   //going from 1000-2000
   //has to have been 6 seconds 
@@ -257,6 +264,13 @@ void setup()
 
 }
 
+void updateTime(){
+  //this should probably watch for overflow on mainTime
+  mainTime = millis();
+
+}
+
+
 void loop() {
   /*
   if(prevTime-mainTime > 200){
@@ -284,21 +298,40 @@ void loop() {
     }
     break;
 
+  case updateSensors:
+
+      updateTime();
+
+      //check if it is time to poll the sensors again
+      if ((mainTime - SensorPrevTime >100))
+      {
+        //Serial.println("Sensors Updated");
+        measureCurrent();
+      }
+
+      SensorPrevTime = mainTime;
+      state = previousState;
+      previousState = updateSensors;
+
+      
+
+
+
+    break;
+
 
   case teleop:
 
     //movement functions need to be aware of arm and disarm states
     //Serial.println("Teleop");
-
-
+    updateTime();
+    //Serial.println("In Teleop");
     if(weaponArmed){
       if(PWMWeaponDisabled()){
         enablePWM("weapon");
       }
+      Serial.println(currentCheck("sensor1"));
       setWeapon(weaponPWM);
-      //Serial.print(mainTime);
-      //Serial.print(" -  ");
-      //Serial.println(weaponPWM);
     } else{
       disablePWM("weapon");
     }
@@ -314,18 +347,21 @@ void loop() {
       disablePWM("drive");
     }
     
-    state = teleop;
+
+    previousState = state;
+    state = updateSensors;
+
     
     /* code */
     // leave teleop if the state is changed by the control system
     // change variable with json
-
     
 
     break;
 
   case autonomous:
     //wait for movment goals, then execute them
+    updateTime();
     Serial.println("State Autonomous");
 
     break;
