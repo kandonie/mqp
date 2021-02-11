@@ -9,6 +9,7 @@ from src.Guidance.States.RemoteControl import RemoteControl
 from src.Guidance.States.match_start import MatchStart
 from src.Guidance.States.EndMatch import MatchEnd
 from src.Guidance.States.ESTOP import ESTOP
+from src.Guidance.States.attack import Attack
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 import threading
 from src.Sensing.RobotDataManager import RobotDataManager
@@ -83,6 +84,8 @@ class StateMachine():
             state = MatchStart()
         elif state == BehavioralStates.END_MATCH:
             state = MatchEnd()
+        elif state == BehavioralStates.ATTACK:
+            state = Attack(self.drive, self.weapon)
         return state
 
     def determineNextState(self, args):

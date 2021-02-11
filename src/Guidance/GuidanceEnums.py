@@ -26,3 +26,4 @@ class BehavioralStates(Enum):
     PWM = "PWM Controlling State"
     MATCH_START = "Match Start State"
     END_MATCH = "Match End State"
+    ATTACK = "Attack State"
