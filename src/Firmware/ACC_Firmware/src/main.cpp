@@ -39,7 +39,6 @@ double currHeading = 0;
 
 double weaponCurrent;
 double driveCurrent;
-int test = 0;
 int startTime = 0;
 
 
@@ -66,7 +65,7 @@ double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outpu
 unsigned long SensorPrevTime = 0; //prevtime is the previous time that the bno055 was polled
 unsigned long mainTime;
 
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
 
 //state machine testing
 static enum stateChoices {
@@ -76,10 +75,6 @@ static enum stateChoices {
   configureRobot,
   updateSensors
 } state, previousState;
-
-
-
-
 
 
 
@@ -114,7 +109,7 @@ void setup()
   Serial.print("AP IP address: ");
   Serial.println(IP);
   */
-
+  
 
   // Uncomment to connect to wifi
  
@@ -128,6 +123,8 @@ void setup()
    
 
   //Get Requests (Test Request)
+  //todo change APOS get request to robot data json
+  //todo serilize to a json
   server.on(APOS, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
     request->send_P(200, "text/plain", readAPOS().c_str());
   });
@@ -188,6 +185,7 @@ void setup()
       motor1PWM = doc["motor1pwm"];
       motor2PWM = doc["motor2pwm"];
       weaponPWM = doc["weapon_pwm"];
+      desiredHeading = doc["desiredHeading"];
       robotMovementType = doc["RobotMovementType"].as<const char*>();
       auto weaponTest = doc["WeaponArmedState"].as<const char*>();  //adding this greatly increased RTT, but should be double checked
       auto driveTest = doc["ArmDriveState"].as<const char*>();
@@ -197,12 +195,15 @@ void setup()
       //Serial.println(motor1PWM);
 
 
-      //this might also be fucking the RTT
+
+
+      // ARM and Disarm checks
       if(strcmp(weaponTest, "false")== 0){
         weaponArmed = false;
       } else {
         weaponArmed = true;
       }
+
 
       if(strcmp(driveTest, "false")== 0){
         driveArmed = false;
@@ -210,20 +211,14 @@ void setup()
         driveArmed = true;
       }
 
-      //Serial.print("Weapon Armed Status-  ");
-      //Serial.println(weaponArmed);
-      //Serial.print("Drive Armed Status-  ");
-      //Serial.println(driveArmed);
+      if(robotMovementType.equals("gyroMode")){
+        state = autonomous;
+      }
 
-      //these prints are probably slowing down the RTT
-      Serial.println();
-      Serial.println("About to send request");
 
-      
 
       request->send(200);
       Serial.println("Response Sent");
-      test = 1;
       mainTime = millis();
   });
 
@@ -234,26 +229,7 @@ void setup()
   //if not connected to wifi nothing should move
   movementSetup();
   sensorSetup();
-
-  //going from 1000-2000
-  //has to have been 6 seconds 
-  //100us above and below 1500
-  //send 1000 for a sec then send
-
-  // to exit the calibration routine
-  // must be within 100us of 1500
-  // check that it is really outputting 1500us on the pwm channel 
-  // no power cycle after calibration 
-
-  /*
-  //  BNo055 Sensor Setup
-    if (!bno.begin())
-  {
-    Serial.print("No BNO055 detected");
-    while (1);
-  }
-  */
- //set starting state
+  
   state = teleop;
 
   Serial.println("End Of Calibration");
@@ -272,17 +248,6 @@ void updateTime(){
 
 
 void loop() {
-  /*
-  if(prevTime-mainTime > 200){
-    //lauren cares about stuff in getjsonvars
-    sensors_event_t orientationData , linearAccelData, gravityData;
-    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
-    //Serial.println(orientationData.orientation.x);
-    currHeading = orientationData.orientation.x;
-    
-  }
-  */
-
 
   switch ( (state))
   {
@@ -302,20 +267,20 @@ void loop() {
 
       updateTime();
 
-      //check if it is time to poll the sensors again
-      if ((mainTime - SensorPrevTime >100))
-      {
-        //Serial.println("Sensors Updated");
+      //the minimum value for this is 10 milliseconds, the BNo055 will not provide data faster over i2c
+      if (mainTime -  SensorPrevTime > 15){
         measureCurrent();
+        updateGyroData();
+        currHeading = getGyroData();
+        //isUpsideDown();
+        //Serial.println(getGyroData());
+        SensorPrevTime = mainTime;
+        //Serial.println("Reading GYRO");
       }
 
-      SensorPrevTime = mainTime;
+
       state = previousState;
       previousState = updateSensors;
-
-      
-
-
 
     break;
 
@@ -330,7 +295,7 @@ void loop() {
       if(PWMWeaponDisabled()){
         enablePWM("weapon");
       }
-      Serial.println(currentCheck("sensor1"));
+      //Serial.println(currentCheck("sensor1"));
       setWeapon(weaponPWM);
     } else{
       disablePWM("weapon");
@@ -350,7 +315,7 @@ void loop() {
 
     previousState = state;
     state = updateSensors;
-
+    //state = teleop;
     
     /* code */
     // leave teleop if the state is changed by the control system
@@ -360,9 +325,25 @@ void loop() {
     break;
 
   case autonomous:
-    //wait for movment goals, then execute them
-    updateTime();
+      updateTime();
+
+    //turn to a defined angle 
+    if(robotMovementType.equals("gyroMode")){
+      if(turnToAngle(currHeading, desiredHeading)){ //turnToAngle returns true when the robot is at the correct heading
+        robotMovementType = "waiting";
+      } else {
+        robotMovementType = "gyroMode";
+      }
+    }
+
+
+    //drive a set distance
+
     Serial.println("State Autonomous");
+     
+
+    previousState = state;
+    state = updateSensors;
 
     break;
 
@@ -371,11 +352,7 @@ void loop() {
     disablePWM("all");
     Serial.println("State configure robot");
     
-    //disable motors
-    //ability to adjust pwm limits
-    //change PWM and motor connections
-    //leaves this state on a the main json or a separate save changes json passing into the robot
-    //maybe save changes to eeprom
+
 
     break;
   
