@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
-from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals
 from src.GUI.WindowEnums import WindowEnums
 from src.GUI.DataGraph import DataGraph
 from src.Sensing.RobotDataManager import RobotDataManager
@@ -65,6 +65,7 @@ class MainWindow(QMainWindow):
         self.makeRobotSystemEnablingButtons(first_col)
         self.makeIntelligenceStateComboBox(first_col)
         self.makePWMButtons(first_col)
+        self.makePIDButtons(first_col)
         self.makePolygonalMovement(first_col)
         self.makeSensorLabels(first_col)
         self.robotMovementTypeComboBox(first_col)
@@ -252,6 +253,53 @@ class MainWindow(QMainWindow):
             else:
                 val = int(PWMVals.FULL_CW.value)
         self.notifyObservers(BehavioralStates.PWM, (motor_button, qLineEdit.text()))
+
+
+    def makePIDButtons(self, layout):
+        """
+        creates all the push buttons
+        """
+        self.pid_gains = []
+        pidLabel = QLabel(self.mainWidget)
+        pidLabel.setText("Individually set PIDs")
+        layout.addWidget(pidLabel)
+
+        pid_gains = [SetJSONVars.KP,
+                    SetJSONVars.KI, SetJSONVars.KD]
+
+        for gain in pid_gains:
+            hBox = self.makePIDGain(gain)
+            layout.addLayout(hBox)
+
+    def makePIDGain(self, gain):
+        """
+        makes GUI stuff for each pid gain
+        Can't do in for loop because variable scope bad
+        :param gain: the name of the pid gain
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        PIDInput = QLineEdit(PIDVals.KP_DEFAULT.value, self.mainWidget)
+        PIDInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(PIDInput)
+
+        sendPIDButton = QPushButton(self.mainWidget)
+        label = "Set PID for " + gain.value
+        sendPIDButton.setText(label)
+        sendPIDButton.clicked.connect(lambda: self.sendPID(PIDInput, gain))
+        hBox.addWidget(sendPIDButton)
+        self.pid_gains.append((PIDInput, sendPIDButton, gain))
+        return hBox
+
+    def sendPID(self, qLineEdit, gain_button):
+        """
+        alerts observers of change in pid
+        """
+        val = int(qLineEdit.text())
+        self.notifyObservers(BehavioralStates.PID, (gain_button, qLineEdit.text()))
+
 
     def makePolygonalMovement(self, layout):
         label = QLabel(self.mainWidget)

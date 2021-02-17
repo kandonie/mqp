@@ -37,6 +37,9 @@ class SetJSONVars(Enum):
     MOVEMENT_TYPE = "RobotMovementType"
     WEAPON_ENABLE_CHANGE = 'WeaponArmedState'
     DRIVE_ENABLE_CHANGE = "ArmDriveState"
+    KP = "kp"
+    KI = "ki"
+    KD = "kd"
 
 
 class GetJSONVars(Enum):
