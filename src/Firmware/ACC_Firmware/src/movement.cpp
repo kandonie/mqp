@@ -21,6 +21,7 @@ boolean PWMDisabledWeapon = false;
 double error;
 double totalError;
 double previousError = 0;
+
 double kp = 0;
 double ki = 0;
 double kd = 0;
@@ -29,6 +30,9 @@ void setPIDGains(double proportional, double integral, double derivative) {
     kp = proportional;
     ki = integral;
     kd = derivative;
+
+    Serial.print("KP Value: ");
+    Serial.println(kp);
 }
 
 
@@ -165,7 +169,7 @@ bool turnToAngle(double currentHeading, double desiredHeading){
     int output = proportional + integral + derivative;
 
 
-    //check turn angle 
+    //check turn angle
     turnSpeed(output, direction);
 
     //mapping from 1000,2000
