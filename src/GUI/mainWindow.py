@@ -297,7 +297,7 @@ class MainWindow(QMainWindow):
         """
         alerts observers of change in pid
         """
-        val = int(qLineEdit.text())
+        val = float(qLineEdit.text())
         self.notifyObservers(BehavioralStates.PID, (gain_button, qLineEdit.text()))
 
 

@@ -26,6 +26,9 @@ int motor2PWM = 1500;
 int weaponPWM = 0;
 boolean weaponArmed = false;
 boolean driveArmed = false;
+double kp = 0;
+double ki = 0;
+double kd = 0;
 
 //
 String robotMovementType;
@@ -188,12 +191,17 @@ void setup()
       robotMovementType = doc["RobotMovementType"].as<const char*>();
       auto weaponTest = doc["WeaponArmedState"].as<const char*>();  //adding this greatly increased RTT, but should be double checked
       auto driveTest = doc["ArmDriveState"].as<const char*>();
+      kp = doc["kp"];
+      ki = doc["ki"];
+      kd = doc["kd"];
+
 
       driveArmed = doc["ArmDriveState"];
       //Serial.print("JSON TEST Print  ");
       //Serial.println(motor1PWM);
 
-
+      // set pid gains based on json input
+      setPIDGains(kp, ki, kd);
 
 
       // ARM and Disarm checks

@@ -1,5 +1,6 @@
 
 void movementSetup();
+void setPIDGains(double proportional, double integral, double derivative);
 void testPWM();
 void enablePWM(String system);
 void disablePWM(String system);

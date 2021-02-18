@@ -1,6 +1,9 @@
 #include "ESP32Servo.h"
 #include "Arduino.h"
 
+#define FULL_CW 2000
+#define FULL_CCW 1000
+
 Servo Motor1;
 Servo Motor2;
 Servo Motor3;
@@ -18,6 +21,15 @@ boolean PWMDisabledWeapon = false;
 double error;
 double totalError;
 double previousError = 0;
+double kp = 0;
+double ki = 0;
+double kd = 0;
+
+void setPIDGains(double proportional, double integral, double derivative) {
+    kp = proportional;
+    ki = integral;
+    kd = derivative;
+}
 
 
 int checkPWM(int pwm){
@@ -106,8 +118,17 @@ void setLeft(int speed)
     Motor2.writeMicroseconds(speed);
 }
 
+// set the motor speeds so the robot turns
+// @param speed a range from 1000-2000
+// @param direction a string that is either "CW" or "CCW"
 void turnSpeed(int speed, String direction){
-    
+    if (direction == "CW") {
+        setLeft(speed);
+        setRight(FULL_CW - abs(speed - FULL_CCW));
+    } else {
+        setLeft(FULL_CW - abs(speed - FULL_CCW));
+        setRight(speed);
+    }
 }
 
 void setWeapon(int speed){
@@ -135,10 +156,6 @@ bool turnToAngle(double currentHeading, double desiredHeading){
     } else {
         direction = "counterclockWise";
     }
-
-    double kp = 1.0;
-    double ki = 0.0;
-    double kd = 0.0;
 
     totalError += error;
     double proportional = error*kp;
