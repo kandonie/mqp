@@ -14,6 +14,12 @@ const int motor4Pin = 19; //must change from pin 10 // should be 25, temporarily
 boolean PWMDisabledDrive = false;
 boolean PWMDisabledWeapon = false;
 
+//PID variables
+double error;
+double totalError;
+double previousError = 0;
+
+
 int checkPWM(int pwm){
 
     if (pwm > 2000) {
@@ -100,6 +106,10 @@ void setLeft(int speed)
     Motor2.writeMicroseconds(speed);
 }
 
+void turnSpeed(int speed, String direction){
+    
+}
+
 void setWeapon(int speed){
     speed = checkPWM(speed);
     Motor3.writeMicroseconds(speed);
@@ -114,6 +124,50 @@ boolean PWMWeaponDisabled() {
 }
 
 
+
+bool turnToAngle(double currentHeading, double desiredHeading){
+    error = currentHeading - desiredHeading;
+    String direction;
+    //previousError 
+
+    if(abs(currentHeading - desiredHeading) > 180){
+        direction = "clockwise";
+    } else {
+        direction = "counterclockWise";
+    }
+
+    double kp = 1.0;
+    double ki = 0.0;
+    double kd = 0.0;
+
+    totalError += error;
+    double proportional = error*kp;
+    double integral = totalError*ki;
+    double derivative = (error - previousError)*kd;
+
+    int output = proportional + integral + derivative;
+
+
+    //check turn angle 
+    turnSpeed(output, direction);
+
+    //mapping from 1000,2000
+
+    //reset setpoints when target is hit 
+    
+    //take values in msec
+
+
+    previousError = error;
+
+    //arbitrary error for now
+    if(error < 100){
+        return true;
+    }
+
+    return false;
+
+}
 
 
 void testPWM(){

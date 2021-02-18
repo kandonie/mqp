@@ -8,3 +8,4 @@ void setLeft(int speed);
 void setWeapon(int speed);
 boolean PWMDriveDisabled();
 boolean PWMWeaponDisabled();
+bool turnToAngle(double currentHeading, double desiredHeading);
