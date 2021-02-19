@@ -35,7 +35,7 @@ String robotMovementType;
 //Robot State variable triggers
 boolean robotDisabled = true;
 
-double desiredHeading = 0;
+double desiredHeading = 180;
 double currHeading = 0;
 
 double weaponCurrent;

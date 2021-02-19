@@ -3,6 +3,7 @@
 
 #define FULL_CW 2000
 #define FULL_CCW 1000
+#define STOPPED 1500
 
 Servo Motor1;
 Servo Motor2;
@@ -150,15 +151,15 @@ boolean PWMWeaponDisabled() {
 
 
 
-bool turnToAngle(double currentHeading, double desiredHeading){
+bool turnToAngle(double currentHeading, double desiredHeading) {
     error = currentHeading - desiredHeading;
     String direction;
-    //previousError 
+    //previousError
 
     if(abs(currentHeading - desiredHeading) > 180){
-        direction = "clockwise";
+        direction = "CW";
     } else {
-        direction = "counterclockWise";
+        direction = "CCW";
     }
 
     totalError += error;
@@ -168,21 +169,21 @@ bool turnToAngle(double currentHeading, double desiredHeading){
 
     int output = proportional + integral + derivative;
 
+    // an output of range 0-1000 will be mapped to pwm range 1500-2000
+    int speed = map(output, 0, 50, STOPPED, FULL_CW);
+    // constrain to pwm range 1000-2000 so negative output values can make motors go backwards
+    speed = constrain(speed, FULL_CCW, FULL_CW);
 
     //check turn angle
-    turnSpeed(output, direction);
+    turnSpeed(speed, direction);
 
-    //mapping from 1000,2000
-
-    //reset setpoints when target is hit 
-    
-    //take values in msec
+    //reset setpoints when target is hit
 
 
     previousError = error;
 
     //arbitrary error for now
-    if(error < 100){
+    if(error < 10){
         return true;
     }
 
