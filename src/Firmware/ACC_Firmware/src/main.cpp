@@ -179,7 +179,7 @@ void setup()
         motor1PWM = doc["motor1pwm"];
         motor2PWM = doc["motor2pwm"];
         weaponPWM = doc["weapon_pwm"];
-        desiredHeading = doc["desiredHeading"];
+        //desiredHeading = doc["desiredHeading"];
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
@@ -217,6 +217,8 @@ void setup()
         if (robotMovementType.equals("gyroMode"))
         {
           state = autonomous;
+        } else if (robotMovementType.equals("rcMode")){
+          state = teleop;
         }
 
         request->send(200);
@@ -348,7 +350,7 @@ void loop()
 
     //drive a set distance
 
-    Serial.println("State Autonomous");
+    //Serial.println("State Autonomous");
 
     previousState = state;
     state = updateSensors;

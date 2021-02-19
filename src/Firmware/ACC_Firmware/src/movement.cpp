@@ -127,7 +127,7 @@ void setLeft(int speed)
 // @param speed a range from 1000-2000
 // @param direction a string that is either "CW" or "CCW"
 void turnSpeed(int speed, String direction){
-    if (direction == "CW") {
+    if (direction.equals("CW")) {
         setLeft(speed);
         setRight(FULL_CW - abs(speed - FULL_CCW));
     } else {
@@ -153,6 +153,8 @@ boolean PWMWeaponDisabled() {
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
     error = currentHeading - desiredHeading;
+    Serial.print("Error: ");
+    Serial.println(error);
     String direction;
     //previousError
 
