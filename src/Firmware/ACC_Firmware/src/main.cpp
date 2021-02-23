@@ -99,12 +99,12 @@ void setup()
 
   //Uncomment to host esp access point
 
-  /*
-  WiFi.softAP(ssid, password);
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
-  */
+  
+  // WiFi.softAP(ssid, password);
+  // IPAddress IP = WiFi.softAPIP();
+  // Serial.print("AP IP address: ");
+  // Serial.println(IP);
+  
 
   // Uncomment to connect to wifi
 
@@ -183,10 +183,27 @@ void setup()
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
+        bool pidTuning = doc["PIDTuning"];
 
-        double kp = doc["kp"];
-        double ki = doc["ki"];
-        double kd = doc["kd"];
+        Serial.print("pidTuning is ");
+        Serial.println(pidTuning);
+
+        double kp = 0;
+        double ki = 0;
+        double kd = 0;
+
+        if (pidTuning) {
+          kp = doc["kp"];
+          ki = doc["ki"];
+          kd = doc["kd"];
+        }
+
+        Serial.print("kp is ");
+        Serial.print(kp);
+        Serial.print("  ki is ");
+        Serial.print(ki);
+        Serial.print("  kd is ");
+        Serial.println(kd);
 
         driveArmed = doc["ArmDriveState"];
         //Serial.print("JSON TEST Print  ");
@@ -364,4 +381,5 @@ void loop()
   default:
     break;
   }
+
 }

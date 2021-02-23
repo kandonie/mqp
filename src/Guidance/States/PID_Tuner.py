@@ -11,7 +11,6 @@ class PIDTuner():
         """
         self.hasSent = False
         self.wifi = wifi
-        # remember prev vals, so we only send if pid changed
         self.pidVals = {SetJSONVars.KP: PIDVals.KP_DEFAULT, SetJSONVars.KI: PIDVals.KI_DEFAULT,
                         SetJSONVars.KD: PIDVals.KD_DEFAULT, }
 
@@ -24,10 +23,17 @@ class PIDTuner():
         """
         gain = stateArgs[0]
         gain_val = stateArgs[1]
+        # lowercase "true" because only firmware will use it
+        self.wifi.sendInfo(SetJSONVars.PID.value, "true")
         if not self.hasSent or not self.pidVals[gain] == gain_val:
             self.pidVals[gain] = gain_val
             self.wifi.sendInfo(gain.value, gain_val)
             self.hasSent = True
+            # lowercase "false" because only firmware will use it
+            self.wifi.sendInfo(SetJSONVars.PID.value, "false")
+            return True
+        # lowercase "false" because only firmware will use it
+        self.wifi.sendInfo(SetJSONVars.PID.value, "false")
         return False
 
     def getType(self):
