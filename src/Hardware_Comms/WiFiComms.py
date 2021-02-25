@@ -26,6 +26,8 @@ class WiFiComms:
         self.setJson = {}
         for var in SetJSONVars:
             self.setJson[var.value] = PWMVals.STOPPED.value
+        # not in PIDTuningState unless the state is entered through GUI
+        # self.setJson[SetJSONVars.PID] = "false"
         # determine is ESP is connected
         # if not done here, all http requests take forever and it slows down program
         self.heading = 0
