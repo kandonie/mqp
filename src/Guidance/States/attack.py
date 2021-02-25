@@ -21,7 +21,7 @@ class Attack():
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
         self.drive.driveSpeed(PWMVals.FULL_CW.value)
-        return False
+        return True
 
     def getType(self):
         """

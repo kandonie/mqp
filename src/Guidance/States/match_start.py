@@ -23,7 +23,7 @@ class MatchStart():
         """
         :return: the the type of behavior state this is
         """
-        return BehavioralStates.STOP
+        return BehavioralStates.MATCH_START
 
     def getNextState(self):
         """
