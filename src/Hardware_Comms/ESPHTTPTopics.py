@@ -38,6 +38,9 @@ class SetJSONVars(Enum):
     WEAPON_ENABLE_CHANGE = 'WeaponArmedState'
     DRIVE_ENABLE_CHANGE = "ArmDriveState"
     # PID = "PIDTuning"
+    TUNING_KP = "tuning_kp"
+    TUNING_KI = "tuning_ki"
+    TUNING_KD = "tuning_kd"
     KP = "kp"
     KI = "ki"
     KD = "kd"

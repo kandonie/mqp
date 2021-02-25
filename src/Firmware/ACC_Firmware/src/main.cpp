@@ -25,11 +25,11 @@ int motor2PWM = 1500;
 int weaponPWM = 0;
 boolean weaponArmed = false;
 boolean driveArmed = false;
-//double kp = 0;
-//double ki = 0;
-//double kd = 0;
+// double kp = 0;
+// double ki = 0;
+// double kd = 0;
 
-//
+
 String robotMovementType;
 
 //Robot State variable triggers
@@ -47,7 +47,7 @@ boolean checkGyro;
 boolean checkCurrent;
 
 //JSON Library declarations
-StaticJsonDocument<200> doc;
+StaticJsonDocument<300> doc;
 
 // BNo055 Sensor Varibles (todo break into separate c++ files)
 double xPos = 0, yPos = 0, headingVel = 0;
@@ -138,7 +138,7 @@ void setup()
       [](AsyncWebServerRequest *request) {},
       NULL,
       [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-        char json[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        char json[] = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         // TODO actual memory safety
         int jsonIndex = 0;
         for (size_t i = 0; i < len; i++)
@@ -159,7 +159,7 @@ void setup()
         char newJson[jsonIndex + 1];
         strncpy(newJson, json, jsonIndex);
         newJson[jsonIndex] = '\0';
-        //Serial.println(newJson); //print the whole json
+        // Serial.println(newJson); //print the whole json
 
         DeserializationError error = deserializeJson(doc, newJson);
 
@@ -182,24 +182,23 @@ void setup()
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
-        // bool pidTuning = doc["PIDTuning"];
+        bool tuning_kp = doc["tuning_kp"];
+        bool tuning_ki = doc["tuning_ki"];
+        bool tuning_kd = doc["tuning_kd"];
 
-        // Serial.print("pidTuning is ");
-        // Serial.println(pidTuning);
+        static double kp = 5;
+        static double ki = 0;
+        static double kd = 0;
 
-        double kp = doc["kp"];
-        double ki = doc["ki"];
-        double kd = doc["kd"];
-
-        // double kp = 0;
-        // double ki = 0;
-        // double kd = 0;
-
-        // if (pidTuning) {
-        //   kp = doc["kp"];
-        //   ki = doc["ki"];
-        //   kd = doc["kd"];
-        // }
+        if (tuning_kp) {
+          kp = doc["kp"];
+        }
+        else if (tuning_ki) {
+          ki = doc["ki"];
+        }
+        else if (tuning_kd) {
+          kd = doc["kd"];
+        }
 
         Serial.print("kp is ");
         Serial.print(kp);
