@@ -278,7 +278,7 @@ void loop()
       updateGyroData();
       currHeading = getGyroData();
       //isUpsideDown();
-      //Serial.println(getGyroData());
+      Serial.println(getGyroData());
       SensorPrevTime = mainTime;
       //Serial.println("Reading GYRO");
     }
