@@ -10,6 +10,8 @@
 #include "movement.h"
 #include "sensors.h"
 
+using namespace std;
+
 const char *ssid = "#wewantseason";
 const char *password = "ap1@Lancast";
 // Create AsyncWebServer object on port 80
@@ -80,6 +82,15 @@ String readAPOS()
   return "North";
 }
 
+String readCurrHeading()
+{
+  //This should check a global variable with the last heading reading
+  Serial.println("Read current heading");
+  char currHeading_str[10];
+  sprintf(currHeading_str, "%f", currHeading);
+  return currHeading_str;
+}
+
 String generalHandler()
 {
 
@@ -127,9 +138,9 @@ void setup()
     request->send_P(200, "text/plain", readAPOS().c_str());
   });
 
-  //ESTOP Request
+  // gyro data Request
   server.on(general, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
-    request->send_P(200, "text/plain", readAPOS().c_str());
+    request->send_P(200, "text/plain", readCurrHeading().c_str());
   });
 
   server.on(
