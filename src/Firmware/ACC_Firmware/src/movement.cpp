@@ -10,10 +10,19 @@ Servo Motor2;
 Servo Motor3;
 Servo Motor4;
 
-const int motorPin = 15;
+
+//motor 1 is right side
+//motor 2 is left side
+//2000 is full reverse 
+//1000 if full forwards
+
+//from robot prespective motor 2 is left
+//and motor 1 is right
+
+const int motorPin = 13;
 const int motor2Pin = 14;
-const int motor3Pin = 13;
-const int motor4Pin = 19; //must change from pin 10 // should be 25, temporarily chaning to 34 for testing
+const int motor3Pin = 15;
+const int motor4Pin = 19; 
 
 boolean PWMDisabledDrive = false;
 boolean PWMDisabledWeapon = false;
@@ -39,11 +48,11 @@ void setPIDGains(double proportional, double integral, double derivative) {
 
 int checkPWM(int pwm){
 
-    if (pwm > 2000) {
-    pwm = 2000;
+    if (pwm > 1600) {
+    pwm = 1600;
     }
-    if (pwm < 1000) {
-        pwm = 1000;
+    if (pwm < 1400) {
+        pwm = 1400;
     }
     return pwm;
 }
@@ -127,7 +136,7 @@ void setLeft(int speed)
 // @param speed a range from 1000-2000
 // @param direction a string that is either "CW" or "CCW"
 void turnSpeed(int speed, String direction){
-    if (direction == "CW") {
+    if (direction == "CCW") {
         setLeft(speed);
         setRight(FULL_CW - abs(speed - FULL_CCW));
     } else {
@@ -152,7 +161,12 @@ boolean PWMWeaponDisabled() {
 
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
+    //Serial.println("Turning to angle");
     error = currentHeading - desiredHeading;
+    Serial.print("Error  : ");
+    Serial.print(error);
+    Serial.print("   Heading  : ");
+    Serial.println(currentHeading);
     String direction;
     //previousError
 
@@ -183,7 +197,7 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     previousError = error;
 
     //arbitrary error for now
-    if(error < 10){
+    if(abs(error) < 10){
         return true;
     }
 
