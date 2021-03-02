@@ -56,14 +56,14 @@ class WiFiComms:
         :param param: The topic to ask for
         :return: [String] the topic info
         """
-        # TODO Might want to delete this function
         print("Getting info of " + str(param))
         if not self.isConnected:
             return "No ESP Connected"
         # sending get request and saving the response as response object
         try:
-            r = requests.get(url=self.IP + HTTPTopics.MAIN.value)
+            r = requests.get(url=self.IP + HTTPTopics.ROBOT_DATA.value)
             # TODO get the param
+            print(r.content)
             return r.content
         except:
             print("No connection could be established with ESP from getInfo")

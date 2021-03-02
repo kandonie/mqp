@@ -6,6 +6,7 @@ class HTTPTopics(Enum):
     topic used for wifi comms
     """
     MAIN = "/generaltest"
+    ROBOT_DATA = "/getRobotData"
 
 
 class RobotMovementType(Enum):

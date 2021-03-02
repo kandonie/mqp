@@ -20,6 +20,7 @@ AsyncWebServer server(80);
 char general[] = "/general";
 char ESTOP[] = "/ESTOP";
 char APOS[] = "/readAPOS";
+char robotDataJson[] = "/getRobotData";
 
 //mutex - varible names
 int motor1PWM = 1500;
@@ -37,7 +38,7 @@ String robotMovementType;
 //Robot State variable triggers
 boolean robotDisabled = true;
 
-double desiredHeading = 90;
+double desiredHeading = 180;
 double currHeading = 0;
 
 double weaponCurrent;
@@ -85,9 +86,11 @@ String readAPOS()
 String readCurrHeading()
 {
   //This should check a global variable with the last heading reading
-  Serial.println("Read current heading");
   char currHeading_str[10];
-  sprintf(currHeading_str, "%f", currHeading);
+  int heading = (int) currHeading;
+  sprintf(currHeading_str, "%d", heading);
+  Serial.print("Read current heading: ");
+  Serial.println(currHeading_str);
   return currHeading_str;
 }
 
@@ -110,21 +113,21 @@ void setup()
 
   //Uncomment to host esp access point
 
-
-  // WiFi.softAP(ssid, password);
-  // IPAddress IP = WiFi.softAPIP();
-  // Serial.print("AP IP address: ");
-  // Serial.println(IP);
+  
+  WiFi.softAP(ssid, password);
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
   
   // Uncomment to connect to wifi
 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-  Serial.println(WiFi.localIP());
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi..");
+  // }
+  // Serial.println(WiFi.localIP());
 
   //Get Requests (Test Request)
   //todo change APOS get request to robot data json
@@ -139,7 +142,7 @@ void setup()
   });
 
   // gyro data Request
-  server.on(general, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
+  server.on(robotDataJson, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
     request->send_P(200, "text/plain", readCurrHeading().c_str());
   });
 
@@ -189,7 +192,7 @@ void setup()
         motor1PWM = doc["motor1pwm"];
         motor2PWM = doc["motor2pwm"];
         weaponPWM = doc["weapon_pwm"];
-        //desiredHeading = doc["desiredHeading"];
+        desiredHeading = doc["desiredHeading"];
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
@@ -197,19 +200,33 @@ void setup()
         bool tuning_ki = doc["tuning_ki"];
         bool tuning_kd = doc["tuning_kd"];
 
-        //Serial.print("kp is ");
-        //Serial.print(kp);
-        //Serial.print("  ki is ");
-        //Serial.print(ki);
-        //Serial.print("  kd is ");
-        //Serial.println(kd);
+        static double kp = 5;
+        static double ki = 0;
+        static double kd = 0;
+
+        if (tuning_kp) {
+          kp = doc["kp"];
+        }
+        else if (tuning_ki) {
+          ki = doc["ki"];
+        }
+        else if (tuning_kd) {
+          kd = doc["kd"];
+        }
+
+        Serial.print("kp is ");
+        Serial.print(kp);
+        Serial.print("  ki is ");
+        Serial.print(ki);
+        Serial.print("  kd is ");
+        Serial.println(kd);
 
         driveArmed = doc["ArmDriveState"];
         //Serial.print("JSON TEST Print  ");
         //Serial.println(motor1PWM);
 
         // set pid gains based on json input
-
+        setPIDGains(kp, ki, kd);
 
         // ARM and Disarm checks
         if (strcmp(weaponTest, "false") == 0)
@@ -230,33 +247,9 @@ void setup()
           driveArmed = true;
         }
 
-
-        static double kp = 0.01;
-        static double ki = 0.05;
-        static double kd = 0.01;
-
-        if (tuning_kp) {
-          driveArmed = false;
-          weaponArmed = false;
-          kp = doc["kp"];
-        }
-        else if (tuning_ki) {
-          driveArmed = false;
-          weaponArmed = false;
-          ki = doc["ki"];
-        }
-        else if (tuning_kd) {
-          driveArmed = false;
-          weaponArmed = false;
-          kd = doc["kd"];
-        }
-        setPIDGains(kp, ki, kd);
-
         if (robotMovementType.equals("gyroMode"))
         {
           state = autonomous;
-        } else if (robotMovementType.equals("rcMode")); {
-          //state = teleop;
         }
 
         request->send(200);
@@ -372,18 +365,13 @@ void loop()
 
   case autonomous:
     updateTime();
-    
+
     //turn to a defined angle
     if (robotMovementType.equals("gyroMode"))
     {
       if (turnToAngle(currHeading, desiredHeading))
       { //turnToAngle returns true when the robot is at the correct heading
-        Serial.println(getGyroData());
-        Serial.println("At expected angle");
-        setLeft(1500);
-        setRight(1500);
-        //robotMovementType = "teleop";
-        //state = teleop;
+        robotMovementType = "waiting";
       }
       else
       {
@@ -392,6 +380,9 @@ void loop()
     }
 
     //drive a set distance
+
+    Serial.println("State Autonomous");
+
     previousState = state;
     state = updateSensors;
 
