@@ -352,7 +352,6 @@ class MainWindow(QMainWindow):
             hbox.addWidget(self.sensor_label)
 
             self.sensor_data = QLabel(self.mainWidget)
-            # data.setText("   0")
             data_val = str(self.wifi.getInfo(sensor.value))
             self.sensor_data.setText(data_val)
             hbox.addWidget(self.sensor_data)
@@ -362,13 +361,9 @@ class MainWindow(QMainWindow):
 
     # this updates the sensor labels on a periodic timer
     def updateSensorLabels(self):
-        #TODO make sure sensor_data.setText is linked to the specific sensor label
         for sensor in GetJSONVars:
-            self.sensor_label.setText(sensor.value)
-            data_val = str(self.wifi.getInfo(sensor.value))
-            # print("sensor: ", sensor, " data_val: ", data_val)
-            self.sensor_data.setText(data_val)
-            self.sensorLabels[sensor] = (self.sensor_label, self.sensor_data)
+            data_val = self.wifi.getInfo(sensor.value).decode("utf-8")
+            self.sensorLabels[sensor][1].setText(data_val)
 
     def robotMovementTypeComboBox(self, layout):
         # make label
