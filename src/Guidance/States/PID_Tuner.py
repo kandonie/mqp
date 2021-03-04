@@ -30,8 +30,8 @@ class PIDTuner():
             self.wifi.sendInfo(gain.value, gain_val)
             self.hasSent = True
             self.wifi.sendInfo(tuning_gain, 0)
-            return True
-        self.wifi.sendInfo(tuning_gain, 0)
+            # return True
+        # self.wifi.sendInfo(tuning_gain, 0)
         return False
 
     def getType(self):
