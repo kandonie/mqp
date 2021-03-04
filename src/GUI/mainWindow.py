@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
                              QHBoxLayout, QVBoxLayout, QLineEdit,
                              QRadioButton)
 from PyQt5.QtGui import QIntValidator
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
-from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals
 from src.GUI.WindowEnums import WindowEnums
 from src.GUI.DataGraph import DataGraph
 from src.Sensing.RobotDataManager import RobotDataManager
@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
     This class contains a main window for the application.
     """
 
-    def __init__(self, GUI_Graphs):
+    def __init__(self, GUI_Graphs, wifi):
         """
         init initializes the QWidgets and sets the geometry of the window
         :param GUI_Graphs: [Bool] True to display graphs, False otherwise
@@ -33,6 +33,12 @@ class MainWindow(QMainWindow):
 
         # important for setting locations of QWidgets
         self.observers = []
+
+        self.wifi = wifi
+
+        # for dynamically updating sensor labels
+        self.sensor_label = QLabel(self.mainWidget)
+        self.sensor_data = QLabel(self.mainWidget)
 
         self.initializeLayout()
         self.mainWidget.setLayout(self.layout)
@@ -59,15 +65,22 @@ class MainWindow(QMainWindow):
         """
         self.layout = QHBoxLayout(self.mainWidget)
         first_col = QVBoxLayout(self.mainWidget)
+        self.first_col = first_col
 
         # add widgets to first col
         self.makeESTOPButton(first_col)
         self.makeRobotSystemEnablingButtons(first_col)
         self.makeIntelligenceStateComboBox(first_col)
         self.makePWMButtons(first_col)
+        self.makePIDButtons(first_col)
         self.makePolygonalMovement(first_col)
         self.makeSensorLabels(first_col)
         self.robotMovementTypeComboBox(first_col)
+
+        # timer for sensor labels to send get requests periodically
+        self.my_timer = QTimer()
+        self.my_timer.timeout.connect(self.updateSensorLabels)
+        self.my_timer.start(10) # interval between get requests
 
         self.layout.addLayout(first_col)
 
@@ -253,6 +266,53 @@ class MainWindow(QMainWindow):
                 val = int(PWMVals.FULL_CW.value)
         self.notifyObservers(BehavioralStates.PWM, (motor_button, qLineEdit.text()))
 
+
+    def makePIDButtons(self, layout):
+        """
+        creates all the push buttons
+        """
+        self.pid_gains = []
+        pidLabel = QLabel(self.mainWidget)
+        pidLabel.setText("Individually set PIDs")
+        layout.addWidget(pidLabel)
+
+        pid_gains = [SetJSONVars.KP,
+                    SetJSONVars.KI, SetJSONVars.KD]
+
+        for gain in pid_gains:
+            hBox = self.makePIDGain(gain)
+            layout.addLayout(hBox)
+
+    def makePIDGain(self, gain):
+        """
+        makes GUI stuff for each pid gain
+        Can't do in for loop because variable scope bad
+        :param gain: the name of the pid gain
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        PIDInput = QLineEdit(PIDVals.KP_DEFAULT.value, self.mainWidget)
+        PIDInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(PIDInput)
+
+        sendPIDButton = QPushButton(self.mainWidget)
+        label = "Set PID for " + gain.value
+        sendPIDButton.setText(label)
+        sendPIDButton.clicked.connect(lambda: self.sendPID(PIDInput, gain))
+        hBox.addWidget(sendPIDButton)
+        self.pid_gains.append((PIDInput, sendPIDButton, gain))
+        return hBox
+
+    def sendPID(self, qLineEdit, gain_button):
+        """
+        alerts observers of change in pid
+        """
+        val = float(qLineEdit.text())
+        self.notifyObservers(BehavioralStates.PID, (gain_button, qLineEdit.text()))
+
+
     def makePolygonalMovement(self, layout):
         label = QLabel(self.mainWidget)
         label.setText("Drive polygon, n sides")
@@ -286,17 +346,24 @@ class MainWindow(QMainWindow):
         for sensor in GetJSONVars:
             hbox = QHBoxLayout(self.mainWidget)
 
-            label = QLabel(self.mainWidget)
-            label.setFixedWidth(300)
-            label.setText(sensor.value)
-            hbox.addWidget(label)
+            self.sensor_label = QLabel(self.mainWidget)
+            self.sensor_label.setFixedWidth(300)
+            self.sensor_label.setText(sensor.value)
+            hbox.addWidget(self.sensor_label)
 
-            data = QLabel(self.mainWidget)
-            data.setText("   0")
-            hbox.addWidget(data)
+            self.sensor_data = QLabel(self.mainWidget)
+            data_val = str(self.wifi.getInfo(sensor.value))
+            self.sensor_data.setText(data_val)
+            hbox.addWidget(self.sensor_data)
 
             layout.addLayout(hbox)
-            self.sensorLabels[sensor] = (label, data)
+            self.sensorLabels[sensor] = (self.sensor_label, self.sensor_data)
+
+    # this updates the sensor labels on a periodic timer
+    def updateSensorLabels(self):
+        for sensor in GetJSONVars:
+            data_val = str(self.wifi.getInfo(sensor.value))
+            self.sensorLabels[sensor][1].setText(data_val)
 
     def robotMovementTypeComboBox(self, layout):
         # make label

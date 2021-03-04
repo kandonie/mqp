@@ -10,6 +10,7 @@
 #include "movement.h"
 #include "sensors.h"
 
+using namespace std;
 
 const char *ssid = "#wewantseason";
 const char *password = "ap1@Lancast";
@@ -19,6 +20,7 @@ AsyncWebServer server(80);
 char general[] = "/general";
 char ESTOP[] = "/ESTOP";
 char APOS[] = "/readAPOS";
+char robotDataJson[] = "/getRobotData";
 
 //mutex - varible names
 int motor1PWM = 1500;
@@ -26,47 +28,44 @@ int motor2PWM = 1500;
 int weaponPWM = 0;
 boolean weaponArmed = false;
 boolean driveArmed = false;
+// double kp = 0;
+// double ki = 0;
+// double kd = 0;
 
-//
+
 String robotMovementType;
 
 //Robot State variable triggers
 boolean robotDisabled = true;
 
-
-double desiredHeading = 0;
+double desiredHeading = 180;
 double currHeading = 0;
 
 double weaponCurrent;
 double driveCurrent;
-int test = 0;
 int startTime = 0;
-
 
 //Interrupt Booleans
 boolean checkGyro;
 boolean checkCurrent;
 
-
 //JSON Library declarations
-StaticJsonDocument<200> doc;
-
+StaticJsonDocument<300> doc;
+StaticJsonDocument<200> robotDataDoc;
 
 // BNo055 Sensor Varibles (todo break into separate c++ files)
 double xPos = 0, yPos = 0, headingVel = 0;
 uint16_t BNO055_SAMPLERATE_DELAY_MS = 10; //how often to read data from the board
-uint16_t PRINT_DELAY_MS = 500; // how often to print the data
-uint16_t printCount = 0; //counter to avoid printing every 10MS sample
+uint16_t PRINT_DELAY_MS = 500;            // how often to print the data
+uint16_t printCount = 0;                  //counter to avoid printing every 10MS sample
 
 //velocity = accel*dt (dt in seconds)
 //position = 0.5*accel*dt^2
-double ACCEL_VEL_TRANSITION =  (double)(BNO055_SAMPLERATE_DELAY_MS) / 1000.0;
+double ACCEL_VEL_TRANSITION = (double)(BNO055_SAMPLERATE_DELAY_MS) / 1000.0;
 double ACCEL_POS_TRANSITION = 0.5 * ACCEL_VEL_TRANSITION * ACCEL_VEL_TRANSITION;
 double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outputs degrees
 unsigned long SensorPrevTime = 0; //prevtime is the previous time that the bno055 was polled
 unsigned long mainTime;
-
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 
 //state machine testing
 static enum stateChoices {
@@ -75,19 +74,34 @@ static enum stateChoices {
   autonomous,
   configureRobot,
   updateSensors
-} state, previousState;
-
-
-
-
-
-
+} state,
+    previousState;
 
 String readAPOS()
 {
   //This should check a global variable with the last heading reading
   Serial.println("Read APOS");
   return "North";
+}
+
+String readCurrHeading()
+{
+  //This should check a global variable with the last heading reading
+  // char currHeading_str[10];
+  // int heading = (int) currHeading;
+  // sprintf(currHeading_str, "%d", heading);
+  // Serial.print("Read current heading: ");
+  // Serial.println(currHeading_str);
+  // return currHeading_str;
+  robotDataDoc["getHeading"] = (int) currHeading;
+  robotDataDoc["getDriveCurrent"] = 0.25;
+  robotDataDoc["getWeaponCurrent"] = 0.5;
+  // robotDataDoc["getOrientation"] = 0;
+  // robotDataDoc["getSignalStrength"] = 0;
+
+  char buffer[200];
+  serializeJson(robotDataDoc, buffer);
+  return buffer;
 }
 
 String generalHandler()
@@ -108,26 +122,26 @@ void setup()
   // Remove the password parameter, if you want the AP (Access Point) to be open
 
   //Uncomment to host esp access point
-  /*
+
+  
   WiFi.softAP(ssid, password);
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(IP);
-  */
-
-
+  
   // Uncomment to connect to wifi
- 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-   {
-     delay(1000);
-     Serial.println("Connecting to WiFi..");
-   }
-   Serial.println(WiFi.localIP());
-   
+
+  // WiFi.begin(ssid, password);
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(1000);
+  //   Serial.println("Connecting to WiFi..");
+  // }
+  // Serial.println(WiFi.localIP());
 
   //Get Requests (Test Request)
+  //todo change APOS get request to robot data json
+  //todo serilize to a json
   server.on(APOS, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
     request->send_P(200, "text/plain", readAPOS().c_str());
   });
@@ -137,95 +151,121 @@ void setup()
     request->send_P(200, "text/plain", readAPOS().c_str());
   });
 
-  //ESTOP Request
-  server.on(general, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
-    request->send_P(200, "text/plain", readAPOS().c_str());
+  // gyro data Request
+  server.on(robotDataJson, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
+    request->send_P(200, "text/plain", readCurrHeading().c_str());
   });
 
-    server.on(
-    "/generaltest",
-    HTTP_POST,
-    [](AsyncWebServerRequest * request){},
-    NULL,
-    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
-    
+  server.on(
+      "/generaltest",
+      HTTP_POST,
+      [](AsyncWebServerRequest *request) {},
+      NULL,
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+        char json[] = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        // TODO actual memory safety
+        int jsonIndex = 0;
+        for (size_t i = 0; i < len; i++)
+        {
 
-      char json[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";  
-      // TODO actual memory safety 
-      int jsonIndex = 0;
-      for (size_t i = 0; i < len; i++) {
-        
-        //Serial.write(data[i]);
-        if(data[i] == ' '){
-          continue;
-        } else {
-          json[jsonIndex] = data[i];
-          jsonIndex++;
-        }        
-        
-      }
-      Serial.println("");
-      char newJson[jsonIndex+1];
-      strncpy(newJson, json, jsonIndex); 
-      newJson[jsonIndex] = '\0';
-      //Serial.println(newJson); //print the whole json
+          //Serial.write(data[i]);
+          if (data[i] == ' ')
+          {
+            continue;
+          }
+          else
+          {
+            json[jsonIndex] = data[i];
+            jsonIndex++;
+          }
+        }
+        Serial.println("");
+        char newJson[jsonIndex + 1];
+        strncpy(newJson, json, jsonIndex);
+        newJson[jsonIndex] = '\0';
+        // Serial.println(newJson); //print the whole json
 
-      DeserializationError error = deserializeJson(doc, newJson);
+        DeserializationError error = deserializeJson(doc, newJson);
 
         // Test if parsing succeeds.
 
-      //TODO Return 404 error
-      if (error) {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return;
-      }
+        //TODO Return 404 error
+        if (error)
+        {
+          Serial.print(F("deserializeJson() failed: "));
+          Serial.println(error.f_str());
+          return;
+        }
 
+        //TODO MAKE THE ROBOT NOT CRASH HERE IF IT DOESN'T FIND THE KEY
+        // deserializeJSON comes from the ESPHTTPTopics.py
+        motor1PWM = doc["motor1pwm"];
+        motor2PWM = doc["motor2pwm"];
+        weaponPWM = doc["weapon_pwm"];
+        desiredHeading = doc["desiredHeading"];
+        robotMovementType = doc["RobotMovementType"].as<const char *>();
+        auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
+        auto driveTest = doc["ArmDriveState"].as<const char *>();
+        bool tuning_kp = doc["tuning_kp"];
+        bool tuning_ki = doc["tuning_ki"];
+        bool tuning_kd = doc["tuning_kd"];
 
+        static double kp = 5;
+        static double ki = 0;
+        static double kd = 0;
 
-      //TODO MAKE THE ROBOT NOT CRASH HERE IF IT DOESN'T FIND THE KEY
-      // deserializeJSON comes from the ESPHTTPTopics.py
-      motor1PWM = doc["motor1pwm"];
-      motor2PWM = doc["motor2pwm"];
-      weaponPWM = doc["weapon_pwm"];
-      robotMovementType = doc["RobotMovementType"].as<const char*>();
-      auto weaponTest = doc["WeaponArmedState"].as<const char*>();  //adding this greatly increased RTT, but should be double checked
-      auto driveTest = doc["ArmDriveState"].as<const char*>();
+        if (tuning_kp) {
+          kp = doc["kp"];
+        }
+        else if (tuning_ki) {
+          ki = doc["ki"];
+        }
+        else if (tuning_kd) {
+          kd = doc["kd"];
+        }
 
-      driveArmed = doc["ArmDriveState"];
-      //Serial.print("JSON TEST Print  ");
-      //Serial.println(motor1PWM);
+        Serial.print("kp is ");
+        Serial.print(kp);
+        Serial.print("  ki is ");
+        Serial.print(ki);
+        Serial.print("  kd is ");
+        Serial.println(kd);
 
+        driveArmed = doc["ArmDriveState"];
+        //Serial.print("JSON TEST Print  ");
+        //Serial.println(motor1PWM);
 
-      //this might also be fucking the RTT
-      if(strcmp(weaponTest, "false")== 0){
-        weaponArmed = false;
-      } else {
-        weaponArmed = true;
-      }
+        // set pid gains based on json input
+        setPIDGains(kp, ki, kd);
 
-      if(strcmp(driveTest, "false")== 0){
-        driveArmed = false;
-      } else {
-        driveArmed = true;
-      }
+        // ARM and Disarm checks
+        if (strcmp(weaponTest, "false") == 0)
+        {
+          weaponArmed = false;
+        }
+        else
+        {
+          weaponArmed = true;
+        }
 
-      //Serial.print("Weapon Armed Status-  ");
-      //Serial.println(weaponArmed);
-      //Serial.print("Drive Armed Status-  ");
-      //Serial.println(driveArmed);
+        if (strcmp(driveTest, "false") == 0)
+        {
+          driveArmed = false;
+        }
+        else
+        {
+          driveArmed = true;
+        }
 
-      //these prints are probably slowing down the RTT
-      Serial.println();
-      Serial.println("About to send request");
+        if (robotMovementType.equals("gyroMode"))
+        {
+          state = autonomous;
+        }
 
-      
-
-      request->send(200);
-      Serial.println("Response Sent");
-      test = 1;
-      mainTime = millis();
-  });
+        request->send(200);
+        Serial.println("Response Sent");
+        mainTime = millis();
+      });
 
   //start the webserver
   server.begin();
@@ -235,90 +275,61 @@ void setup()
   movementSetup();
   sensorSetup();
 
-  //going from 1000-2000
-  //has to have been 6 seconds 
-  //100us above and below 1500
-  //send 1000 for a sec then send
-
-  // to exit the calibration routine
-  // must be within 100us of 1500
-  // check that it is really outputting 1500us on the pwm channel 
-  // no power cycle after calibration 
-
-  /*
-  //  BNo055 Sensor Setup
-    if (!bno.begin())
-  {
-    Serial.print("No BNO055 detected");
-    while (1);
-  }
-  */
- //set starting state
   state = teleop;
 
   Serial.println("End Of Calibration");
   delay(1000);
 
   mainTime = millis();
-
-
 }
 
-void updateTime(){
+void updateTime()
+{
   //this should probably watch for overflow on mainTime
   mainTime = millis();
-
 }
 
+void loop()
+{
 
-void loop() {
-  /*
-  if(prevTime-mainTime > 200){
-    //lauren cares about stuff in getjsonvars
-    sensors_event_t orientationData , linearAccelData, gravityData;
-    bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
-    //Serial.println(orientationData.orientation.x);
-    currHeading = orientationData.orientation.x;
-    
-  }
-  */
-
-
-  switch ( (state))
+  switch ((state))
   {
   case disabled:
     Serial.println("State Disabled");
     /* code */
     disablePWM("all");
-    if(robotDisabled){
+    if (robotDisabled)
+    {
       state = disabled;
-    } else {
+    }
+    else
+    {
       state = configureRobot;
-      
     }
     break;
 
   case updateSensors:
 
-      updateTime();
+    updateTime();
 
-      //check if it is time to poll the sensors again
-      if ((mainTime - SensorPrevTime >100))
-      {
-        //Serial.println("Sensors Updated");
-        measureCurrent();
-      }
-
+    //the minimum value for this is 10 milliseconds, the BNo055 will not provide data faster over i2c
+    if (mainTime - SensorPrevTime > 15)
+    {
+      measureCurrent();
+      weaponCurrent = currentCheck("sensor1");
+      driveCurrent = currentCheck("sensor2");
+      updateGyroData();
+      currHeading = getGyroData();
+      //isUpsideDown();
+      Serial.println(getGyroData());
       SensorPrevTime = mainTime;
-      state = previousState;
-      previousState = updateSensors;
+      //Serial.println("Reading GYRO");
+    }
 
-      
-
-
+    state = previousState;
+    previousState = updateSensors;
 
     break;
-
 
   case teleop:
 
@@ -326,60 +337,77 @@ void loop() {
     //Serial.println("Teleop");
     updateTime();
     //Serial.println("In Teleop");
-    if(weaponArmed){
-      if(PWMWeaponDisabled()){
+    if (weaponArmed)
+    {
+      if (PWMWeaponDisabled())
+      {
         enablePWM("weapon");
       }
-      Serial.println(currentCheck("sensor1"));
+      //Serial.println(currentCheck("sensor1"));
       setWeapon(weaponPWM);
-    } else{
+    }
+    else
+    {
       disablePWM("weapon");
     }
-    
 
-    if(driveArmed){
-      if(PWMDriveDisabled()){
+    if (driveArmed)
+    {
+      if (PWMDriveDisabled())
+      {
         enablePWM("drive");
       }
       setRight(motor1PWM);
       setLeft(motor2PWM);
-    } else {
+    }
+    else
+    {
       disablePWM("drive");
     }
-    
 
     previousState = state;
     state = updateSensors;
+    //state = teleop;
 
-    
     /* code */
     // leave teleop if the state is changed by the control system
     // change variable with json
-    
 
     break;
 
   case autonomous:
-    //wait for movment goals, then execute them
     updateTime();
+
+    //turn to a defined angle
+    if (robotMovementType.equals("gyroMode"))
+    {
+      if (turnToAngle(currHeading, desiredHeading))
+      { //turnToAngle returns true when the robot is at the correct heading
+        robotMovementType = "waiting";
+      }
+      else
+      {
+        robotMovementType = "gyroMode";
+      }
+    }
+
+    //drive a set distance
+
     Serial.println("State Autonomous");
 
-    break;
+    previousState = state;
+    state = updateSensors;
 
+    break;
 
   case configureRobot:
     disablePWM("all");
     Serial.println("State configure robot");
-    
-    //disable motors
-    //ability to adjust pwm limits
-    //change PWM and motor connections
-    //leaves this state on a the main json or a separate save changes json passing into the robot
-    //maybe save changes to eeprom
 
     break;
-  
+
   default:
     break;
   }
+
 }

@@ -1,4 +1,5 @@
 import requests
+import json
 from src.Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
 from src.Hardware_Comms.connectionData import ConnectionDataHandler
 from src.Robot_Locomotion.MotorEnums import PWMVals
@@ -17,7 +18,7 @@ class WiFiComms:
         :param shouldConnectToWiFi: [Bool] True if we want to connect to ESP, False otherwise
         """
         # esp32 IP
-        self.IP = "http://192.168.50.18"
+        self.IP = "http://192.168.4.1"
         # initialzies get vars
         self.getJson = {}
         for var in GetJSONVars:
@@ -26,6 +27,12 @@ class WiFiComms:
         self.setJson = {}
         for var in SetJSONVars:
             self.setJson[var.value] = PWMVals.STOPPED.value
+        # not in PIDTuningState unless the state is entered through GUI
+        # PID bool value set to 0 for false
+        # self.setJson[SetJSONVars.PID.value] = 0
+        self.setJson[SetJSONVars.TUNING_KP.value] = 0
+        self.setJson[SetJSONVars.TUNING_KI.value] = 0
+        self.setJson[SetJSONVars.TUNING_KD.value] = 0
         # determine is ESP is connected
         # if not done here, all http requests take forever and it slows down program
         self.heading = 0
@@ -50,15 +57,15 @@ class WiFiComms:
         :param param: The topic to ask for
         :return: [String] the topic info
         """
-        # TODO Might want to delete this function
-        print("Getting info of " + str(param))
+        # print("Getting info of " + str(param))
         if not self.isConnected:
             return "No ESP Connected"
         # sending get request and saving the response as response object
         try:
-            r = requests.get(url=self.IP + HTTPTopics.MAIN.value)
+            r = requests.get(url=self.IP + HTTPTopics.ROBOT_DATA.value)
             # TODO get the param
-            return r.content
+            info = json.loads(r.content.decode("utf-8"))
+            return info[param]
         except:
             print("No connection could be established with ESP from getInfo")
             return "ESP Comms Err"

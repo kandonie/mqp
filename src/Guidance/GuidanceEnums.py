@@ -24,5 +24,7 @@ class BehavioralStates(Enum):
     RC = "RC State"
     MOVEMENT_TEST = "Polygonal Movement State"
     PWM = "PWM Controlling State"
+    PID = "PID Tuning State"
     MATCH_START = "Match Start State"
     END_MATCH = "Match End State"
+    ATTACK = "Attack State"

@@ -1,5 +1,6 @@
 
 void movementSetup();
+void setPIDGains(double proportional, double integral, double derivative);
 void testPWM();
 void enablePWM(String system);
 void disablePWM(String system);
@@ -8,3 +9,4 @@ void setLeft(int speed);
 void setWeapon(int speed);
 boolean PWMDriveDisabled();
 boolean PWMWeaponDisabled();
+bool turnToAngle(double currentHeading, double desiredHeading);

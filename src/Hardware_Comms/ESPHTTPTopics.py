@@ -6,6 +6,7 @@ class HTTPTopics(Enum):
     topic used for wifi comms
     """
     MAIN = "/generaltest"
+    ROBOT_DATA = "/getRobotData"
 
 
 class RobotMovementType(Enum):
@@ -37,6 +38,13 @@ class SetJSONVars(Enum):
     MOVEMENT_TYPE = "RobotMovementType"
     WEAPON_ENABLE_CHANGE = 'WeaponArmedState'
     DRIVE_ENABLE_CHANGE = "ArmDriveState"
+    # PID = "PIDTuning"
+    TUNING_KP = "tuning_kp"
+    TUNING_KI = "tuning_ki"
+    TUNING_KD = "tuning_kd"
+    KP = "kp"
+    KI = "ki"
+    KD = "kd"
 
 
 class GetJSONVars(Enum):
@@ -47,5 +55,5 @@ class GetJSONVars(Enum):
     HEADING = 'getHeading'
     DRIVE_CURRENT = 'getDriveCurrent'
     WEAPON_CURRENT = 'getWeaponCurrent'
-    IS_UPSIDE_DOWN = 'getOrientation'
-    WIFI_STRENGTH = 'getSignalStrength'
+    # IS_UPSIDE_DOWN = 'getOrientation'
+    # WIFI_STRENGTH = 'getSignalStrength'

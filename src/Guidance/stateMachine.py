@@ -5,10 +5,12 @@ from src.Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
 from src.Guidance.States.stop import Stop
 from src.Guidance.States.PolygonalMovement import PolygonalMovement
 from src.Guidance.States.PWMController import PWMController
+from src.Guidance.States.PID_Tuner import PIDTuner
 from src.Guidance.States.RemoteControl import RemoteControl
 from src.Guidance.States.match_start import MatchStart
 from src.Guidance.States.EndMatch import MatchEnd
 from src.Guidance.States.ESTOP import ESTOP
+from src.Guidance.States.attack import Attack
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
 import threading
 from src.Sensing.RobotDataManager import RobotDataManager
@@ -75,6 +77,8 @@ class StateMachine():
             state = PolygonalMovement(self.drive)
         elif state == BehavioralStates.PWM:
             state = PWMController(self.drive)
+        elif state == BehavioralStates.PID:
+            state = PIDTuner(self.wifi)
         elif state == BehavioralStates.RC:
             state = RemoteControl(self.drive, self.weapon)
         elif state == BehavioralStates.ESTOP:
@@ -83,6 +87,8 @@ class StateMachine():
             state = MatchStart()
         elif state == BehavioralStates.END_MATCH:
             state = MatchEnd()
+        elif state == BehavioralStates.ATTACK:
+            state = Attack(self.drive, self.weapon)
         return state
 
     def determineNextState(self, args):

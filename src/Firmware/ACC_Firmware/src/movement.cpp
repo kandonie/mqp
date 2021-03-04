@@ -1,26 +1,58 @@
 #include "ESP32Servo.h"
 #include "Arduino.h"
 
+#define FULL_CW 2000
+#define FULL_CCW 1000
+#define STOPPED 1500
+
 Servo Motor1;
 Servo Motor2;
 Servo Motor3;
 Servo Motor4;
 
-const int motorPin = 15;
+
+//motor 1 is right side
+//motor 2 is left side
+//2000 is full reverse 
+//1000 if full forwards
+
+//from robot prespective motor 2 is left
+//and motor 1 is right
+
+const int motorPin = 13;
 const int motor2Pin = 14;
-const int motor3Pin = 13;
-const int motor4Pin = 19; //must change from pin 10 // should be 25, temporarily chaning to 34 for testing
+const int motor3Pin = 15;
+const int motor4Pin = 19; 
 
 boolean PWMDisabledDrive = false;
 boolean PWMDisabledWeapon = false;
 
+//PID variables
+double error;
+double totalError;
+double previousError = 0;
+
+double kp = 0;
+double ki = 0;
+double kd = 0;
+
+void setPIDGains(double proportional, double integral, double derivative) {
+    kp = proportional;
+    ki = integral;
+    kd = derivative;
+
+    Serial.print("KP Value: ");
+    Serial.println(kp);
+}
+
+
 int checkPWM(int pwm){
 
-    if (pwm > 2000) {
-    pwm = 2000;
+    if (pwm > 1600) {
+    pwm = 1600;
     }
-    if (pwm < 1000) {
-        pwm = 1000;
+    if (pwm < 1400) {
+        pwm = 1400;
     }
     return pwm;
 }
@@ -100,6 +132,19 @@ void setLeft(int speed)
     Motor2.writeMicroseconds(speed);
 }
 
+// set the motor speeds so the robot turns
+// @param speed a range from 1000-2000
+// @param direction a string that is either "CW" or "CCW"
+void turnSpeed(int speed, String direction){
+    if (direction == "CCW") {
+        setLeft(speed);
+        setRight(FULL_CW - abs(speed - FULL_CCW));
+    } else {
+        setLeft(FULL_CW - abs(speed - FULL_CCW));
+        setRight(speed);
+    }
+}
+
 void setWeapon(int speed){
     speed = checkPWM(speed);
     Motor3.writeMicroseconds(speed);
@@ -114,6 +159,51 @@ boolean PWMWeaponDisabled() {
 }
 
 
+
+bool turnToAngle(double currentHeading, double desiredHeading) {
+    //Serial.println("Turning to angle");
+    error = currentHeading - desiredHeading;
+    Serial.print("Error  : ");
+    Serial.print(error);
+    Serial.print("   Heading  : ");
+    Serial.println(currentHeading);
+    String direction;
+    //previousError
+
+    if(abs(currentHeading - desiredHeading) > 180){
+        direction = "CW";
+    } else {
+        direction = "CCW";
+    }
+
+    totalError += error;
+    double proportional = error*kp;
+    double integral = totalError*ki;
+    double derivative = (error - previousError)*kd;
+
+    int output = proportional + integral + derivative;
+
+    // an output of range 0-1000 will be mapped to pwm range 1500-2000
+    int speed = map(output, 0, 50, STOPPED, FULL_CW);
+    // constrain to pwm range 1000-2000 so negative output values can make motors go backwards
+    speed = constrain(speed, FULL_CCW, FULL_CW);
+
+    //check turn angle
+    turnSpeed(speed, direction);
+
+    //reset setpoints when target is hit
+
+
+    previousError = error;
+
+    //arbitrary error for now
+    if(abs(error) < 10){
+        return true;
+    }
+
+    return false;
+
+}
 
 
 void testPWM(){
