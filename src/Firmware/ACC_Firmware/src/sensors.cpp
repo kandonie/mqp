@@ -2,8 +2,8 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 
-int currentSensor1Pin = 33;
-int currentSensor2Pin = 24;
+int currentSensor1Pin = 34;
+int currentSensor2Pin = 35;
 double Sensor1Current = 0;
 double Sensor2Current = 0;
 
@@ -39,13 +39,13 @@ void measureCurrent()
 
     //analogRead
     double adcReading1 = analogRead(currentSensor1Pin);
-    //delay(10);
     double adcReading2 = analogRead(currentSensor2Pin);
-    //delay(10);
+    // Serial.print("adcReading1: ");
+    // Serial.println(adcReading1);
 
     //Divide voltage by conversion factor to calculate currrent reading
-    Sensor1Current = calculateVoltage(adcReading1) / conversionFactor;
-    Sensor2Current = calculateVoltage(adcReading2) / conversionFactor;
+    // Sensor1Current = calculateVoltage(adcReading1) / conversionFactor;
+    // Sensor2Current = calculateVoltage(adcReading2) / conversionFactor;
     //Sensor1Current = adcReading1;
     //Sensor2Current = adcReading2;
     //currentSensor2Pin = adcReading2;

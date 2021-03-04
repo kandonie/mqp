@@ -94,8 +94,8 @@ String readCurrHeading()
   // Serial.println(currHeading_str);
   // return currHeading_str;
   robotDataDoc["getHeading"] = (int) currHeading;
-  robotDataDoc["getDriveCurrent"] = driveCurrent;
-  robotDataDoc["getWeaponCurrent"] = weaponCurrent;
+  robotDataDoc["getDriveCurrent"] = 0.25;
+  robotDataDoc["getWeaponCurrent"] = 0.5;
   // robotDataDoc["getOrientation"] = 0;
   // robotDataDoc["getSignalStrength"] = 0;
 
@@ -316,10 +316,12 @@ void loop()
     if (mainTime - SensorPrevTime > 15)
     {
       measureCurrent();
+      weaponCurrent = currentCheck("sensor1");
+      driveCurrent = currentCheck("sensor2");
       updateGyroData();
       currHeading = getGyroData();
       //isUpsideDown();
-      //Serial.println(getGyroData());
+      Serial.println(getGyroData());
       SensorPrevTime = mainTime;
       //Serial.println("Reading GYRO");
     }

@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         # timer for sensor labels to send get requests periodically
         self.my_timer = QTimer()
         self.my_timer.timeout.connect(self.updateSensorLabels)
-        self.my_timer.start(500) # interval between get requests
+        self.my_timer.start(10) # interval between get requests
 
         self.layout.addLayout(first_col)
 
