@@ -51,6 +51,7 @@ boolean checkCurrent;
 
 //JSON Library declarations
 StaticJsonDocument<300> doc;
+StaticJsonDocument<200> robotDataDoc;
 
 // BNo055 Sensor Varibles (todo break into separate c++ files)
 double xPos = 0, yPos = 0, headingVel = 0;
@@ -86,12 +87,21 @@ String readAPOS()
 String readCurrHeading()
 {
   //This should check a global variable with the last heading reading
-  char currHeading_str[10];
-  int heading = (int) currHeading;
-  sprintf(currHeading_str, "%d", heading);
-  Serial.print("Read current heading: ");
-  Serial.println(currHeading_str);
-  return currHeading_str;
+  // char currHeading_str[10];
+  // int heading = (int) currHeading;
+  // sprintf(currHeading_str, "%d", heading);
+  // Serial.print("Read current heading: ");
+  // Serial.println(currHeading_str);
+  // return currHeading_str;
+  robotDataDoc["getHeading"] = (int) currHeading;
+  robotDataDoc["getDriveCurrent"] = 0;
+  robotDataDoc["getWeaponCurrent"] = 0;
+  robotDataDoc["getOrientation"] = 0;
+  robotDataDoc["getSignalStrength"] = 0;
+
+  char buffer[200];
+  serializeJson(robotDataDoc, buffer);
+  return buffer;
 }
 
 String generalHandler()

@@ -1,4 +1,5 @@
 import requests
+import json
 from src.Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
 from src.Hardware_Comms.connectionData import ConnectionDataHandler
 from src.Robot_Locomotion.MotorEnums import PWMVals
@@ -63,7 +64,8 @@ class WiFiComms:
         try:
             r = requests.get(url=self.IP + HTTPTopics.ROBOT_DATA.value)
             # TODO get the param
-            return r.content
+            info = json.loads(r.content.decode("utf-8"))
+            return info[param]
         except:
             print("No connection could be established with ESP from getInfo")
             return "ESP Comms Err"

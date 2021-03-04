@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         # timer for sensor labels to send get requests periodically
         self.my_timer = QTimer()
         self.my_timer.timeout.connect(self.updateSensorLabels)
-        self.my_timer.start(500) # 500ms interval
+        self.my_timer.start(500) # interval between get requests
 
         self.layout.addLayout(first_col)
 
@@ -362,7 +362,7 @@ class MainWindow(QMainWindow):
     # this updates the sensor labels on a periodic timer
     def updateSensorLabels(self):
         for sensor in GetJSONVars:
-            data_val = self.wifi.getInfo(sensor.value).decode("utf-8")
+            data_val = str(self.wifi.getInfo(sensor.value))
             self.sensorLabels[sensor][1].setText(data_val)
 
     def robotMovementTypeComboBox(self, layout):
