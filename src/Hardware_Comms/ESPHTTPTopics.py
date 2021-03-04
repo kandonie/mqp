@@ -55,5 +55,5 @@ class GetJSONVars(Enum):
     HEADING = 'getHeading'
     DRIVE_CURRENT = 'getDriveCurrent'
     WEAPON_CURRENT = 'getWeaponCurrent'
-    IS_UPSIDE_DOWN = 'getOrientation'
-    WIFI_STRENGTH = 'getSignalStrength'
+    # IS_UPSIDE_DOWN = 'getOrientation'
+    # WIFI_STRENGTH = 'getSignalStrength'

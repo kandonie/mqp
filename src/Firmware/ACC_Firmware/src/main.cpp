@@ -94,10 +94,10 @@ String readCurrHeading()
   // Serial.println(currHeading_str);
   // return currHeading_str;
   robotDataDoc["getHeading"] = (int) currHeading;
-  robotDataDoc["getDriveCurrent"] = 0;
-  robotDataDoc["getWeaponCurrent"] = 0;
-  robotDataDoc["getOrientation"] = 0;
-  robotDataDoc["getSignalStrength"] = 0;
+  robotDataDoc["getDriveCurrent"] = driveCurrent;
+  robotDataDoc["getWeaponCurrent"] = weaponCurrent;
+  // robotDataDoc["getOrientation"] = 0;
+  // robotDataDoc["getSignalStrength"] = 0;
 
   char buffer[200];
   serializeJson(robotDataDoc, buffer);
