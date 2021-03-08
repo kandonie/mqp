@@ -23,6 +23,14 @@ double error;
 double totalError;
 double previousError = 0;
 
+//PID Variables for driveDistance
+double error1;
+double totalError1;
+double previousError1 = 0;
+double error2;
+double totalError2;
+double previousError2 = 0;
+
 double kp = 0;
 double ki = 0;
 double kd = 0;
@@ -152,7 +160,7 @@ boolean PWMWeaponDisabled() {
 
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
-    error = currentHeading - desiredHeading;
+    error = (currentHeading - desiredHeading) % 180;
     Serial.print("Error: ");
     Serial.println(error);
     String direction;
@@ -171,7 +179,7 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 
     int output = proportional + integral + derivative;
 
-    // an output of range 0-1000 will be mapped to pwm range 1500-2000
+    // an output of range 0-50 (arbitrary range) will be mapped to pwm range 1500-2000
     int speed = map(output, 0, 50, STOPPED, FULL_CW);
     // constrain to pwm range 1000-2000 so negative output values can make motors go backwards
     speed = constrain(speed, FULL_CCW, FULL_CW);
@@ -191,6 +199,44 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 
     return false;
 
+}
+
+bool driveDistance(int encoderTicks, double distGoal){
+    if(distGoal > 50){
+        Serial.println("Distance goal too large")
+        return true;
+    }
+    // Convert encoder ticks to wheel revolutions
+    // 14 motor poles, 52:855 gearbox reduction
+    double wheelPos = encoderTicks*14*52/855;
+    //Convert goals to wheel revolutions
+    double wheelGoal = distGoal/(2.75*3.14);
+
+    // Set error for PID
+    error = wheelGoal - wheelPos;
+
+    totalError += error;
+    double proportional = error*kp;
+    double integral = totalError*ki;
+    double derivative = (error - previousError)*kd;
+
+    int output = proportional + integral + derivative;
+
+    // Map output over full PWM range
+    int speed = map(output, -50, 50, FULL_CCW, FULL_CW);
+    
+    // Set drive speeds
+    setRight(speed);
+    setLeft(speed);
+
+    previousError = error;
+    
+    //arbitrary error for now in rotations of wheel
+    if(error < .125){
+        return true;
+    }
+
+    return false;
 }
 
 

@@ -32,6 +32,13 @@ boolean driveArmed = false;
 //
 String robotMovementType;
 
+// Encoder setup
+const int encoder1Pin = 25;
+const int encoder2Pin = 26;
+int encoder1Ticks = 0;
+int encoder2Ticks = 0;
+double desiredDist = 0;
+
 //Robot State variable triggers
 boolean robotDisabled = true;
 
@@ -86,12 +93,36 @@ String generalHandler()
   return "0";
 }
 
+// Encoder ISRs
+void IRAM_ATTR encoder1ISR() {
+  // Check motor direction then increment/decrement accordingly
+  if(motor1PWM>1500){
+    encoder1Ticks++;
+  } else{
+    encoder1Ticks--;
+  }
+}
+
+void IRAM_ATTR encoder2ISR() {
+  // Check motor direction then increment/decrement accordingly
+  if(motor2PWM>1500){
+    encoder2Ticks++;
+  } else{
+    encoder2Ticks--;
+  }
+
+}
+
 void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
   delay(2000);
   Serial.println("I am Alive");
+  
+  // set encoder interrupts
+  attachInterrupt(digitalPinToInterrupt(encoder1Pin), encoder1ISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder2Pin), encoder2ISR, RISING);
 
   // Setting the ESP as an access point
   Serial.print("Setting AP (Access Point)…");
@@ -180,6 +211,7 @@ void setup()
         motor2PWM = doc["motor2pwm"];
         weaponPWM = doc["weapon_pwm"];
         //desiredHeading = doc["desiredHeading"];
+        desiredDist = doc["desiredDist"];
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
@@ -349,6 +381,17 @@ void loop()
     }
 
     //drive a set distance
+    // Need actual JSON word
+    if (robotMovementType.equals("driveDistance")){
+      if (driveDistance(encoder1Ticks, desiredDist)){
+        robotMovementType = "waiting";
+      }
+      else
+      {
+        robotMovementType = "driveDistance";
+      }
+    }
+
 
     //Serial.println("State Autonomous");
 
@@ -367,3 +410,4 @@ void loop()
     break;
   }
 }
+
