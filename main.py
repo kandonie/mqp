@@ -6,6 +6,7 @@ from src.Guidance.stateMachine import StateMachine
 from src.GUI.GUIManager import GUIManager
 from src.Hardware_Comms.WiFiComms import WiFiComms
 from src.Sensing.RobotDataManager import RobotDataManager
+from src.CV.stickerDetect import CV
 
 
 def main(connectToWiFi, GUI_Graphs):
@@ -16,8 +17,10 @@ def main(connectToWiFi, GUI_Graphs):
     """
     # create a wifi object
     wifi = WiFiComms(connectToWiFi)
-    # create state machine
     robotDataManager = RobotDataManager()
+    # create the CV model
+    cv = CV([robotDataManager])
+    # create state machine
     sm = StateMachine(wifi)
     wifi.attachObserver(robotDataManager)
 
@@ -29,6 +32,14 @@ def main(connectToWiFi, GUI_Graphs):
         thread.start()
     except:
         print("Couldn't start state machine")
+
+    try:
+        # cv model needs to be in own thread because the GUI will take up this thread
+        cv_thread = threading.Thread(target=cv.runModel)
+        cv_thread.daemon = True
+        cv_thread.start()
+    except:
+        print("Couldn't start CV model")
 
     # start GUI (won't return until GUI window is closed )
     GUIManager([sm], GUI_Graphs, wifi)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes

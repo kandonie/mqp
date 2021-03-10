@@ -3,3 +3,4 @@ __pycache__/
 .vscode/
 get-pip.py
 .pytest_cache
+src/CV/stickers
