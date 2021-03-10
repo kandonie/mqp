@@ -45,6 +45,14 @@ double weaponCurrent;
 double driveCurrent;
 int startTime = 0;
 
+// Encoder setup
+volatile int encoder1Ticks = 0;
+volatile int encoder2Ticks = 0;
+double desiredDist = 0;
+const byte encoder1Pin = 25;
+const byte encoder2Pin = 26;
+portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+
 //Interrupt Booleans
 boolean checkGyro;
 boolean checkCurrent;
@@ -67,7 +75,7 @@ double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outpu
 unsigned long SensorPrevTime = 0; //prevtime is the previous time that the bno055 was polled
 unsigned long mainTime;
 
-//state machine testing
+//Robot States
 static enum stateChoices {
   disabled,
   teleop,
@@ -108,6 +116,39 @@ String generalHandler()
 {
 
   return "0";
+}
+
+
+// Encoder ISRs
+void IRAM_ATTR encoder1ISR() {
+  // Check motor direction then increment/decrement accordingly
+  portENTER_CRITICAL_ISR(&mux);
+  if(motor1PWM>1500){
+    encoder1Ticks++;
+  } else{
+    encoder1Ticks--;
+  }
+  portEXIT_CRITICAL_ISR(&mux);
+}
+
+void IRAM_ATTR encoder2ISR() {
+  // Check motor direction then increment/decrement accordingly
+  portENTER_CRITICAL_ISR(&mux);
+  if(motor2PWM>1500){
+    encoder2Ticks++;
+  } else{
+    encoder2Ticks--;
+  }
+  portEXIT_CRITICAL_ISR(&mux);
+
+}
+
+void encoderSetup(){
+      //encoder pin interrupt configuration
+    pinMode(encoder1Pin, INPUT);
+    pinMode(encoder2Pin, INPUT);
+    attachInterrupt(digitalPinToInterrupt(encoder1Pin), encoder1ISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(encoder2Pin), encoder2ISR, RISING);
 }
 
 void setup()
@@ -390,6 +431,19 @@ void loop()
         robotMovementType = "gyroMode";
       }
     }
+
+       //drive a set distance
+    // Need actual JSON word
+    if (robotMovementType.equals("driveDistance")){
+      if (driveDistance(encoder1Ticks, desiredDist)){
+        robotMovementType = "waiting";
+      }
+      else
+      {
+        robotMovementType = "driveDistance";
+      }
+    }
+
 
     //drive a set distance
 

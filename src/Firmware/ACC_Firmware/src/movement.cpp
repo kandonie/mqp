@@ -32,6 +32,14 @@ double error;
 double totalError;
 double previousError = 0;
 
+//PID Variables for driveDistance
+double error1;
+double totalError1;
+double previousError1 = 0;
+double error2;
+double totalError2;
+double previousError2 = 0;
+
 double kp = 0;
 double ki = 0;
 double kd = 0;
@@ -168,7 +176,6 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     Serial.print("   Heading  : ");
     Serial.println(currentHeading);
     String direction;
-    //previousError
 
     if(abs(currentHeading - desiredHeading) > 180){
         direction = "CW";
@@ -206,25 +213,42 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 }
 
 
-void testPWM(){
-    Motor1.writeMicroseconds(1000);
-    Motor2.writeMicroseconds(1000);
-    Motor3.writeMicroseconds(1000);
-    Motor4.writeMicroseconds(1000);
-    delay(2000);
-    Motor1.writeMicroseconds(1500);
-    Motor2.writeMicroseconds(1500);
-    Motor3.writeMicroseconds(1500);
-    Motor4.writeMicroseconds(1500);
-    delay(2000);
-    Motor1.writeMicroseconds(2000);
-    Motor2.writeMicroseconds(2000);
-    Motor3.writeMicroseconds(2000);
-    Motor4.writeMicroseconds(2000);
-    delay(2000);
+bool driveDistance(int encoderTicks, double distGoal){
+    if(distGoal > 50){
+        Serial.println("Distance goal too large");
+        return true;
+    }
+    // Convert encoder ticks to wheel revolutions
+    // 14 motor poles, 52:855 gearbox reduction
+    double wheelPos = encoderTicks*14*52/855;
+    //Convert goals to wheel revolutions
+    double wheelGoal = distGoal/(2.75*3.14);
 
+    // Set error for PID
+    error1 = wheelGoal - wheelPos;
+
+    totalError1 += error1;
+    double proportional = error1*kp;
+    double integral = totalError1*ki;
+    double derivative = (error1 - previousError1)*kd;
+
+    int output = proportional + integral + derivative;
+
+    // Map output over full PWM range
+    int speed = map(output, -50, 50, FULL_CCW, FULL_CW);
+    
+    // Set drive speeds
+    setRight(speed);
+    setLeft(speed);
+
+    previousError1 = error1;
+    
+    //arbitrary error for now in rotations of wheel
+    if(error < .125){
+        return true;
+    }
+
+    return false;
 }
-
-
 
 
