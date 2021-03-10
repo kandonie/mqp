@@ -22,8 +22,8 @@ class CV:
 
             # top line is for webcam bottom is for static image
             #_, frame = cap.read()
-            frame = cv2.imread('src/CV/stickers/image-001.jpeg')
-            print(np.shape(frame))
+            frame = cv2.imread('src/CV/stickers/image-036.jpeg')
+            # print(np.shape(frame))
             # Convert BGR to HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -48,8 +48,8 @@ class CV:
             cYg = int(M["m01"] / M["m00"])
 
             # put text and highlight the center
-            # cv2.circle(frame, (cXg, cYg), 5, (255, 255, 255), -1)
-            # cv2.putText(frame, "green", (cXg - 25, cYg - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.circle(frame, (cXg, cYg), 5, (255, 255, 255), -1)
+            cv2.putText(frame, "green", (cXg - 25, cYg - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
             ## find purple centroid
 
@@ -72,8 +72,8 @@ class CV:
             cYp = int(M["m01"] / M["m00"])
 
             # put text and highlight the center
-            # cv2.circle(frame, (cXp, cYp), 5, (255, 255, 255), -1)
-            # cv2.putText(frame, "purp", (cXp - 25, cYp - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.circle(frame, (cXp, cYp), 5, (255, 255, 255), -1)
+            cv2.putText(frame, "purp", (cXp - 25, cYp - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
             ## heading and pos
 
@@ -81,7 +81,7 @@ class CV:
 
             heading = -1 * math.atan2(cYp-cYg, cXp - cXg)
             print("heading", heading)
-            # cv2.putText(frame, str(heading), (cXp - 100, cYp - 100),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            cv2.putText(frame, str(heading), (cXp - 100, cYp - 100),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
             # notify observers of current heading and position
             self.notifyObservers(CVTopics.HEADING, heading)
@@ -89,7 +89,7 @@ class CV:
             self.notifyObservers(CVTopics.Y_POSITION, cYp)
 
         #     cv2.imshow('frame', frame)
-        #     cv2.imwrite("output.jpg", frame)
+            cv2.imwrite("output.jpg", frame)
         #     k = cv2.waitKey(5) & 0xFF
         #     if k == 27:
         #         break
