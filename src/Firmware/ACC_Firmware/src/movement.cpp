@@ -63,11 +63,11 @@ int checkPWM(int pwm){
 
 
     //return pwm = pwm > 2000? 2000: pwm < 1000? 1000:pwm;
-    if (pwm > 2000) {
-    pwm = 2000;
+    if (pwm > 1600) {
+    pwm = 1600;
     }
-    if (pwm < 1000) {
-        pwm = 1000;
+    if (pwm < 1400) {
+        pwm = 1400;
     }
     return pwm;
 }
