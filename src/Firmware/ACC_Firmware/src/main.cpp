@@ -235,13 +235,13 @@ void setup()
         motor1PWM = doc["motor1pwm"];
         motor2PWM = doc["motor2pwm"];
         weaponPWM = doc["weapon_pwm"];
-        desiredHeading = doc["desiredHeading"];
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
         bool tuning_kp = doc["tuning_kp"];
         bool tuning_ki = doc["tuning_ki"];
         bool tuning_kd = doc["tuning_kd"];
+        bool setting_heading = doc["setting_heading"];
 
         static double kp = .2;
         static double ki = 0;
@@ -255,6 +255,10 @@ void setup()
         }
         else if (tuning_kd) {
           kd = doc["kd"];
+        }
+
+        if (setting_heading){
+          desiredHeading = doc["desiredHeading"];
         }
 
         Serial.print("kp is ");
