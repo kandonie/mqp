@@ -10,7 +10,6 @@ Servo Motor2;
 Servo Motor3;
 Servo Motor4;
 
-
 //motor 1 is right side
 //motor 2 is left side
 //2000 is full reverse 
@@ -44,6 +43,12 @@ double kp = 0;
 double ki = 0;
 double kd = 0;
 
+
+void brushlessNeutral(){
+    Motor1.writeMicroseconds(1500);
+    Motor2.writeMicroseconds(1500);
+}
+
 void setPIDGains(double proportional, double integral, double derivative) {
     kp = proportional;
     ki = integral;
@@ -56,11 +61,13 @@ void setPIDGains(double proportional, double integral, double derivative) {
 
 int checkPWM(int pwm){
 
-    if (pwm > 1600) {
-    pwm = 1600;
+
+    //return pwm = pwm > 2000? 2000: pwm < 1000? 1000:pwm;
+    if (pwm > 2000) {
+    pwm = 2000;
     }
-    if (pwm < 1400) {
-        pwm = 1400;
+    if (pwm < 1000) {
+        pwm = 1000;
     }
     return pwm;
 }
@@ -68,22 +75,24 @@ int checkPWM(int pwm){
 void disablePWM(String system){
 
     if(system.equals("drive") && PWMDisabledDrive == false){
-        Motor1.detach();
-        Motor2.detach();
-        Motor4.detach();    
+        //Motor1.detach();
+        //Motor2.detach();
+        brushlessNeutral();
+        //Motor4.detach();    
         PWMDisabledDrive = true;
 
     } 
     else if(system.equals("weapon") && PWMDisabledWeapon == false){
-        Motor3.detach();
+        //Motor3.detach();
         PWMDisabledWeapon = true;
 
     } 
     else if(system.equals("all")){
-        Motor1.detach();
-        Motor2.detach();
-        Motor3.detach();
-        Motor4.detach();
+        //Motor1.detach();
+        //Motor2.detach();
+        brushlessNeutral();
+        //Motor3.detach();
+        //Motor4.detach();
         PWMDisabledDrive = true;
         PWMDisabledWeapon = true;
     } 
@@ -91,29 +100,33 @@ void disablePWM(String system){
 
 }
 
+
+
 void enablePWM(String system){
-    Motor1.attach(motorPin, 1000, 2000);   // left motor
-    Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-    Motor3.attach(motor3Pin, 1000, 2000);   // left motor
-    Motor4.attach(motor4Pin, 1000, 2000);  // right motor
+    // Motor1.attach(motorPin, 1000, 2000);   // left motor
+    // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
+    // Motor3.attach(motor3Pin, 1000, 2000);   // left motor
+    // Motor4.attach(motor4Pin, 1000, 2000);  // right motor
 
     if(system.equals("drive") && PWMDisabledDrive == true){
-        Motor1.attach(motorPin, 1000, 2000);   // left motor
-        Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-        Motor4.attach(motor4Pin, 1000, 2000);  // right motor  
+        // Motor1.attach(motorPin, 1000, 2000);   // left motor
+        // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
+        //Motor4.attach(motor4Pin, 1000, 2000);  // right motor
+        //brushlessNeutral();  
         PWMDisabledDrive = false;
 
     } 
     else if(system.equals("weapon") && PWMDisabledWeapon == true){
-        Motor3.attach(motor3Pin, 1000, 2000);  // right motor
+        //Motor3.attach(motor3Pin, 1000, 2000);  // right motor
         PWMDisabledWeapon = false;
 
     } 
     else if(system.equals("all")){
-        Motor1.attach(motorPin, 1000, 2000);   // left motor
-        Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-        Motor3.attach(motor3Pin, 1000, 2000);   // left motor
-        Motor4.attach(motor4Pin, 1000, 2000);  // right motor
+        // Motor1.attach(motorPin, 1000, 2000);   // left motor
+        // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
+        //Motor3.attach(motor3Pin, 1000, 2000);   // left motor
+        //Motor4.attach(motor4Pin, 1000, 2000);  // right motor
+        //brushlessNeutral();
         PWMDisabledDrive = false;
         PWMDisabledWeapon = false;
     } 
@@ -121,11 +134,20 @@ void enablePWM(String system){
 
 void movementSetup()
 {
-    enablePWM("all");
+    //enablePWM("all");
+    Motor1.attach(motorPin, 1000, 2000);   // left motor
+    Motor2.attach(motor2Pin, 1000, 2000);  // right motor
+    Motor3.attach(motor3Pin, 1000, 2000);   // left motor
+    Motor4.attach(motor4Pin, 1000, 2000);
+
     Motor1.setPeriodHertz(60);
-    Motor2.setPeriodHertz(55);
-    Motor3.setPeriodHertz(57);
-    Motor4.setPeriodHertz(58);
+    Motor2.setPeriodHertz(57);
+    Motor3.setPeriodHertz(56);
+    Motor4.setPeriodHertz(55);
+    Motor1.writeMicroseconds(1500);
+    Motor2.writeMicroseconds(1500);
+    delay(2000);
+    //disablePWM("all");
 }
 
 void setRight(int speed)
