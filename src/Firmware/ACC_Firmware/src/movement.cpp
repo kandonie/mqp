@@ -191,6 +191,11 @@ boolean PWMWeaponDisabled() {
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
     //Serial.println("Turning to angle");
+    if (desiredHeading > 360){
+        disablePWM("drive");
+        Serial.println("Desired Heading Out Of Range");
+        return true;
+    }
     error = ((int)currentHeading - (int)desiredHeading)%360;
     Serial.print("Current Heading  ");
     Serial.print(currentHeading);
@@ -230,8 +235,6 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     turnSpeed(speed, direction);
 
     //reset setpoints when target is hit
-
-
     previousError = error;
 
     //arbitrary error for now
