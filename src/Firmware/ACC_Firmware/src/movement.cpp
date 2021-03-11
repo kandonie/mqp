@@ -192,14 +192,21 @@ boolean PWMWeaponDisabled() {
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
     //Serial.println("Turning to angle");
-    error = (currentHeading - desiredHeading);
+    error = (currentHeading - desiredHeading)%360;
+    Serial.print("Current Heading  ");
+    Serial.print(currentHeading);
+    Serial.print("Desired Heading ");
+    Serial.println(desiredHeading);
+
     if (error > 180){
         error = 360 - error;
+    } else if (error < -180){
+        error = 360 + error;
     }
-    Serial.print("Error  : ");
-    Serial.print(error);
-    Serial.print("   Heading  : ");
-    Serial.println(currentHeading);
+    //Serial.print("Error  : ");
+    //Serial.print(error);
+    //Serial.print("   Heading  : ");
+    //Serial.println(currentHeading);
     String direction;
 
     if(abs(currentHeading - desiredHeading) > 180){
