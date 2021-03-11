@@ -141,6 +141,8 @@ void encoderSetup(){
     attachInterrupt(digitalPinToInterrupt(encoder2Pin), encoder2ISR, RISING);
 }
 
+//testing 
+
 void setup()
 {
   // put your setup code here, to run once:
