@@ -34,6 +34,7 @@ class SetJSONVars(Enum):
     WEAPON_PWM = 'weapon_pwm'
     CURRENT_HEADING = 'currentHeading'
     DESIRED_HEADING = 'desiredHeading'
+    SETTING_HEADING = "setting_heading"
     DESIRED_DISTANCE = 'desiredDist'
     MOVEMENT_TYPE = "RobotMovementType"
     WEAPON_ENABLE_CHANGE = 'WeaponArmedState'

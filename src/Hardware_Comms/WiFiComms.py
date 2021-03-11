@@ -33,6 +33,7 @@ class WiFiComms:
         self.setJson[SetJSONVars.TUNING_KP.value] = 0
         self.setJson[SetJSONVars.TUNING_KI.value] = 0
         self.setJson[SetJSONVars.TUNING_KD.value] = 0
+        self.setJson[SetJSONVars.SETTING_HEADING.value] = 0
         # determine is ESP is connected
         # if not done here, all http requests take forever and it slows down program
         self.heading = 0

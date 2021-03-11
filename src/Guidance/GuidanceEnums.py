@@ -23,6 +23,7 @@ class BehavioralStates(Enum):
     STOP = "Stopped State"
     RC = "RC State"
     MOVEMENT_TEST = "Polygonal Movement State"
+    SET_HEADING = "Set Heading State"
     PWM = "PWM Controlling State"
     PID = "PID Tuning State"
     MATCH_START = "Match Start State"

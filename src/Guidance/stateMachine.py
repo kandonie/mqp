@@ -6,6 +6,7 @@ from src.Guidance.States.stop import Stop
 from src.Guidance.States.PolygonalMovement import PolygonalMovement
 from src.Guidance.States.PWMController import PWMController
 from src.Guidance.States.PID_Tuner import PIDTuner
+from src.Guidance.States.setHeadingState import SetHeading
 from src.Guidance.States.RemoteControl import RemoteControl
 from src.Guidance.States.match_start import MatchStart
 from src.Guidance.States.EndMatch import MatchEnd
@@ -79,6 +80,8 @@ class StateMachine():
             state = PWMController(self.drive)
         elif state == BehavioralStates.PID:
             state = PIDTuner(self.wifi)
+        elif state == BehavioralStates.SET_HEADING:
+            state = SetHeading(self.wifi)
         elif state == BehavioralStates.RC:
             state = RemoteControl(self.drive, self.weapon)
         elif state == BehavioralStates.ESTOP:

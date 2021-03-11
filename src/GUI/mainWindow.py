@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt, QTimer
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
-from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals
+from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals, MovementVals
 from src.GUI.WindowEnums import WindowEnums
 from src.GUI.DataGraph import DataGraph
 from src.Sensing.RobotDataManager import RobotDataManager
@@ -73,7 +73,8 @@ class MainWindow(QMainWindow):
         self.makeIntelligenceStateComboBox(first_col)
         self.makePWMButtons(first_col)
         self.makePIDButtons(first_col)
-        self.makePolygonalMovement(first_col)
+        self.makeHeadingButton(first_col)
+        # self.makePolygonalMovement(first_col)
         self.makeSensorLabels(first_col)
         self.robotMovementTypeComboBox(first_col)
 
@@ -311,6 +312,49 @@ class MainWindow(QMainWindow):
         """
         val = float(qLineEdit.text())
         self.notifyObservers(BehavioralStates.PID, (gain_button, qLineEdit.text()))
+
+    def makeHeadingButton(self, layout):
+        """
+        creates all the push buttons
+        """
+        self.heading = []
+        pidLabel = QLabel(self.mainWidget)
+        pidLabel.setText("Individually set PIDs")
+        layout.addWidget(pidLabel)
+
+        heading = SetJSONVars.DESIRED_HEADING
+
+        hBox = self.makeHeading(heading)
+        layout.addLayout(hBox)
+
+    def makeHeading(self, heading):
+        """
+        makes GUI stuff for each pid gain
+        Can't do in for loop because variable scope bad
+        :param gain: the name of the pid gain
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        HeadingInput = QLineEdit(MovementVals.HEADING_DEFAULT.value, self.mainWidget)
+        HeadingInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(HeadingInput)
+
+        sendHeadingButton = QPushButton(self.mainWidget)
+        label = "Set heading for " + heading.value
+        sendHeadingButton.setText(label)
+        sendHeadingButton.clicked.connect(lambda: self.sendHeading(HeadingInput, heading))
+        hBox.addWidget(sendHeadingButton)
+        self.heading.append((HeadingInput, sendHeadingButton, heading))
+        return hBox
+
+    def sendHeading(self, qLineEdit, heading_button):
+        """
+        alerts observers of change in pid
+        """
+        val = float(qLineEdit.text())
+        self.notifyObservers(BehavioralStates.SET_HEADING, (heading_button, qLineEdit.text()))
 
 
     def makePolygonalMovement(self, layout):

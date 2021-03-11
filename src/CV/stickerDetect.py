@@ -77,10 +77,10 @@ class CV:
 
             ## heading and pos
 
-            print("position", cXp, cYp)
+            # print("position", cXp, cYp)
 
             heading = -1 * math.atan2(cYp-cYg, cXp - cXg)
-            print("heading", heading)
+            # print("heading", heading)
             cv2.putText(frame, str(heading), (cXp - 100, cYp - 100),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
             # notify observers of current heading and position
