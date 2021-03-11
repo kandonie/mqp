@@ -235,7 +235,7 @@ void setup()
         motor1PWM = doc["motor1pwm"];
         motor2PWM = doc["motor2pwm"];
         weaponPWM = doc["weapon_pwm"];
-        desiredHeading = doc["desiredHeading"];
+        //desiredHeading = doc["desiredHeading"];
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
@@ -416,12 +416,17 @@ void loop()
     {
       if (turnToAngle(currHeading, desiredHeading))
       { //turnToAngle returns true when the robot is at the correct heading
-        robotMovementType = "waiting";
+        disablePWM("drive");
+        robotMovementType = "gyroMode";
       }
       else
       {
         robotMovementType = "gyroMode";
       }
+    }
+
+    if(robotMovementType.equals("waiting")){
+      disablePWM("drive");
     }
 
        //drive a set distance
@@ -439,7 +444,7 @@ void loop()
 
     //drive a set distance
 
-    Serial.println("State Autonomous");
+    //Serial.println("State Autonomous");
 
     previousState = state;
     state = updateSensors;

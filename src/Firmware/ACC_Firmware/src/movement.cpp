@@ -74,7 +74,7 @@ int checkPWM(int pwm){
 
 void disablePWM(String system){
 
-    if(system.equals("drive") && PWMDisabledDrive == false){
+    if(system.equals("drive")){
         //Motor1.detach();
         //Motor2.detach();
         brushlessNeutral();
@@ -82,7 +82,7 @@ void disablePWM(String system){
         PWMDisabledDrive = true;
 
     } 
-    else if(system.equals("weapon") && PWMDisabledWeapon == false){
+    else if(system.equals("weapon")){
         //Motor3.detach();
         PWMDisabledWeapon = true;
 
@@ -108,7 +108,7 @@ void enablePWM(String system){
     // Motor3.attach(motor3Pin, 1000, 2000);   // left motor
     // Motor4.attach(motor4Pin, 1000, 2000);  // right motor
 
-    if(system.equals("drive") && PWMDisabledDrive == true){
+    if(system.equals("drive")){
         // Motor1.attach(motorPin, 1000, 2000);   // left motor
         // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
         //Motor4.attach(motor4Pin, 1000, 2000);  // right motor
@@ -116,7 +116,7 @@ void enablePWM(String system){
         PWMDisabledDrive = false;
 
     } 
-    else if(system.equals("weapon") && PWMDisabledWeapon == true){
+    else if(system.equals("weapon")){
         //Motor3.attach(motor3Pin, 1000, 2000);  // right motor
         PWMDisabledWeapon = false;
 
@@ -147,7 +147,6 @@ void movementSetup()
     Motor1.writeMicroseconds(1500);
     Motor2.writeMicroseconds(1500);
     delay(2000);
-    //disablePWM("all");
 }
 
 void setRight(int speed)
@@ -192,7 +191,7 @@ boolean PWMWeaponDisabled() {
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
     //Serial.println("Turning to angle");
-    error = (currentHeading - desiredHeading)%360;
+    error = ((int)currentHeading - (int)desiredHeading)%360;
     Serial.print("Current Heading  ");
     Serial.print(currentHeading);
     Serial.print("Desired Heading ");
@@ -236,7 +235,9 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     previousError = error;
 
     //arbitrary error for now
-    if(abs(error) < 20){
+    if(abs(error) < 10){
+        disablePWM("drive");
+        Serial.println("Reached Angle");
         return true;
     }
 
