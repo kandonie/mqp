@@ -45,6 +45,14 @@ double weaponCurrent;
 double driveCurrent;
 int startTime = 0;
 
+// Encoder setup
+volatile int encoder1Ticks = 0;
+volatile int encoder2Ticks = 0;
+double desiredDist = 0;
+const byte encoder1Pin = 25;
+const byte encoder2Pin = 26;
+portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+
 //Interrupt Booleans
 boolean checkGyro;
 boolean checkCurrent;
@@ -53,21 +61,11 @@ boolean checkCurrent;
 StaticJsonDocument<300> doc;
 StaticJsonDocument<200> robotDataDoc;
 
-// BNo055 Sensor Varibles (todo break into separate c++ files)
-double xPos = 0, yPos = 0, headingVel = 0;
-uint16_t BNO055_SAMPLERATE_DELAY_MS = 10; //how often to read data from the board
-uint16_t PRINT_DELAY_MS = 500;            // how often to print the data
-uint16_t printCount = 0;                  //counter to avoid printing every 10MS sample
 
-//velocity = accel*dt (dt in seconds)
-//position = 0.5*accel*dt^2
-double ACCEL_VEL_TRANSITION = (double)(BNO055_SAMPLERATE_DELAY_MS) / 1000.0;
-double ACCEL_POS_TRANSITION = 0.5 * ACCEL_VEL_TRANSITION * ACCEL_VEL_TRANSITION;
-double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outputs degrees
 unsigned long SensorPrevTime = 0; //prevtime is the previous time that the bno055 was polled
 unsigned long mainTime;
 
-//state machine testing
+//Robot States
 static enum stateChoices {
   disabled,
   teleop,
@@ -110,6 +108,41 @@ String generalHandler()
   return "0";
 }
 
+
+// Encoder ISRs
+void IRAM_ATTR encoder1ISR() {
+  // Check motor direction then increment/decrement accordingly
+  portENTER_CRITICAL_ISR(&mux);
+  if(motor1PWM>1500){
+    encoder1Ticks++;
+  } else{
+    encoder1Ticks--;
+  }
+  portEXIT_CRITICAL_ISR(&mux);
+}
+
+void IRAM_ATTR encoder2ISR() {
+  // Check motor direction then increment/decrement accordingly
+  portENTER_CRITICAL_ISR(&mux);
+  if(motor2PWM>1500){
+    encoder2Ticks++;
+  } else{
+    encoder2Ticks--;
+  }
+  portEXIT_CRITICAL_ISR(&mux);
+
+}
+
+void encoderSetup(){
+      //encoder pin interrupt configuration
+    pinMode(encoder1Pin, INPUT);
+    pinMode(encoder2Pin, INPUT);
+    attachInterrupt(digitalPinToInterrupt(encoder1Pin), encoder1ISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(encoder2Pin), encoder2ISR, RISING);
+}
+
+//testing 
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -124,20 +157,20 @@ void setup()
   //Uncomment to host esp access point
 
   
-  WiFi.softAP(ssid, password);
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+  // WiFi.softAP(ssid, password);
+  // IPAddress IP = WiFi.softAPIP();
+  // Serial.print("AP IP address: ");
+  // Serial.println(IP);
   
   // Uncomment to connect to wifi
 
-  // WiFi.begin(ssid, password);
-  // while (WiFi.status() != WL_CONNECTED)
-  // {
-  //   delay(1000);
-  //   Serial.println("Connecting to WiFi..");
-  // }
-  // Serial.println(WiFi.localIP());
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println(WiFi.localIP());
 
   //Get Requests (Test Request)
   //todo change APOS get request to robot data json
@@ -202,15 +235,15 @@ void setup()
         motor1PWM = doc["motor1pwm"];
         motor2PWM = doc["motor2pwm"];
         weaponPWM = doc["weapon_pwm"];
-        desiredHeading = doc["desiredHeading"];
         robotMovementType = doc["RobotMovementType"].as<const char *>();
         auto weaponTest = doc["WeaponArmedState"].as<const char *>(); //adding this greatly increased RTT, but should be double checked
         auto driveTest = doc["ArmDriveState"].as<const char *>();
         bool tuning_kp = doc["tuning_kp"];
         bool tuning_ki = doc["tuning_ki"];
         bool tuning_kd = doc["tuning_kd"];
+        bool setting_heading = doc["setting_heading"];
 
-        static double kp = 5;
+        static double kp = .2;
         static double ki = 0;
         static double kd = 0;
 
@@ -222,6 +255,10 @@ void setup()
         }
         else if (tuning_kd) {
           kd = doc["kd"];
+        }
+
+        if (setting_heading){
+          desiredHeading = doc["desiredHeading"];
         }
 
         Serial.print("kp is ");
@@ -321,7 +358,7 @@ void loop()
       updateGyroData();
       currHeading = getGyroData();
       //isUpsideDown();
-      Serial.println(getGyroData());
+      //Serial.println(getGyroData());
       SensorPrevTime = mainTime;
       //Serial.println("Reading GYRO");
     }
@@ -383,7 +420,8 @@ void loop()
     {
       if (turnToAngle(currHeading, desiredHeading))
       { //turnToAngle returns true when the robot is at the correct heading
-        robotMovementType = "waiting";
+        disablePWM("drive");
+        robotMovementType = "gyroMode";
       }
       else
       {
@@ -391,9 +429,26 @@ void loop()
       }
     }
 
+    if(robotMovementType.equals("waiting")){
+      disablePWM("drive");
+    }
+
+       //drive a set distance
+    // Need actual JSON word
+    if (robotMovementType.equals("driveDistance")){
+      if (driveDistance(encoder1Ticks, desiredDist)){
+        robotMovementType = "waiting";
+      }
+      else
+      {
+        robotMovementType = "driveDistance";
+      }
+    }
+
+
     //drive a set distance
 
-    Serial.println("State Autonomous");
+    //Serial.println("State Autonomous");
 
     previousState = state;
     state = updateSensors;
