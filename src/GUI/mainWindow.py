@@ -319,7 +319,7 @@ class MainWindow(QMainWindow):
         """
         self.heading = []
         pidLabel = QLabel(self.mainWidget)
-        pidLabel.setText("Individually set PIDs")
+        pidLabel.setText("Set heading")
         layout.addWidget(pidLabel)
 
         heading = SetJSONVars.DESIRED_HEADING
