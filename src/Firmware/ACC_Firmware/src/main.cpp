@@ -61,17 +61,7 @@ boolean checkCurrent;
 StaticJsonDocument<300> doc;
 StaticJsonDocument<200> robotDataDoc;
 
-// BNo055 Sensor Varibles (todo break into separate c++ files)
-double xPos = 0, yPos = 0, headingVel = 0;
-uint16_t BNO055_SAMPLERATE_DELAY_MS = 10; //how often to read data from the board
-uint16_t PRINT_DELAY_MS = 500;            // how often to print the data
-uint16_t printCount = 0;                  //counter to avoid printing every 10MS sample
 
-//velocity = accel*dt (dt in seconds)
-//position = 0.5*accel*dt^2
-double ACCEL_VEL_TRANSITION = (double)(BNO055_SAMPLERATE_DELAY_MS) / 1000.0;
-double ACCEL_POS_TRANSITION = 0.5 * ACCEL_VEL_TRANSITION * ACCEL_VEL_TRANSITION;
-double DEG_2_RAD = 0.01745329251; //trig functions require radians, BNO055 outputs degrees
 unsigned long SensorPrevTime = 0; //prevtime is the previous time that the bno055 was polled
 unsigned long mainTime;
 
@@ -251,7 +241,7 @@ void setup()
         bool tuning_ki = doc["tuning_ki"];
         bool tuning_kd = doc["tuning_kd"];
 
-        static double kp = 5;
+        static double kp = 1;
         static double ki = 0;
         static double kd = 0;
 
