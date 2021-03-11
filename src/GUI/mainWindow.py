@@ -318,9 +318,9 @@ class MainWindow(QMainWindow):
         creates all the push buttons
         """
         self.heading = []
-        pidLabel = QLabel(self.mainWidget)
-        pidLabel.setText("Set heading")
-        layout.addWidget(pidLabel)
+        headingLabel = QLabel(self.mainWidget)
+        headingLabel.setText("Set heading")
+        layout.addWidget(headingLabel)
 
         heading = SetJSONVars.DESIRED_HEADING
 

@@ -24,10 +24,10 @@ class SetHeading():
         heading_val = stateArgs[1]
         if not self.hasSent or not self.headingVal[heading] == heading_val:
             self.headingVal[heading] = heading_val
-            self.wifi.sendInfo(SetJSONVars.SETTING_HEADING, 1)
+            self.wifi.sendInfo(SetJSONVars.SETTING_HEADING.value, 1)
             self.wifi.sendInfo(heading.value, heading_val)
             self.hasSent = True
-            self.wifi.sendInfo(SetJSONVars.SETTING_HEADING, 0)
+            self.wifi.sendInfo(SetJSONVars.SETTING_HEADING.value, 0)
         return False
 
     def getType(self):
