@@ -197,10 +197,10 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
         return true;
     }
     error = ((int)currentHeading - (int)desiredHeading)%360;
-    Serial.print("Current Heading  ");
-    Serial.print(currentHeading);
-    Serial.print("Desired Heading ");
-    Serial.println(desiredHeading);
+    // Serial.print("Current Heading  ");
+    // Serial.print(currentHeading);
+    // Serial.print("Desired Heading ");
+    // Serial.println(desiredHeading);
 
     if (error > 180){
         error = 360 - error;
