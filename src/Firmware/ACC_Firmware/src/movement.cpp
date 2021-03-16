@@ -60,8 +60,6 @@ void setPIDGains(double proportional, double integral, double derivative) {
 
 
 int checkPWM(int pwm){
-
-
     //return pwm = pwm > 2000? 2000: pwm < 1000? 1000:pwm;
     if (pwm > 1600) {
     pwm = 1600;
@@ -75,24 +73,14 @@ int checkPWM(int pwm){
 void disablePWM(String system){
 
     if(system.equals("drive")){
-        //Motor1.detach();
-        //Motor2.detach();
         brushlessNeutral();
-        //Motor4.detach();    
         PWMDisabledDrive = true;
-
     } 
     else if(system.equals("weapon")){
-        //Motor3.detach();
         PWMDisabledWeapon = true;
-
     } 
     else if(system.equals("all")){
-        //Motor1.detach();
-        //Motor2.detach();
         brushlessNeutral();
-        //Motor3.detach();
-        //Motor4.detach();
         PWMDisabledDrive = true;
         PWMDisabledWeapon = true;
     } 
@@ -101,32 +89,36 @@ void disablePWM(String system){
 }
 
 
+//ESTOP is a non recoverable function,the robot must be power cycled after an ESTOP 
+void estopRobot(){
 
+    brushlessNeutral();
+    delay(100);
+    //disable pwm on motor ports
+    Motor1.detach();
+    Motor2.detach();
+    Motor3.detach();
+    Motor4.detach();
+
+    while (true)
+    {
+        Serial.println("Robot is ESTOPPED, Power Off Robot");
+        delay(500);
+    }  
+
+}
+
+
+//old code, just used for keeping track of robot enabled states
 void enablePWM(String system){
-    // Motor1.attach(motorPin, 1000, 2000);   // left motor
-    // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-    // Motor3.attach(motor3Pin, 1000, 2000);   // left motor
-    // Motor4.attach(motor4Pin, 1000, 2000);  // right motor
 
-    if(system.equals("drive")){
-        // Motor1.attach(motorPin, 1000, 2000);   // left motor
-        // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-        //Motor4.attach(motor4Pin, 1000, 2000);  // right motor
-        //brushlessNeutral();  
+    if(system.equals("drive")){ 
         PWMDisabledDrive = false;
-
     } 
     else if(system.equals("weapon")){
-        //Motor3.attach(motor3Pin, 1000, 2000);  // right motor
         PWMDisabledWeapon = false;
-
     } 
     else if(system.equals("all")){
-        // Motor1.attach(motorPin, 1000, 2000);   // left motor
-        // Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-        //Motor3.attach(motor3Pin, 1000, 2000);   // left motor
-        //Motor4.attach(motor4Pin, 1000, 2000);  // right motor
-        //brushlessNeutral();
         PWMDisabledDrive = false;
         PWMDisabledWeapon = false;
     } 

@@ -16,13 +16,13 @@ class CV:
 
     def runModel(self):
         # uncomment below for live detection
-        #cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(0)
 
         while(1):
 
             # top line is for webcam bottom is for static image
-            #_, frame = cap.read()
-            frame = cv2.imread('src/CV/stickers/image-036.jpeg')
+            _, frame = cap.read()
+            #frame = cv2.imread('src/CV/stickers/image-036.jpeg')
             # print(np.shape(frame))
             # Convert BGR to HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)

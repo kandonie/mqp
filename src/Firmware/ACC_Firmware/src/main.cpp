@@ -28,9 +28,6 @@ int motor2PWM = 1500;
 int weaponPWM = 0;
 boolean weaponArmed = false;
 boolean driveArmed = false;
-// double kp = 0;
-// double ki = 0;
-// double kd = 0;
 
 
 String robotMovementType;
@@ -80,6 +77,10 @@ String readAPOS()
   //This should check a global variable with the last heading reading
   Serial.println("Read APOS");
   return "North";
+}
+
+String emergencyStop(){
+    estopRobot();
 }
 
 String readCurrHeading()
@@ -181,7 +182,7 @@ void setup()
 
   //ESTOP Request
   server.on(ESTOP, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
-    request->send_P(200, "text/plain", readAPOS().c_str());
+    request->send_P(200, "text/plain", emergencyStop().c_str());
   });
 
   // gyro data Request
