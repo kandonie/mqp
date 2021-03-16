@@ -45,8 +45,8 @@ double kd = 0;
 
 
 void brushlessNeutral(){
-    Motor1.writeMicroseconds(1500);
-    Motor2.writeMicroseconds(1500);
+    Motor1.writeMicroseconds(STOPPED);
+    Motor2.writeMicroseconds(STOPPED);
 }
 
 void setPIDGains(double proportional, double integral, double derivative) {
@@ -60,7 +60,6 @@ void setPIDGains(double proportional, double integral, double derivative) {
 
 
 int checkPWM(int pwm){
-    //return pwm = pwm > 2000? 2000: pwm < 1000? 1000:pwm;
     if (pwm > 1600) {
     pwm = 1600;
     }
