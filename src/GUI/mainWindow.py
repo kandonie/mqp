@@ -74,6 +74,7 @@ class MainWindow(QMainWindow):
         self.makePWMButtons(first_col)
         self.makePIDButtons(first_col)
         self.makeHeadingButton(first_col)
+        self.makeDistanceButton(first_col)
         # self.makePolygonalMovement(first_col)
         self.makeSensorLabels(first_col)
         self.robotMovementTypeComboBox(first_col)
@@ -355,6 +356,50 @@ class MainWindow(QMainWindow):
         """
         val = float(qLineEdit.text())
         self.notifyObservers(BehavioralStates.SET_HEADING, (heading_button, qLineEdit.text()))
+
+
+    def makeDistanceButton(self, layout):
+        """
+        creates all the push buttons
+        """
+        self.distance = []
+        distanceLabel = QLabel(self.mainWidget)
+        distanceLabel.setText("Set distance")
+        layout.addWidget(distanceLabel)
+
+        distance = SetJSONVars.DESIRED_DISTANCE
+
+        hBox = self.makeDistance(distance)
+        layout.addLayout(hBox)
+
+    def makeDistance(self, distance):
+        """
+        makes GUI stuff for each pid gain
+        Can't do in for loop because variable scope bad
+        :param gain: the name of the pid gain
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        DistanceInput = QLineEdit(MovementVals.DISTANCE_DEFAULT.value, self.mainWidget)
+        DistanceInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(DistanceInput)
+
+        sendDistanceButton = QPushButton(self.mainWidget)
+        label = "Set distance for " + distance.value
+        sendDistanceButton.setText(label)
+        sendDistanceButton.clicked.connect(lambda: self.sendDistance(DistanceInput, distance))
+        hBox.addWidget(sendDistanceButton)
+        self.distance.append((DistanceInput, sendDistanceButton, distance))
+        return hBox
+
+    def sendDistance(self, qLineEdit, distance_button):
+        """
+        alerts observers of change in pid
+        """
+        val = float(qLineEdit.text())
+        self.notifyObservers(BehavioralStates.SET_DISTANCE, (distance_button, qLineEdit.text()))
 
 
     def makePolygonalMovement(self, layout):

@@ -35,11 +35,11 @@ class SetJSONVars(Enum):
     CURRENT_HEADING = 'currentHeading'
     DESIRED_HEADING = 'desiredHeading'
     SETTING_HEADING = "setting_heading"
-    DESIRED_DISTANCE = 'desiredDist'
+    DESIRED_DISTANCE = 'desiredDistance'
+    SETTING_DISTANCE = "setting_distance"
     MOVEMENT_TYPE = "RobotMovementType"
     WEAPON_ENABLE_CHANGE = 'WeaponArmedState'
     DRIVE_ENABLE_CHANGE = "ArmDriveState"
-    # PID = "PIDTuning"
     TUNING_KP = "tuning_kp"
     TUNING_KI = "tuning_ki"
     TUNING_KD = "tuning_kd"
