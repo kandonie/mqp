@@ -86,7 +86,10 @@ class WiFiComms:
             return
         try:
             self.setJson[topic] = value
-            response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
+            if topic == BehavioralStates.ESTOP.value:
+                response = requests.post(self.IP + HTTPTopics.ESTOP.value, json=self.setJson)
+            else:
+                response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             self.parseResponse(response)
             self.connectionHandler.execute(response.elapsed.total_seconds())
         except:

@@ -7,6 +7,7 @@ class HTTPTopics(Enum):
     """
     MAIN = "/generaltest"
     ROBOT_DATA = "/getRobotData"
+    ESTOP = "/ESTOP"
 
 
 class RobotMovementType(Enum):

@@ -20,10 +20,10 @@ class ESTOP():
         :param stateArgs: the arguments for this state
         :return: True if the state is done and ready to transition to the next state, False otherwise
         """
-        self.robot.drive.stop()
-        self.robot.weapon.stop()
+        self.robot.estop()
         self.robot.disable()
-        time.sleep(1)
+        # time.sleep(1)
+        return False
 
 
     def getType(self):

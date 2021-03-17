@@ -150,8 +150,9 @@ class StateMachine():
 
         # if we are ESTOP, stop everything right away
         if topic == BehavioralStates.ESTOP:
-            self.drive.stop()
-            self.weapon.stop()
+            # self.drive.stop()
+            # self.weapon.stop()
+            self.robot.estop()
         if topic in IntelligenceStates:
             # if we are requesting to change the intelligence state
             if self.intelligenceState != topic:

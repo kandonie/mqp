@@ -84,18 +84,9 @@ String readAPOS()
 
 String readCurrHeading()
 {
-  //This should check a global variable with the last heading reading
-  // char currHeading_str[10];
-  // int heading = (int) currHeading;
-  // sprintf(currHeading_str, "%d", heading);
-  // Serial.print("Read current heading: ");
-  // Serial.println(currHeading_str);
-  // return currHeading_str;
   robotDataDoc["getHeading"] = (int) currHeading;
   robotDataDoc["getDriveCurrent"] = 0.25;
   robotDataDoc["getWeaponCurrent"] = 0.5;
-  // robotDataDoc["getOrientation"] = 0;
-  // robotDataDoc["getSignalStrength"] = 0;
 
   char buffer[200];
   serializeJson(robotDataDoc, buffer);
