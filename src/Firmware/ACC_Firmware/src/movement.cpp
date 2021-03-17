@@ -53,9 +53,6 @@ void setPIDGains(double proportional, double integral, double derivative) {
     kp = proportional;
     ki = integral;
     kd = derivative;
-
-    Serial.print("KP Value: ");
-    Serial.println(kp);
 }
 
 
@@ -99,11 +96,11 @@ void estopRobot(){
     Motor3.detach();
     Motor4.detach();
 
-    while (true)
-    {
+    // while (true)
+    // {
         Serial.println("Robot is ESTOPPED, Power Off Robot");
         delay(500);
-    }  
+    // }  
 
 }
 

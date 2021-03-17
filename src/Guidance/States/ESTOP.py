@@ -22,7 +22,7 @@ class ESTOP():
         """
         self.robot.estop()
         self.robot.disable()
-        # time.sleep(1)
+        time.sleep(1)
         return False
 
 

@@ -72,19 +72,19 @@ static enum stateChoices {
 } state,
     previousState;
 
-String readAPOS()
-{
+String readAPOS() {
   //This should check a global variable with the last heading reading
   Serial.println("Read APOS");
   return "North";
 }
 
 String emergencyStop(){
-    estopRobot();
+  Serial.println("ESTOP ROBOT");
+  estopRobot();
+  return "Robot has ESTOPPED";
 }
 
-String readCurrHeading()
-{
+String getRobotData() {
   robotDataDoc["getHeading"] = (int) currHeading;
   robotDataDoc["getDriveCurrent"] = 0.25;
   robotDataDoc["getWeaponCurrent"] = 0.5;
@@ -178,7 +178,7 @@ void setup()
 
   // gyro data Request
   server.on(robotDataJson, HTTP_GET, [](AsyncWebServerRequest *request) { //Angular Position Get From Robot
-    request->send_P(200, "text/plain", readCurrHeading().c_str());
+    request->send_P(200, "text/plain", getRobotData().c_str());
   });
 
   server.on(
@@ -257,13 +257,6 @@ void setup()
         if (setting_distance){
           desiredDist = doc["desiredDistance"];
         }
-
-        Serial.print("kp is ");
-        Serial.print(kp);
-        Serial.print("  ki is ");
-        Serial.print(ki);
-        Serial.print("  kd is ");
-        Serial.println(kd);
 
         driveArmed = doc["ArmDriveState"];
         //Serial.print("JSON TEST Print  ");

@@ -3,6 +3,7 @@ import json
 from src.Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
 from src.Hardware_Comms.connectionData import ConnectionDataHandler
 from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates
 
 
 class WiFiComms:
@@ -86,7 +87,7 @@ class WiFiComms:
             return
         try:
             self.setJson[topic] = value
-            if topic == BehavioralStates.ESTOP.value:
+            if value == "ESTOP":
                 response = requests.post(self.IP + HTTPTopics.ESTOP.value, json=self.setJson)
             else:
                 response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
