@@ -78,8 +78,7 @@ String readAPOS() {
   return "North";
 }
 
-String emergencyStop(){
-  Serial.println("ESTOP ROBOT");
+String emergencyStop() {
   estopRobot();
   return "Robot has ESTOPPED";
 }

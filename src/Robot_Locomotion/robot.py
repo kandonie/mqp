@@ -20,4 +20,4 @@ class Robot:
         self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DISABLE_ROBOT.value)
 
     def estop(self):
-        self.wifi.sendInfo(BehavioralStates.ESTOP.value, "ESTOP")
+        self.wifi.getInfo("ESTOP")

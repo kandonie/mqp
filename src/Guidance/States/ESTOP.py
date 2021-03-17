@@ -23,7 +23,6 @@ class ESTOP():
         self.robot.estop()
         self.robot.disable()
         time.sleep(1)
-        return False
 
 
     def getType(self):

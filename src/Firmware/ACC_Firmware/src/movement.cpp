@@ -96,11 +96,8 @@ void estopRobot(){
     Motor3.detach();
     Motor4.detach();
 
-    // while (true)
-    // {
-        Serial.println("Robot is ESTOPPED, Power Off Robot");
-        delay(500);
-    // }  
+    Serial.println("Robot is ESTOPPED, Power Off Robot");
+    delay(500);
 
 }
 

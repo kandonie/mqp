@@ -64,6 +64,10 @@ class WiFiComms:
             return "No ESP Connected"
         # sending get request and saving the response as response object
         try:
+            if param == "ESTOP":
+                r = requests.get(url=self.IP + HTTPTopics.ESTOP.value)
+                print("Robot has ESTOPPED")
+                return "Robot has ESTOPPED"
             r = requests.get(url=self.IP + HTTPTopics.ROBOT_DATA.value)
             # TODO get the param
             info = json.loads(r.content.decode("utf-8"))
@@ -87,10 +91,7 @@ class WiFiComms:
             return
         try:
             self.setJson[topic] = value
-            if value == "ESTOP":
-                response = requests.post(self.IP + HTTPTopics.ESTOP.value, json=self.setJson)
-            else:
-                response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
+            response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             self.parseResponse(response)
             self.connectionHandler.execute(response.elapsed.total_seconds())
         except:
@@ -103,7 +104,6 @@ class WiFiComms:
         given a response, parses the changed values and notifies observers of them
         :param response: the response to parse
         """
-        pass
         print(response)
         # for item in response
         #   if diff from self.GetJSON
