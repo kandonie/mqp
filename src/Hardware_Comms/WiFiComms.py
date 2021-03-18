@@ -19,7 +19,7 @@ class WiFiComms:
         :param shouldConnectToWiFi: [Bool] True if we want to connect to ESP, False otherwise
         """
         # esp32 IP
-        self.IP = "http://192.168.4.1"
+        self.IP = "http://192.168.49.241"
         # initialzies get vars
         self.getJson = {}
         for var in GetJSONVars:
