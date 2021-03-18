@@ -18,7 +18,9 @@ class Robot:
         self.drive = drive
         self.weapon = weapon
         self.observers = [self.drive]
-        self.CVData = {CVTopics.HEADING: 0, CVTopics.POSITION: ()}
+        self.CVData = {}
+        for item in CVTopics:
+            self.CVData[item] = 0
         self.robotLock = threading.Lock()
 
     def disable(self):

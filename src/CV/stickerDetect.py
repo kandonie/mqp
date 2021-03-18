@@ -3,12 +3,13 @@ import numpy as np
 import math
 from src.CV.CVTopics import CVTopics
 
-class CV:
+class StickerDetector:
     """
     the computer representation of the drive
     """
 
     def __init__(self, observers):
+        self.img_counter = 1
         self.observers = []
         for observer in observers:
             self.attachObserver(observer)
@@ -16,13 +17,19 @@ class CV:
 
     def runModel(self):
         # uncomment below for live detection
-        cap = cv2.VideoCapture(0)
+        # cap = cv2.VideoCapture(0)
 
         while(1):
 
             # top line is for webcam bottom is for static image
-            _, frame = cap.read()
-            #frame = cv2.imread('src/CV/stickers/image-036.jpeg')
+            # _, frame = cap.read()
+            img = "src/CV/stickers/image-00" + str(self.img_counter) + ".jpeg"
+            print("img: " + img)
+            frame = cv2.imread(img)
+            if self.img_counter < 9:
+                self.img_counter += 1
+            else:
+                self.img_counter = 1
             # print(np.shape(frame))
             # Convert BGR to HSV
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -78,6 +85,7 @@ class CV:
             ## heading and pos
 
             # print("position", cXp, cYp)
+            print("position: (" + str(cXp) + ", " + str(cYp) + ")")
 
             heading = -1 * math.atan2(cYp-cYg, cXp - cXg)
             # print("heading", heading)
@@ -85,8 +93,7 @@ class CV:
 
             # notify observers of current heading and position
             self.notifyObservers(CVTopics.HEADING, heading)
-            self.notifyObservers(CVTopics.X_POSITION, cXp)
-            self.notifyObservers(CVTopics.Y_POSITION, cYp)
+            self.notifyObservers(CVTopics.POSITION, (cXp, cYp))
 
         #     cv2.imshow('frame', frame)
             cv2.imwrite("output.jpg", frame)

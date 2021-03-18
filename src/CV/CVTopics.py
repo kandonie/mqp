@@ -1,7 +1,9 @@
 from enum import Enum
 
 class CVTopics(Enum):
-    HEADING = "CV heading"
-    POSITION = "CV position" # value will be tuple of (x, y)
-    # X_POSITION = "x_position"
-    # Y_POSITION = "y_position"
+    HEADING = "CV robot heading"
+    POSITION = "CV robot position" # value will be tuple of (x, y)
+    OPPONENT_HEADING = "opponent heading"
+    OPPONENT_POSITION = "opponent position" # value will be tuple of (x, y)
+    TARGET_HEADING = "CV target heading"
+    TARGET_DISTANCE = "CV target distance"

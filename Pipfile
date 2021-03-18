@@ -8,6 +8,7 @@ pyqt5 = "*"
 matplotlib = "*"
 requests = "*"
 opencv-python = "==4.3.0.36"
+opencv-contrib-python = "*"
 
 [dev-packages]
 

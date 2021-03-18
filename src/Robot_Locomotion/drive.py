@@ -15,7 +15,9 @@ class Drive:
         :param wifi:  the wifi
         """
         self.wifi = wifi
-        self.CVData = {CVTopics.HEADING: 0, CVTopics.POSITION: ()}
+        self.CVData = {}
+        for item in CVTopics:
+            self.CVData[item] = 0
         self.driveLock = threading.Lock()
 
     def stop(self):
