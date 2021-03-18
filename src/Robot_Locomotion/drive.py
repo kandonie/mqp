@@ -1,5 +1,7 @@
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
 from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.CV.CVTopics import CVTopics
+import threading
 
 
 class Drive:
@@ -13,6 +15,8 @@ class Drive:
         :param wifi:  the wifi
         """
         self.wifi = wifi
+        self.CVData = {CVTopics.HEADING: 0, CVTopics.POSITION: ()}
+        self.driveLock = threading.Lock()
 
     def stop(self):
         """
@@ -92,3 +96,21 @@ class Drive:
         :param pwm:  the pwm
         """
         self.wifi.sendInfo(motor, pwm)
+
+    def driveToOpponent(self):
+        """
+        drives a distance
+        :param distance: [int] the distance in meters
+        """
+        print("Driving " + str(distance) + " meters")
+        self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(distance))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
+
+    def notify(self, topic, value):
+        # if we've had a change or is first time
+        self.driveLock.acquire(True)
+        if value != self.CVData[topic]:
+            self.CVData[topic] = value
+            self.driveLock.release()
+        else:
+            self.driveLock.release()

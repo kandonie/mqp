@@ -1,6 +1,3 @@
-from src.Robot_Locomotion.drive import Drive
-from src.Robot_Locomotion.weapon import Weapon
-from src.Robot_Locomotion.robot import Robot
 from src.Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
 from src.Guidance.States.stop import Stop
 from src.Guidance.States.PolygonalMovement import PolygonalMovement
@@ -22,7 +19,7 @@ class StateMachine():
     """controls the decisions of the robot.
     """
 
-    def __init__(self, wifi):
+    def __init__(self, wifi, robot, drive, weapon):
         """
         initializes the state machine
         :param wifi: [WiFiComms] The wifi object used to communicate with the robot
@@ -34,9 +31,9 @@ class StateMachine():
         # TODO maybe put this somewhere else
         self.wifi.sendInfo(SetJSONVars.WEAPON_ENABLE_CHANGE.value, "false")
         self.wifi.sendInfo(SetJSONVars.DRIVE_ENABLE_CHANGE.value, "false")
-        self.drive = Drive(wifi)
-        self.weapon = Weapon(wifi)
-        self.robot = Robot(self.wifi, self.drive, self.weapon)
+        self.drive = drive
+        self.weapon = weapon
+        self.robot = robot
         self.state = self.makeState(BehavioralStates.STOP)
         self.stateArgs = None
         self.intelligenceState = IntelligenceStates.IDLE

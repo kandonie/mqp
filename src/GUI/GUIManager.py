@@ -10,7 +10,7 @@ class GUIManager:
     Creates and displays/hides various windows on appropriate events
     """
 
-    def __init__(self, observers, GUI_Graphs, wifi):
+    def __init__(self, observers, GUI_Graphs, wifi, robot):
         """
         initializes GUIs and shows main window
         :param observers: [Observers[]] the observers of the GUI_Manager
@@ -20,7 +20,7 @@ class GUIManager:
 
         # create main window
         app = QtWidgets.QApplication(sys.argv)
-        self.main = MainWindow(GUI_Graphs, wifi)
+        self.main = MainWindow(GUI_Graphs, wifi, robot)
 
         # attach observers
         observers.append(self)

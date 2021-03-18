@@ -10,6 +10,7 @@ from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals, MovementVals
 from src.GUI.WindowEnums import WindowEnums
 from src.GUI.DataGraph import DataGraph
 from src.Sensing.RobotDataManager import RobotDataManager
+from src.CV.CVTopics import CVTopics
 
 
 class MainWindow(QMainWindow):
@@ -17,7 +18,7 @@ class MainWindow(QMainWindow):
     This class contains a main window for the application.
     """
 
-    def __init__(self, GUI_Graphs, wifi):
+    def __init__(self, GUI_Graphs, wifi, robot):
         """
         init initializes the QWidgets and sets the geometry of the window
         :param GUI_Graphs: [Bool] True to display graphs, False otherwise
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
         self.observers = []
 
         self.wifi = wifi
+        self.robot = robot
 
         # for dynamically updating sensor labels
         self.sensor_label = QLabel(self.mainWidget)
@@ -77,12 +79,18 @@ class MainWindow(QMainWindow):
         self.makeDistanceButton(first_col)
         # self.makePolygonalMovement(first_col)
         self.makeSensorLabels(first_col)
+        self.makeCVLabels(first_col)
         self.robotMovementTypeComboBox(first_col)
 
         # timer for sensor labels to send get requests periodically
-        self.my_timer = QTimer()
-        self.my_timer.timeout.connect(self.updateSensorLabels)
-        self.my_timer.start(10) # interval between get requests
+        self.robotDataTimer = QTimer()
+        self.robotDataTimer.timeout.connect(self.updateSensorLabels)
+        self.robotDataTimer.start(250) # interval between get requests
+
+        # timer for CV labels to get data periodically
+        self.CVDataTimer = QTimer()
+        self.CVDataTimer.timeout.connect(self.updateCVLabels)
+        self.CVDataTimer.start(250)
 
         self.layout.addLayout(first_col)
 
@@ -453,6 +461,30 @@ class MainWindow(QMainWindow):
         for sensor in GetJSONVars:
             data_val = str(self.wifi.getInfo(sensor.value))
             self.sensorLabels[sensor][1].setText(data_val)
+
+    def makeCVLabels(self, layout):
+        self.CVLabels = {}
+        for item in CVTopics:
+            hbox = QHBoxLayout(self.mainWidget)
+
+            self.item_label = QLabel(self.mainWidget)
+            self.item_label.setFixedWidth(300)
+            self.item_label.setText(item.value)
+            hbox.addWidget(self.item_label)
+
+            self.item_data = QLabel(self.mainWidget)
+            data_val = str(self.robot.getCVData(item))
+            self.item_data.setText(data_val)
+            hbox.addWidget(self.item_data)
+
+            layout.addLayout(hbox)
+            self.CVLabels[item] = (self.item_label, self.item_data)
+
+    # this updates the sensor labels on a periodic timer
+    def updateCVLabels(self):
+        for item in CVTopics:
+            data_val = str(self.robot.getCVData(item))
+            self.CVLabels[item][1].setText(data_val)
 
     def robotMovementTypeComboBox(self, layout):
         # make label
