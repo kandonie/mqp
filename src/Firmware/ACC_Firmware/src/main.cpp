@@ -148,20 +148,20 @@ void setup()
   //Uncomment to host esp access point
 
   
-  WiFi.softAP(ssid, password);
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+  // WiFi.softAP(ssid, password);
+  // IPAddress IP = WiFi.softAPIP();
+  // Serial.print("AP IP address: ");
+  // Serial.println(IP);
   
   // Uncomment to connect to wifi
 
-  // WiFi.begin(ssid, password);
-  // while (WiFi.status() != WL_CONNECTED)
-  // {
-  //   delay(1000);
-  //   Serial.println("Connecting to WiFi..");
-  // }
-  // Serial.println(WiFi.localIP());
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println(WiFi.localIP());
 
   //Get Requests (Test Request)
   //todo change APOS get request to robot data json
@@ -251,6 +251,8 @@ void setup()
 
         if (setting_heading){
           desiredHeading = doc["desiredHeading"];
+          desiredHeading = 360 - desiredHeading;
+    
         }
 
         if (setting_distance){
