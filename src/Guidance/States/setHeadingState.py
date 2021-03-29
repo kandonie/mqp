@@ -1,5 +1,5 @@
 from src.Guidance.GuidanceEnums import BehavioralStates
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
 from src.Robot_Locomotion.MotorEnums import MovementVals
 
 
@@ -28,6 +28,7 @@ class SetHeading():
             self.wifi.sendInfo(heading.value, heading_val)
             self.hasSent = True
             self.wifi.sendInfo(SetJSONVars.SETTING_HEADING.value, 0)
+            self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE.value)
         return False
 
     def getType(self):

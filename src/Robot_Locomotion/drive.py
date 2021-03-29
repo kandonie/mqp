@@ -107,8 +107,8 @@ class Drive:
         targetDistance = self.CVData[CVTopics.TARGET_DISTANCE]
         self.wifi.sendInfo(SetJSONVars.DESIRED_HEADING.value, str(targetHeading))
         self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE.value)
-        # self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(targetDistance))
-        # self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
+        self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(targetDistance))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
         
 
     def notify(self, topic, value):

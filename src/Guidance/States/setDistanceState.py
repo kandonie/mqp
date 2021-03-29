@@ -1,5 +1,5 @@
 from src.Guidance.GuidanceEnums import BehavioralStates
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
 from src.Robot_Locomotion.MotorEnums import MovementVals
 
 
@@ -28,6 +28,7 @@ class SetDistance():
             self.wifi.sendInfo(distance_topic.value, distance_val)
             self.hasSent = True
             self.wifi.sendInfo(SetJSONVars.SETTING_DISTANCE.value, 0)
+            self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
         return False
 
     def getType(self):
