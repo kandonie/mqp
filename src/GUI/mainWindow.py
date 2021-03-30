@@ -81,12 +81,12 @@ class MainWindow(QMainWindow):
         # timer for sensor labels to send get requests periodically
         self.robotDataTimer = QTimer()
         self.robotDataTimer.timeout.connect(self.updateSensorLabels)
-        self.robotDataTimer.start(250) # interval between get requests
+        self.robotDataTimer.start(500) # interval between get requests
 
         # timer for CV labels to get data periodically
         self.CVDataTimer = QTimer()
         self.CVDataTimer.timeout.connect(self.updateCVLabels)
-        self.CVDataTimer.start(250)
+        self.CVDataTimer.start(500)
 
         self.layout.addLayout(first_col)
 
