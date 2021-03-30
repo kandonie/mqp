@@ -8,7 +8,6 @@ from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
 from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals, MovementVals
 from src.GUI.WindowEnums import WindowEnums
-from src.GUI.DataGraph import DataGraph
 from src.Sensing.RobotDataManager import RobotDataManager
 from src.CV.CVTopics import CVTopics
 
@@ -18,14 +17,11 @@ class MainWindow(QMainWindow):
     This class contains a main window for the application.
     """
 
-    def __init__(self, GUI_Graphs, wifi, robot):
+    def __init__(self, wifi, robot):
         """
         init initializes the QWidgets and sets the geometry of the window
-        :param GUI_Graphs: [Bool] True to display graphs, False otherwise
         """
         super().__init__()
-
-        self.hasGraphs = GUI_Graphs
 
         # make main window
         self.mainWidget = QWidget()
@@ -93,11 +89,6 @@ class MainWindow(QMainWindow):
         self.CVDataTimer.start(250)
 
         self.layout.addLayout(first_col)
-
-        if self.hasGraphs:
-            second_col = QVBoxLayout(self.mainWidget)
-            self.makeGraphs(second_col)
-            self.layout.addLayout(second_col)
 
         thirdCol = QVBoxLayout(self.mainWidget)
         self.makeBeginMatchButton(thirdCol)
@@ -509,15 +500,6 @@ class MainWindow(QMainWindow):
     def robotMovementChanged(self, text):
         self.notifyObservers(SetJSONVars.MOVEMENT_TYPE, text)
 
-    def makeGraphs(self, layout):
-        """
-        makes all of the graphs
-        """
-        self.sensorGraphs = {}
-        for sensor in GetJSONVars:
-            self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
-            layout.addWidget(self.sensorGraphs[sensor])
-
     def makeBeginMatchButton(self, layout):
         button = QPushButton("Begin Match")
         button.clicked.connect(self.startMatch)
@@ -546,12 +528,6 @@ class MainWindow(QMainWindow):
         :param value: the value
         """
         if topic in GetJSONVars:
-            # update specific graph
-            if self.hasGraphs:
-                graph = self.sensorGraphs[topic]
-                if value != graph.getCurrData():
-                    graph.update_plot(value)
-
             # update label on GUI
             self.sensorLabels[topic][1].setText(value)
 
