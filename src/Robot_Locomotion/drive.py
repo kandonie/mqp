@@ -15,7 +15,9 @@ class Drive:
         :param wifi:  the wifi
         """
         self.wifi = wifi
-        self.CVData = {CVTopics.HEADING: 0, CVTopics.POSITION: ()}
+        self.CVData = {}
+        for item in CVTopics:
+            self.CVData[item] = 0
         self.driveLock = threading.Lock()
 
     def stop(self):
@@ -99,12 +101,15 @@ class Drive:
 
     def driveToOpponent(self):
         """
-        drives a distance
-        :param distance: [int] the distance in meters
+        drives toward the opponent based on CV target heading and target distance
         """
-        print("Driving " + str(distance) + " meters")
-        self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(distance))
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
+        targetHeading = self.CVData[CVTopics.TARGET_HEADING]
+        targetDistance = self.CVData[CVTopics.TARGET_DISTANCE]
+        self.wifi.sendInfo(SetJSONVars.DESIRED_HEADING.value, str(targetHeading))
+        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE.value)
+        # self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(targetDistance))
+        # self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
+        
 
     def notify(self, topic, value):
         # if we've had a change or is first time

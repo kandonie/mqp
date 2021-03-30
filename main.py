@@ -6,7 +6,8 @@ from src.Guidance.stateMachine import StateMachine
 from src.GUI.GUIManager import GUIManager
 from src.Hardware_Comms.WiFiComms import WiFiComms
 from src.Sensing.RobotDataManager import RobotDataManager
-from src.CV.stickerDetect import CV
+from src.CV.stickerDetect import StickerDetector
+from src.CV.arucoDetect import ArucoDetector
 from src.Robot_Locomotion.drive import Drive
 from src.Robot_Locomotion.weapon import Weapon
 from src.Robot_Locomotion.robot import Robot
@@ -25,7 +26,7 @@ def main(connectToWiFi, GUI_Graphs):
     weapon = Weapon(wifi)
     robot = Robot(wifi, drive, weapon)
     # create the CV model
-    cv = CV([robotDataManager, robot])
+    cv = ArucoDetector([robotDataManager, robot])
     # create state machine
     sm = StateMachine(wifi, robot, drive, weapon)
     wifi.attachObserver(robotDataManager)
