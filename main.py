@@ -58,7 +58,7 @@ if __name__ == "__main__":
     """
     connectToWiFi = True
     # Connect to wifi option
-    if len(sys.argv) > 1:
+    if len(sys.argv) >= 1:
         if sys.argv[1] != "True":
             connectToWiFi = False
     main(connectToWiFi)
