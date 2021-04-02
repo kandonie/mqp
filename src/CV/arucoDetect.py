@@ -6,6 +6,9 @@ from src.CV.CVTopics import CVTopics
 #TODO: update below once set up with new cam
 distInch = (48/1133)*1.85 # inches per pixel conversion
 
+# true means detecting with webcam, false is using stored images
+liveInference = True
+
 class ArucoDetector:
 
     def __init__(self, observers):
@@ -16,17 +19,22 @@ class ArucoDetector:
 
     def runModel(self):
 
-        # uncomment below for live detection
-        cap = cv2.VideoCapture(0)
-        # wait for camera to connect before fetching frames
-        time.sleep(1)
-        # init pos value to avoid crashing
-        idStore = {203:[0,0,0],62:[0,0,0]}
+        if liveInference:
+            # replace the int with the camera index you want to use
+            cap = cv2.VideoCapture(0)
+            # wait for camera to connect before fetching frames
+            time.sleep(1)
+        # init pos value to avoid crashing if both tags not visible in first frame
+        # the key is the aruco tag id and the three values are: x pos (pixels), y pos (pixels), and heading (degrees)
+        # id 203 is the tag on the mqp robot and id 62 is on the opponent robot
+        robotData = {203:[0,0,0],62:[0,0,0]}
 
         while(1):
-            # top line is for webcam bottom is for static image
-            _, image = cap.read()
-            #image = cv2.imread('src/CV/tags/OnFiled.png')
+            if liveInference:
+                _, image = cap.read()
+            else:
+                #replace path with the image you want to use
+                image = cv2.imread('src/CV/tags/OnFiled.png')
 
             # choose aruco library to reference
             arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
@@ -63,7 +71,7 @@ class ArucoDetector:
                     cY = int((topLeft[1] + bottomRight[1]) / 2.0)
                     cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
                     heading = math.degrees(-1 * math.atan2(topRight[1]-bottomRight[1], topRight[0]- bottomRight[0]))
-                    idStore[markerID] = (cX, cY, heading)
+                    robotData[markerID] = (cX, cY, heading)
 
                     # draw the aruco tag ID on the image
                     cv2.putText(image, str(markerID),
@@ -75,12 +83,12 @@ class ArucoDetector:
                     # otherwise target angles will be inaccurate
                 if len(ids) == 2:
                     #update pos and heading
-                    ourHeading = idStore[203][2]
-                    ourPos = (idStore[203][0], idStore[203][1])
-                    theirHeading = idStore[62][2]
-                    theirPos = (idStore[62][0], idStore[62][1])
-                    angleToTarget = math.degrees(-1 * math.atan2(idStore[62][1] - idStore[203][1], idStore[62][0] - idStore[203][0]))
-                    distToTarget = distInch * math.sqrt((idStore[203][1] - idStore[62][1]) ** 2 +  (idStore[203][0] - idStore[62][0]) ** 2)
+                    ourHeading = robotData[203][2]
+                    ourPos = (robotData[203][0], robotData[203][1])
+                    theirHeading = robotData[62][2]
+                    theirPos = (robotData[62][0], robotData[62][1])
+                    angleToTarget = math.degrees(-1 * math.atan2(robotData[62][1] - robotData[203][1], robotData[62][0] - robotData[203][0]))
+                    distToTarget = distInch * math.sqrt((robotData[203][1] - robotData[62][1]) ** 2 +  (robotData[203][0] - robotData[62][0]) ** 2)
 
                     # print("targetHead: ", angleToTarget, "targetDist: ", distToTarget)
 
