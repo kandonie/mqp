@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         # make main window
         self.mainWidget = QWidget()
         self.setCentralWidget(self.mainWidget)
-        self.setWindowTitle("Basic GUI")
+        self.setWindowTitle("Combat Control Center")
 
         # important for setting locations of QWidgets
         self.observers = []
