@@ -136,6 +136,11 @@ class MainWindow(QMainWindow):
         self.CVDataTimer.timeout.connect(self.updateCVLabels)
         self.CVDataTimer.start(500)
 
+        #time to update image periodically
+        self.ImageDataTimer = QTimer()
+        self.ImageDataTimer.timeout.connect(self.update_image)
+        self.ImageDataTimer.start(500)
+
     def makeESTOPButton(self, layout):
         """
         make the ESTOP button and add it to layout
@@ -261,9 +266,13 @@ class MainWindow(QMainWindow):
 
     def makeImage(self, layout):
         im = QPixmap("src/CV/tags/OnFiled.jpg")
-        label = QLabel()
-        label.setPixmap(im)
-        layout.addWidget(label)
+        self.image_label = QLabel()
+        self.image_label.setPixmap(im)
+        layout.addWidget(self.image_label)
+
+    def update_image(self):
+        im = QPixmap("src/CV/tags/OnFiled.jpg")
+        self.image_label.setPixmap(im)
 
     def makePWMButtons(self, layout):
         """
