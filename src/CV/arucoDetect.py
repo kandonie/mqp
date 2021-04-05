@@ -7,7 +7,7 @@ from src.CV.CVTopics import CVTopics
 distInch = (48/1133)*1.85 # inches per pixel conversion
 
 # true means detecting with webcam, false is using stored images
-liveInference = True
+liveInference = False
 
 class ArucoDetector:
 
@@ -33,7 +33,8 @@ class ArucoDetector:
             if liveInference:
                 _, image = cap.read()
             else:
-                #replace path with the image you want to use
+                # replace path with the image you want to use
+                # will crash without valid file
                 image = cv2.imread('src/CV/tags/OnFiled.png')
 
             # choose aruco library to reference
