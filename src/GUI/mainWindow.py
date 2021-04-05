@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
             self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
     def makeImage(self, layout):
-        im = QPixmap("src/CV/tags/OnFiled.jpg")
+        im = QPixmap("src/output.jpg")
         self.image_label = QLabel()
         self.image_label.setPixmap(im)
         layout.addWidget(self.image_label)
