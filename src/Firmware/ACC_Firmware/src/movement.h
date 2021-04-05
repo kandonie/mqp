@@ -10,3 +10,5 @@ void setWeapon(int speed);
 boolean PWMDriveDisabled();
 boolean PWMWeaponDisabled();
 bool turnToAngle(double currentHeading, double desiredHeading);
+bool driveDistance(int encoderTicks, double distGoal);
+void estopRobot();

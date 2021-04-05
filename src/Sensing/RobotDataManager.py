@@ -1,4 +1,5 @@
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars
+from src.CV.CVTopics import CVTopics
 import threading
 
 class RobotDataManager:
@@ -20,6 +21,8 @@ class RobotDataManager:
             RobotDataManager.__instance = self
             # robotData is filled from WifiComms when it notifies RobotData (which means we need a notify() in this class
             self.robotData = {}
+            for topic in CVTopics:
+                self.robotData[topic] = None
             for topic in SetJSONVars:
                 self.robotData[topic] = None
             for topic in GetJSONVars:

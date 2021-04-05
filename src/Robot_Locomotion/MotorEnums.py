@@ -11,3 +11,7 @@ class PIDVals(Enum):
     KP_DEFAULT = "0"
     KI_DEFAULT = "0"
     KD_DEFAULT = "0"
+
+class MovementVals(Enum):
+    HEADING_DEFAULT = "0"
+    DISTANCE_DEFAULT = "0"

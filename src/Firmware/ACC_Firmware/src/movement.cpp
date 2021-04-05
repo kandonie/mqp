@@ -10,7 +10,6 @@ Servo Motor2;
 Servo Motor3;
 Servo Motor4;
 
-
 //motor 1 is right side
 //motor 2 is left side
 //2000 is full reverse 
@@ -32,22 +31,32 @@ double error;
 double totalError;
 double previousError = 0;
 
+//PID Variables for driveDistance
+double error1;
+double totalError1;
+double previousError1 = 0;
+double error2;
+double totalError2;
+double previousError2 = 0;
+
 double kp = 0;
 double ki = 0;
 double kd = 0;
+
+
+void brushlessNeutral(){
+    Motor1.writeMicroseconds(STOPPED);
+    Motor2.writeMicroseconds(STOPPED);
+}
 
 void setPIDGains(double proportional, double integral, double derivative) {
     kp = proportional;
     ki = integral;
     kd = derivative;
-
-    Serial.print("KP Value: ");
-    Serial.println(kp);
 }
 
 
 int checkPWM(int pwm){
-
     if (pwm > 1600) {
     pwm = 1600;
     }
@@ -59,23 +68,15 @@ int checkPWM(int pwm){
 
 void disablePWM(String system){
 
-    if(system.equals("drive") && PWMDisabledDrive == false){
-        Motor1.detach();
-        Motor2.detach();
-        Motor4.detach();    
+    if(system.equals("drive")){
+        brushlessNeutral();
         PWMDisabledDrive = true;
-
     } 
-    else if(system.equals("weapon") && PWMDisabledWeapon == false){
-        Motor3.detach();
+    else if(system.equals("weapon")){
         PWMDisabledWeapon = true;
-
     } 
     else if(system.equals("all")){
-        Motor1.detach();
-        Motor2.detach();
-        Motor3.detach();
-        Motor4.detach();
+        brushlessNeutral();
         PWMDisabledDrive = true;
         PWMDisabledWeapon = true;
     } 
@@ -83,29 +84,34 @@ void disablePWM(String system){
 
 }
 
+
+//ESTOP is a non recoverable function,the robot must be power cycled after an ESTOP 
+void estopRobot(){
+
+    brushlessNeutral();
+    delay(100);
+    //disable pwm on motor ports
+    Motor1.detach();
+    Motor2.detach();
+    Motor3.detach();
+    Motor4.detach();
+
+    Serial.println("Robot is ESTOPPED, Power Off Robot");
+    delay(500);
+
+}
+
+
+//old code, just used for keeping track of robot enabled states
 void enablePWM(String system){
-    Motor1.attach(motorPin, 1000, 2000);   // left motor
-    Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-    Motor3.attach(motor3Pin, 1000, 2000);   // left motor
-    Motor4.attach(motor4Pin, 1000, 2000);  // right motor
 
-    if(system.equals("drive") && PWMDisabledDrive == true){
-        Motor1.attach(motorPin, 1000, 2000);   // left motor
-        Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-        Motor4.attach(motor4Pin, 1000, 2000);  // right motor  
+    if(system.equals("drive")){ 
         PWMDisabledDrive = false;
-
     } 
-    else if(system.equals("weapon") && PWMDisabledWeapon == true){
-        Motor3.attach(motor3Pin, 1000, 2000);  // right motor
+    else if(system.equals("weapon")){
         PWMDisabledWeapon = false;
-
     } 
     else if(system.equals("all")){
-        Motor1.attach(motorPin, 1000, 2000);   // left motor
-        Motor2.attach(motor2Pin, 1000, 2000);  // right motor
-        Motor3.attach(motor3Pin, 1000, 2000);   // left motor
-        Motor4.attach(motor4Pin, 1000, 2000);  // right motor
         PWMDisabledDrive = false;
         PWMDisabledWeapon = false;
     } 
@@ -113,11 +119,19 @@ void enablePWM(String system){
 
 void movementSetup()
 {
-    enablePWM("all");
+    //enablePWM("all");
+    Motor1.attach(motorPin, 1000, 2000);   // left motor
+    Motor2.attach(motor2Pin, 1000, 2000);  // right motor
+    Motor3.attach(motor3Pin, 1000, 2000);   // left motor
+    Motor4.attach(motor4Pin, 1000, 2000);
+
     Motor1.setPeriodHertz(60);
-    Motor2.setPeriodHertz(55);
-    Motor3.setPeriodHertz(57);
-    Motor4.setPeriodHertz(58);
+    Motor2.setPeriodHertz(57);
+    Motor3.setPeriodHertz(56);
+    Motor4.setPeriodHertz(55);
+    Motor1.writeMicroseconds(1500);
+    Motor2.writeMicroseconds(1500);
+    delay(2000);
 }
 
 void setRight(int speed)
@@ -162,13 +176,27 @@ boolean PWMWeaponDisabled() {
 
 bool turnToAngle(double currentHeading, double desiredHeading) {
     //Serial.println("Turning to angle");
-    error = currentHeading - desiredHeading;
-    Serial.print("Error  : ");
-    Serial.print(error);
-    Serial.print("   Heading  : ");
-    Serial.println(currentHeading);
+    if (desiredHeading > 360){
+        disablePWM("drive");
+        Serial.println("Desired Heading Out Of Range");
+        return true;
+    }
+    error = ((int)currentHeading - (int)desiredHeading)%360;
+    // Serial.print("Current Heading  ");
+    // Serial.print(currentHeading);
+    // Serial.print("Desired Heading ");
+    // Serial.println(desiredHeading);
+
+    if (error > 180){
+        error = 360 - error;
+    } else if (error < -180){
+        error = 360 + error;
+    }
+    //Serial.print("Error  : ");
+    //Serial.print(error);
+    //Serial.print("   Heading  : ");
+    //Serial.println(currentHeading);
     String direction;
-    //previousError
 
     if(abs(currentHeading - desiredHeading) > 180){
         direction = "CW";
@@ -192,12 +220,12 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     turnSpeed(speed, direction);
 
     //reset setpoints when target is hit
-
-
     previousError = error;
 
     //arbitrary error for now
     if(abs(error) < 10){
+        disablePWM("drive");
+        Serial.println("Reached Angle");
         return true;
     }
 
@@ -206,25 +234,42 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 }
 
 
-void testPWM(){
-    Motor1.writeMicroseconds(1000);
-    Motor2.writeMicroseconds(1000);
-    Motor3.writeMicroseconds(1000);
-    Motor4.writeMicroseconds(1000);
-    delay(2000);
-    Motor1.writeMicroseconds(1500);
-    Motor2.writeMicroseconds(1500);
-    Motor3.writeMicroseconds(1500);
-    Motor4.writeMicroseconds(1500);
-    delay(2000);
-    Motor1.writeMicroseconds(2000);
-    Motor2.writeMicroseconds(2000);
-    Motor3.writeMicroseconds(2000);
-    Motor4.writeMicroseconds(2000);
-    delay(2000);
+bool driveDistance(int encoderTicks, double distGoal){
+    if(distGoal > 50){
+        Serial.println("Distance goal too large");
+        return true;
+    }
+    // Convert encoder ticks to wheel revolutions
+    // 14 motor poles, 52:855 gearbox reduction
+    double wheelPos = encoderTicks*14*52/855;
+    //Convert goals to wheel revolutions
+    double wheelGoal = distGoal/(2.75*3.14);
 
+    // Set error for PID
+    error1 = wheelGoal - wheelPos;
+
+    totalError1 += error1;
+    double proportional = error1*kp;
+    double integral = totalError1*ki;
+    double derivative = (error1 - previousError1)*kd;
+
+    int output = proportional + integral + derivative;
+
+    // Map output over full PWM range
+    int speed = map(output, -50, 50, FULL_CCW, FULL_CW);
+    
+    // Set drive speeds
+    setRight(speed);
+    setLeft(speed);
+
+    previousError1 = error1;
+    
+    //arbitrary error for now in rotations of wheel
+    if(error < .125){
+        return true;
+    }
+
+    return false;
 }
-
-
 
 

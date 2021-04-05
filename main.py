@@ -6,19 +6,28 @@ from src.Guidance.stateMachine import StateMachine
 from src.GUI.GUIManager import GUIManager
 from src.Hardware_Comms.WiFiComms import WiFiComms
 from src.Sensing.RobotDataManager import RobotDataManager
+from src.CV.stickerDetect import StickerDetector
+from src.CV.arucoDetect import ArucoDetector
+from src.Robot_Locomotion.drive import Drive
+from src.Robot_Locomotion.weapon import Weapon
+from src.Robot_Locomotion.robot import Robot
 
 
-def main(connectToWiFi, GUI_Graphs):
+def main(connectToWiFi):
     """
     runs the main program
     :param connectToWiFi: True if we should connect to wifi, false otherwise
-    :param GUI_Graphs: True if graphs should be displayed, false otherwise
     """
     # create a wifi object
     wifi = WiFiComms(connectToWiFi)
-    # create state machine
     robotDataManager = RobotDataManager()
-    sm = StateMachine(wifi)
+    drive = Drive(wifi)
+    weapon = Weapon(wifi)
+    robot = Robot(wifi, drive, weapon)
+    # create the CV model
+    cv = ArucoDetector([robotDataManager, robot])
+    # create state machine
+    sm = StateMachine(wifi, robot, drive, weapon)
     wifi.attachObserver(robotDataManager)
 
 
@@ -30,8 +39,16 @@ def main(connectToWiFi, GUI_Graphs):
     except:
         print("Couldn't start state machine")
 
+    try:
+        # cv model needs to be in own thread because the GUI will take up this thread
+        cv_thread = threading.Thread(target=cv.runModel)
+        cv_thread.daemon = True
+        cv_thread.start()
+    except:
+        print("Couldn't start CV model")
+
     # start GUI (won't return until GUI window is closed )
-    GUIManager([sm], GUI_Graphs, wifi)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
+    GUIManager([sm], wifi, robot)  ###ANYTHING WRITTEN PAST THIS LINE WILL NOT BE RUN until app closes
     sys.exit()
 
 
@@ -40,13 +57,8 @@ if __name__ == "__main__":
     parses the command line input and calls main
     """
     connectToWiFi = True
-    GUI_Graphs = True
     # Connect to wifi option
     if len(sys.argv) > 1:
         if sys.argv[1] != "True":
             connectToWiFi = False
-    # have graphs option
-    if len(sys.argv) > 2:
-        if sys.argv[2] != "True":
-            GUI_Graphs = False
-    main(connectToWiFi, GUI_Graphs)
+    main(connectToWiFi)

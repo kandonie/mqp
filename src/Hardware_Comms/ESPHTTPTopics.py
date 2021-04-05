@@ -7,6 +7,7 @@ class HTTPTopics(Enum):
     """
     MAIN = "/generaltest"
     ROBOT_DATA = "/getRobotData"
+    ESTOP = "/ESTOP"
 
 
 class RobotMovementType(Enum):
@@ -34,11 +35,12 @@ class SetJSONVars(Enum):
     WEAPON_PWM = 'weapon_pwm'
     CURRENT_HEADING = 'currentHeading'
     DESIRED_HEADING = 'desiredHeading'
-    DESIRED_DISTANCE = 'desiredDist'
+    SETTING_HEADING = "setting_heading"
+    DESIRED_DISTANCE = 'desiredDistance'
+    SETTING_DISTANCE = "setting_distance"
     MOVEMENT_TYPE = "RobotMovementType"
     WEAPON_ENABLE_CHANGE = 'WeaponArmedState'
     DRIVE_ENABLE_CHANGE = "ArmDriveState"
-    # PID = "PIDTuning"
     TUNING_KP = "tuning_kp"
     TUNING_KI = "tuning_ki"
     TUNING_KD = "tuning_kd"

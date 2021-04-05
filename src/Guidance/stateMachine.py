@@ -1,11 +1,10 @@
-from src.Robot_Locomotion.drive import Drive
-from src.Robot_Locomotion.weapon import Weapon
-from src.Robot_Locomotion.robot import Robot
 from src.Guidance.GuidanceEnums import BehavioralStates, IntelligenceStates
 from src.Guidance.States.stop import Stop
 from src.Guidance.States.PolygonalMovement import PolygonalMovement
 from src.Guidance.States.PWMController import PWMController
 from src.Guidance.States.PID_Tuner import PIDTuner
+from src.Guidance.States.setHeadingState import SetHeading
+from src.Guidance.States.setDistanceState import SetDistance
 from src.Guidance.States.RemoteControl import RemoteControl
 from src.Guidance.States.match_start import MatchStart
 from src.Guidance.States.EndMatch import MatchEnd
@@ -20,7 +19,7 @@ class StateMachine():
     """controls the decisions of the robot.
     """
 
-    def __init__(self, wifi):
+    def __init__(self, wifi, robot, drive, weapon):
         """
         initializes the state machine
         :param wifi: [WiFiComms] The wifi object used to communicate with the robot
@@ -32,9 +31,9 @@ class StateMachine():
         # TODO maybe put this somewhere else
         self.wifi.sendInfo(SetJSONVars.WEAPON_ENABLE_CHANGE.value, "false")
         self.wifi.sendInfo(SetJSONVars.DRIVE_ENABLE_CHANGE.value, "false")
-        self.drive = Drive(wifi)
-        self.weapon = Weapon(wifi)
-        self.robot = Robot(self.wifi, self.drive, self.weapon)
+        self.drive = drive
+        self.weapon = weapon
+        self.robot = robot
         self.state = self.makeState(BehavioralStates.STOP)
         self.stateArgs = None
         self.intelligenceState = IntelligenceStates.IDLE
@@ -79,6 +78,10 @@ class StateMachine():
             state = PWMController(self.drive)
         elif state == BehavioralStates.PID:
             state = PIDTuner(self.wifi)
+        elif state == BehavioralStates.SET_HEADING:
+            state = SetHeading(self.wifi)
+        elif state == BehavioralStates.SET_DISTANCE:
+            state = SetDistance(self.wifi)
         elif state == BehavioralStates.RC:
             state = RemoteControl(self.drive, self.weapon)
         elif state == BehavioralStates.ESTOP:
@@ -144,8 +147,9 @@ class StateMachine():
 
         # if we are ESTOP, stop everything right away
         if topic == BehavioralStates.ESTOP:
-            self.drive.stop()
-            self.weapon.stop()
+            # self.drive.stop()
+            # self.weapon.stop()
+            self.robot.estop()
         if topic in IntelligenceStates:
             # if we are requesting to change the intelligence state
             if self.intelligenceState != topic:

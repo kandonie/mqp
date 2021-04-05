@@ -6,25 +6,21 @@ from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt, QTimer
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
-from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals
+from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals, MovementVals
 from src.GUI.WindowEnums import WindowEnums
-from src.GUI.DataGraph import DataGraph
 from src.Sensing.RobotDataManager import RobotDataManager
-
+from src.CV.CVTopics import CVTopics
 
 class MainWindow(QMainWindow):
     """
     This class contains a main window for the application.
     """
 
-    def __init__(self, GUI_Graphs, wifi):
+    def __init__(self, wifi, robot):
         """
         init initializes the QWidgets and sets the geometry of the window
-        :param GUI_Graphs: [Bool] True to display graphs, False otherwise
         """
         super().__init__()
-
-        self.hasGraphs = GUI_Graphs
 
         # make main window
         self.mainWidget = QWidget()
@@ -35,6 +31,7 @@ class MainWindow(QMainWindow):
         self.observers = []
 
         self.wifi = wifi
+        self.robot = robot
 
         # for dynamically updating sensor labels
         self.sensor_label = QLabel(self.mainWidget)
@@ -63,48 +60,90 @@ class MainWindow(QMainWindow):
         """
         sets the locations of all widgets on the GUI
         """
-        self.layout = QHBoxLayout(self.mainWidget)
-        first_col = QVBoxLayout(self.mainWidget)
-        self.first_col = first_col
+        self.setFixedWidth(2500)
+        self.setFixedHeight(1500)
 
-        # add widgets to first col
-        self.makeESTOPButton(first_col)
-        self.makeRobotSystemEnablingButtons(first_col)
-        self.makeIntelligenceStateComboBox(first_col)
-        self.makePWMButtons(first_col)
-        self.makePIDButtons(first_col)
-        self.makePolygonalMovement(first_col)
-        self.makeSensorLabels(first_col)
-        self.robotMovementTypeComboBox(first_col)
+        self.layout = QVBoxLayout(self.mainWidget)
+        self.makeESTOPButton(self.layout)
+        self.layout.addStretch(1)
+
+        # robot safety hbox
+        robot_safety_hbox = QHBoxLayout(self.mainWidget)
+        robot_safety_hbox.addStretch(1)
+        self.makeRobotSystemEnablingButtons(robot_safety_hbox)
+        robot_safety_hbox.addStretch(1)
+        self.makeIntelligenceStateComboBox(robot_safety_hbox)
+        robot_safety_hbox.addStretch(1)
+        self.layout.addLayout(robot_safety_hbox)
+        self.layout.addStretch(1)
+
+        # sensor data
+        sensor_data_hbox = QHBoxLayout(self.mainWidget)
+        sensor_data_hbox.addStretch(1)
+        self.makeSensorLabels(sensor_data_hbox)
+        sensor_data_hbox.addStretch(1)
+        self.makeCVLabels(sensor_data_hbox)
+        sensor_data_hbox.addStretch(1)
+        self.layout.addLayout(sensor_data_hbox)
+        self.layout.addStretch(1)
+
+        # match buttons
+        match_buttons_hbox = QHBoxLayout(self.mainWidget)
+        match_buttons_hbox.addStretch(1)
+        self.makeBeginMatchButton(match_buttons_hbox)
+        self.makeEndMatchButton(match_buttons_hbox)
+        self.makeResetButton(match_buttons_hbox)
+        match_buttons_hbox.addStretch(1)
+        self.layout.addLayout(match_buttons_hbox)
+        self.layout.addStretch(1)
+
+        # Robot control
+        robot_control_hbox = QHBoxLayout(self.mainWidget)
+        robot_control_hbox.addStretch(1)
+        self.makePWMButtons(robot_control_hbox)
+        robot_control_hbox.addStretch(1)
+        self.makePIDButtons(robot_control_hbox)
+        robot_control_hbox.addStretch(1)
+        self.makeHeadingButton(robot_control_hbox)
+        robot_control_hbox.addStretch(1)
+        self.makeDistanceButton(robot_control_hbox)
+        robot_control_hbox.addStretch(1)
+        self.layout.addLayout(robot_control_hbox)
+        self.layout.addStretch(1)
+
+        #TODO Remove next line
+        self.robotMovementTypeComboBox(self.layout)
+
+        self.layout.addStretch(1)
+        self.layout.addLayout(self.layout)
+        self.layout.addStretch(1)
 
         # timer for sensor labels to send get requests periodically
-        self.my_timer = QTimer()
-        self.my_timer.timeout.connect(self.updateSensorLabels)
-        self.my_timer.start(10) # interval between get requests
+        self.robotDataTimer = QTimer()
+        self.robotDataTimer.timeout.connect(self.updateSensorLabels)
+        self.robotDataTimer.start(500) # interval between get requests
 
-        self.layout.addLayout(first_col)
-
-        if self.hasGraphs:
-            second_col = QVBoxLayout(self.mainWidget)
-            self.makeGraphs(second_col)
-            self.layout.addLayout(second_col)
-
-        thirdCol = QVBoxLayout(self.mainWidget)
-        self.makeBeginMatchButton(thirdCol)
-        self.makeEndMatchButton(thirdCol)
-        self.makeResetButton(thirdCol)
-        self.layout.addLayout(thirdCol)
+        # timer for CV labels to get data periodically
+        self.CVDataTimer = QTimer()
+        self.CVDataTimer.timeout.connect(self.updateCVLabels)
+        self.CVDataTimer.start(500)
 
     def makeESTOPButton(self, layout):
         """
         make the ESTOP button and add it to layout
         :param layout: the layout to add the ESTOP to
         """
+        ESTOPLayout = QHBoxLayout(self.mainWidget)
         self.ESTOPButton = QPushButton(self.mainWidget)
-        self.ESTOPButton.setText("Estop")
+        self.ESTOPButton.setStyleSheet("background-color : red")
+        self.ESTOPButton.setMinimumSize(300, 100)
+        self.ESTOPButton.setText("ESTOP")
         self.ESTOPButton.clicked.connect(self.ESTOP)
 
-        layout.addWidget(self.ESTOPButton)
+        ESTOPLayout.addStretch(1)
+        ESTOPLayout.addWidget(self.ESTOPButton)
+        ESTOPLayout.addStretch(1)
+        layout.addLayout(ESTOPLayout)
 
     def ESTOP(self):
         """
@@ -131,6 +170,7 @@ class MainWindow(QMainWindow):
         self.enablingLabels["Enable Weapon"] = (
             SetJSONVars.WEAPON_ENABLE_CHANGE, "true")
 
+        buttonVBox = QVBoxLayout(self.mainWidget)
         driveRadioHBox = QHBoxLayout(self.mainWidget)
         self.drive_enabled_group = QButtonGroup()
         weaponRadioHBox = QHBoxLayout(self.mainWidget)
@@ -139,6 +179,7 @@ class MainWindow(QMainWindow):
         count = 0
         for label in self.enablingLabels.keys():
             button = self.makeRadioButton(label)
+            #button.setMinimumSize(tmp_label.width() + 80, tmp_label.height() + 30)
             if count < 2:
                 driveRadioHBox.addWidget(button)
                 self.drive_enabled_group.addButton(button)
@@ -151,8 +192,9 @@ class MainWindow(QMainWindow):
                 button.setChecked(False)
             count += 1
 
-        layout.addLayout(driveRadioHBox)
-        layout.addLayout(weaponRadioHBox)
+        buttonVBox.addLayout(driveRadioHBox)
+        buttonVBox.addLayout(weaponRadioHBox)
+        layout.addLayout(buttonVBox)
 
     def makeRadioButton(self, label):
         """
@@ -180,7 +222,7 @@ class MainWindow(QMainWindow):
         # make label
         label = QLabel(self.mainWidget)
         label.setText("Intelligence State")
-
+        label.setMinimumSize(label.width()+30, label.height()+30)
         # make combobox
         # Is self because setToIdle needs it
         self.intelligenceStateComboBox = QComboBox(self.mainWidget)
@@ -216,14 +258,16 @@ class MainWindow(QMainWindow):
         self.motors = []
         pwmLabel = QLabel(self.mainWidget)
         pwmLabel.setText("Individually set PWMs")
-        layout.addWidget(pwmLabel)
+        pwmVBox = QVBoxLayout(self.mainWidget)
+        pwmVBox.addWidget(pwmLabel)
 
         motors = [SetJSONVars.MOTOR1_PWM,
                   SetJSONVars.MOTOR2_PWM, SetJSONVars.WEAPON_PWM]
 
         for motor in motors:
             hBox = self.makeMotor(motor)
-            layout.addLayout(hBox)
+            pwmVBox.addLayout(hBox)
+        layout.addLayout(pwmVBox)
 
     def makeMotor(self, motor):
         """
@@ -274,14 +318,16 @@ class MainWindow(QMainWindow):
         self.pid_gains = []
         pidLabel = QLabel(self.mainWidget)
         pidLabel.setText("Individually set PIDs")
-        layout.addWidget(pidLabel)
+        pidVBox = QVBoxLayout(self.mainWidget)
+        pidVBox.addWidget(pidLabel)
 
         pid_gains = [SetJSONVars.KP,
                     SetJSONVars.KI, SetJSONVars.KD]
 
         for gain in pid_gains:
             hBox = self.makePIDGain(gain)
-            layout.addLayout(hBox)
+            pidVBox.addLayout(hBox)
+        layout.addLayout(pidVBox)
 
     def makePIDGain(self, gain):
         """
@@ -311,6 +357,97 @@ class MainWindow(QMainWindow):
         """
         val = float(qLineEdit.text())
         self.notifyObservers(BehavioralStates.PID, (gain_button, qLineEdit.text()))
+
+    def makeHeadingButton(self, layout):
+        """
+        creates all the push buttons
+        """
+        self.heading = []
+        headingLabel = QLabel(self.mainWidget)
+        headingLabel.setText("Set heading")
+        headingVBox = QVBoxLayout(self.mainWidget)
+        headingVBox.addWidget(headingLabel)
+
+        heading = SetJSONVars.DESIRED_HEADING
+
+        hBox = self.makeHeading(heading)
+        headingVBox.addLayout(hBox)
+        layout.addLayout(headingVBox)
+
+    def makeHeading(self, heading):
+        """
+        makes GUI stuff for each pid gain
+        Can't do in for loop because variable scope bad
+        :param gain: the name of the pid gain
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        HeadingInput = QLineEdit(MovementVals.HEADING_DEFAULT.value, self.mainWidget)
+        HeadingInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(HeadingInput)
+
+        sendHeadingButton = QPushButton(self.mainWidget)
+        label = "Set heading for " + heading.value
+        sendHeadingButton.setText(label)
+        sendHeadingButton.clicked.connect(lambda: self.sendHeading(HeadingInput, heading))
+        hBox.addWidget(sendHeadingButton)
+        self.heading.append((HeadingInput, sendHeadingButton, heading))
+        return hBox
+
+    def sendHeading(self, qLineEdit, heading_button):
+        """
+        alerts observers of change in pid
+        """
+        val = float(qLineEdit.text())
+        self.notifyObservers(BehavioralStates.SET_HEADING, (heading_button, qLineEdit.text()))
+
+
+    def makeDistanceButton(self, layout):
+        """
+        creates all the push buttons
+        """
+        self.distance = []
+        distanceLabel = QLabel(self.mainWidget)
+        distanceLabel.setText("Set distance")
+        distanceVBox = QVBoxLayout(self.mainWidget)
+        distanceVBox.addWidget(distanceLabel)
+
+        distance = SetJSONVars.DESIRED_DISTANCE
+
+        hBox = self.makeDistance(distance)
+        distanceVBox.addLayout(hBox)
+        layout.addLayout(distanceVBox)
+
+    def makeDistance(self, distance):
+        """
+        makes GUI stuff for each pid gain
+        Can't do in for loop because variable scope bad
+        :param gain: the name of the pid gain
+        :return: an hbox with the motor qlineedit and send button
+        """
+        qEditWidth = 100
+
+        hBox = QHBoxLayout(self.mainWidget)
+        DistanceInput = QLineEdit(MovementVals.DISTANCE_DEFAULT.value, self.mainWidget)
+        DistanceInput.setFixedWidth(qEditWidth)
+        hBox.addWidget(DistanceInput)
+
+        sendDistanceButton = QPushButton(self.mainWidget)
+        label = "Set distance for " + distance.value
+        sendDistanceButton.setText(label)
+        sendDistanceButton.clicked.connect(lambda: self.sendDistance(DistanceInput, distance))
+        hBox.addWidget(sendDistanceButton)
+        self.distance.append((DistanceInput, sendDistanceButton, distance))
+        return hBox
+
+    def sendDistance(self, qLineEdit, distance_button):
+        """
+        alerts observers of change in pid
+        """
+        val = float(qLineEdit.text())
+        self.notifyObservers(BehavioralStates.SET_DISTANCE, (distance_button, qLineEdit.text()))
 
 
     def makePolygonalMovement(self, layout):
@@ -343,6 +480,7 @@ class MainWindow(QMainWindow):
 
     def makeSensorLabels(self, layout):
         self.sensorLabels = {}
+        sensorVBox = QVBoxLayout(self.mainWidget)
         for sensor in GetJSONVars:
             hbox = QHBoxLayout(self.mainWidget)
 
@@ -356,14 +494,41 @@ class MainWindow(QMainWindow):
             self.sensor_data.setText(data_val)
             hbox.addWidget(self.sensor_data)
 
-            layout.addLayout(hbox)
+            sensorVBox.addLayout(hbox)
             self.sensorLabels[sensor] = (self.sensor_label, self.sensor_data)
+        layout.addLayout(sensorVBox)
 
     # this updates the sensor labels on a periodic timer
     def updateSensorLabels(self):
         for sensor in GetJSONVars:
             data_val = str(self.wifi.getInfo(sensor.value))
             self.sensorLabels[sensor][1].setText(data_val)
+
+    def makeCVLabels(self, layout):
+        self.CVLabels = {}
+        cvVBox = QVBoxLayout(self.mainWidget)
+        for item in CVTopics:
+            hbox = QHBoxLayout(self.mainWidget)
+
+            self.item_label = QLabel(self.mainWidget)
+            self.item_label.setFixedWidth(300)
+            self.item_label.setText(item.value)
+            hbox.addWidget(self.item_label)
+
+            self.item_data = QLabel(self.mainWidget)
+            data_val = str(self.robot.getCVData(item))
+            self.item_data.setText(data_val)
+            hbox.addWidget(self.item_data)
+
+            cvVBox.addLayout(hbox)
+            self.CVLabels[item] = (self.item_label, self.item_data)
+        layout.addLayout(cvVBox)
+
+    # this updates the sensor labels on a periodic timer
+    def updateCVLabels(self):
+        for item in CVTopics:
+            data_val = str(self.robot.getCVData(item))
+            self.CVLabels[item][1].setText(data_val)
 
     def robotMovementTypeComboBox(self, layout):
         # make label
@@ -387,15 +552,6 @@ class MainWindow(QMainWindow):
 
     def robotMovementChanged(self, text):
         self.notifyObservers(SetJSONVars.MOVEMENT_TYPE, text)
-
-    def makeGraphs(self, layout):
-        """
-        makes all of the graphs
-        """
-        self.sensorGraphs = {}
-        for sensor in GetJSONVars:
-            self.sensorGraphs[sensor] = DataGraph(sensor.value, (-100, 100))
-            layout.addWidget(self.sensorGraphs[sensor])
 
     def makeBeginMatchButton(self, layout):
         button = QPushButton("Begin Match")
@@ -425,12 +581,6 @@ class MainWindow(QMainWindow):
         :param value: the value
         """
         if topic in GetJSONVars:
-            # update specific graph
-            if self.hasGraphs:
-                graph = self.sensorGraphs[topic]
-                if value != graph.getCurrData():
-                    graph.update_plot(value)
-
             # update label on GUI
             self.sensorLabels[topic][1].setText(value)
 
@@ -452,3 +602,11 @@ class MainWindow(QMainWindow):
             IntelligenceStates.IDLE.value, Qt.MatchFixedString)
         if index >= 0:
             self.intelligenceStateComboBox.setCurrentIndex(index)
+
+    def keyPressEvent(self, event):
+        """
+        when a key is pressed, notify the observers
+        :param event: a key press
+        """
+        if event.key() == Qt.Key_Space:
+            self.ESTOP()

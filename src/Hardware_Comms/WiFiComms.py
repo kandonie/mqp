@@ -3,6 +3,7 @@ import json
 from src.Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
 from src.Hardware_Comms.connectionData import ConnectionDataHandler
 from src.Robot_Locomotion.MotorEnums import PWMVals
+from src.Guidance.GuidanceEnums import BehavioralStates
 
 
 class WiFiComms:
@@ -18,7 +19,7 @@ class WiFiComms:
         :param shouldConnectToWiFi: [Bool] True if we want to connect to ESP, False otherwise
         """
         # esp32 IP
-        self.IP = "http://192.168.4.1"
+        self.IP = "http://192.168.49.241"
         # initialzies get vars
         self.getJson = {}
         for var in GetJSONVars:
@@ -33,6 +34,7 @@ class WiFiComms:
         self.setJson[SetJSONVars.TUNING_KP.value] = 0
         self.setJson[SetJSONVars.TUNING_KI.value] = 0
         self.setJson[SetJSONVars.TUNING_KD.value] = 0
+        self.setJson[SetJSONVars.SETTING_HEADING.value] = 0
         # determine is ESP is connected
         # if not done here, all http requests take forever and it slows down program
         self.heading = 0
@@ -62,6 +64,10 @@ class WiFiComms:
             return "No ESP Connected"
         # sending get request and saving the response as response object
         try:
+            if param == "ESTOP":
+                r = requests.get(url=self.IP + HTTPTopics.ESTOP.value)
+                print("Robot has ESTOPPED")
+                return "Robot has ESTOPPED"
             r = requests.get(url=self.IP + HTTPTopics.ROBOT_DATA.value)
             # TODO get the param
             info = json.loads(r.content.decode("utf-8"))
@@ -98,7 +104,6 @@ class WiFiComms:
         given a response, parses the changed values and notifies observers of them
         :param response: the response to parse
         """
-        pass
         print(response)
         # for item in response
         #   if diff from self.GetJSON
