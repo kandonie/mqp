@@ -29,6 +29,7 @@ class SetDistance():
             self.hasSent = True
             self.wifi.sendInfo(SetJSONVars.SETTING_DISTANCE.value, 0)
             self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
+            
         return False
 
     def getType(self):
