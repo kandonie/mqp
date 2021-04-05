@@ -70,6 +70,9 @@ class MainWindow(QMainWindow):
         # match hbox
         match_buttons_hbox = QHBoxLayout(self.mainWidget)
         match_buttons_hbox.addStretch(1)
+        #KNOWN BUG - but havent found good fix, if estop isn't first, then pressing space to estop doesn't work
+        self.makeESTOPButton(match_buttons_hbox)
+        match_buttons_hbox.addStretch(1)
         self.makeRobotSystemEnablingButtons(match_buttons_hbox)
         match_buttons_hbox.addStretch(1)
         self.makeIntelligenceStateComboBox(match_buttons_hbox)
@@ -77,8 +80,6 @@ class MainWindow(QMainWindow):
         self.makeBeginMatchButton(match_buttons_hbox)
         self.makeEndMatchButton(match_buttons_hbox)
         self.makeResetButton(match_buttons_hbox)
-        match_buttons_hbox.addStretch(1)
-        self.makeESTOPButton(match_buttons_hbox)
         match_buttons_hbox.addStretch(1)
         self.layout.addLayout(match_buttons_hbox)
         self.layout.addStretch(1)
