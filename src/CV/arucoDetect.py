@@ -40,7 +40,7 @@ class ArucoDetector:
             # choose aruco library to reference
             arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
             arucoParams = cv2.aruco.DetectorParameters_create()
-            (corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict, parameters=arucoParams)
+            (origCorners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict, parameters=arucoParams)
 
             # verify *at least* one ArUco marker was detected
             if len(corners) > 0:
@@ -50,7 +50,7 @@ class ArucoDetector:
             #check if tags detected
             if ids is not None:
                 # loop detected tags
-                for (markerCorner, markerID) in zip(corners, ids):
+                for (markerCorner, markerID) in zip(origCorners, ids):
                     # extract the tag corners (which are always returned in top-left, top-right, bottom-right, and bottom-left order)
                     corners = markerCorner.reshape((4, 2))
                     (topLeft, topRight, bottomRight, bottomLeft) = corners
