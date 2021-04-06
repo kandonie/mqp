@@ -207,7 +207,7 @@ void setup()
         char newJson[jsonIndex + 1];
         strncpy(newJson, json, jsonIndex);
         newJson[jsonIndex] = '\0';
-        // Serial.println(newJson); //print the whole json
+        //Serial.println(newJson); //print the whole json
 
         DeserializationError error = deserializeJson(doc, newJson);
 
@@ -412,7 +412,7 @@ void loop()
       if (turnToAngle(currHeading, desiredHeading))
       { //turnToAngle returns true when the robot is at the correct heading
         disablePWM("drive");
-        robotMovementType = "gyroMode";
+        //robotMovementType = "gyroMode";
       }
       else
       {
@@ -426,13 +426,15 @@ void loop()
 
        //drive a set distance
     // Need actual JSON word
-    if (robotMovementType.equals("driveDistance")){
-      if (driveDistance(encoder1Ticks, desiredDist)){
-        robotMovementType = "waiting";
+    if (robotMovementType.equals("distanceMode")){
+      Serial.println("In Distance Mode");
+      Serial.println(desiredDist);
+      if (driveDistance(encoder2Ticks, desiredDist)){
+        robotMovementType = "distanceMode";
       }
       else
       {
-        robotMovementType = "driveDistance";
+        robotMovementType = "distanceMode";
       }
     }
 

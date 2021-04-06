@@ -235,6 +235,11 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 
 
 bool driveDistance(int encoderTicks, double distGoal){
+    Serial.print("encoderTicks ");
+    Serial.println(encoderTicks);
+
+    double kpl = .4;
+
     if(distGoal > 50){
         Serial.println("Distance goal too large");
         return true;
@@ -249,7 +254,7 @@ bool driveDistance(int encoderTicks, double distGoal){
     error1 = wheelGoal - wheelPos;
 
     totalError1 += error1;
-    double proportional = error1*kp;
+    double proportional = error1*kpl;
     double integral = totalError1*ki;
     double derivative = (error1 - previousError1)*kd;
 
@@ -257,7 +262,8 @@ bool driveDistance(int encoderTicks, double distGoal){
 
     // Map output over full PWM range
     int speed = map(output, -50, 50, FULL_CCW, FULL_CW);
-    
+    Serial.println("Speed ");
+    Serial.println(speed);
     // Set drive speeds
     setRight(speed);
     setLeft(speed);
@@ -267,6 +273,7 @@ bool driveDistance(int encoderTicks, double distGoal){
     //arbitrary error for now in rotations of wheel
     if(error < .125){
         return true;
+        Serial.println("Robot has reached desired distance");
     }
 
     return false;
