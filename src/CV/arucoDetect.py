@@ -6,20 +6,20 @@ from src.CV.CVTopics import CVTopics
 #TODO: update below once set up with new cam
 distInch = (48/1133)*1.85 # inches per pixel conversion
 
-# true means detecting with webcam, false is using stored images
-liveInference = False
 
 class ArucoDetector:
 
-    def __init__(self, observers):
+    def __init__(self, observers, liveInference):
         # self.img_counter = 1
         self.observers = []
         for observer in observers:
             self.attachObserver(observer)
+        # true means detecting with webcam, false is using stored images
+        self.liveInference = liveInference
 
     def runModel(self):
 
-        if liveInference:
+        if self.liveInference:
             # replace the int with the camera index you want to use
             cap = cv2.VideoCapture(0)
             # wait for camera to connect before fetching frames
@@ -30,7 +30,7 @@ class ArucoDetector:
         robotData = {203:[0,0,0],62:[0,0,0]}
 
         while(1):
-            if liveInference:
+            if self.liveInference:
                 _, image = cap.read()
             else:
                 # replace path with the image you want to use
