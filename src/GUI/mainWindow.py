@@ -265,13 +265,17 @@ class MainWindow(QMainWindow):
             self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
     def makeImage(self, layout):
-        im = QPixmap("src/output.jpg")
+        self.img_location = "output.jpg"
+        im = QPixmap(self.img_location)
         self.image_label = QLabel()
         self.image_label.setPixmap(im)
         layout.addWidget(self.image_label)
 
     def update_image(self):
-        im = QPixmap("src/CV/tags/OnFiled.jpg")
+        # gets read permission so that the img isn't currently being written
+        with open(self.img_location) as fd:
+            im = QPixmap(self.img_location)
+            fd.close()
         self.image_label.setPixmap(im)
 
     def makePWMButtons(self, layout):
