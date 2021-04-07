@@ -43,7 +43,7 @@ class ArucoDetector:
             (origCorners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict, parameters=arucoParams)
 
             # verify *at least* one ArUco marker was detected
-            if len(corners) > 0:
+            if len(origCorners) > 0:
                 # flatten the ArUco IDs list
                 ids = ids.flatten()
             
