@@ -24,7 +24,7 @@ class Robot:
         self.robotLock = threading.Lock()
 
     def disable(self):
-        self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DISABLE_ROBOT.value)
+        self.wifi.sendInfo({SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DISABLE_ROBOT.value})
 
     def estop(self):
         self.wifi.getInfo("ESTOP")

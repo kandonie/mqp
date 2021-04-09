@@ -29,8 +29,8 @@ class StateMachine():
         self.wifi = wifi
         # set initial enabled state to disabled
         # TODO maybe put this somewhere else
-        self.wifi.sendInfo(SetJSONVars.WEAPON_ENABLE_CHANGE.value, "false")
-        self.wifi.sendInfo(SetJSONVars.DRIVE_ENABLE_CHANGE.value, "false")
+        self.wifi.sendInfo({SetJSONVars.WEAPON_ENABLE_CHANGE.value: "false",
+                             SetJSONVars.DRIVE_ENABLE_CHANGE.value: "false"})
         self.drive = drive
         self.weapon = weapon
         self.robot = robot
@@ -162,7 +162,7 @@ class StateMachine():
         elif topic == SetJSONVars.DRIVE_ENABLE_CHANGE or topic == SetJSONVars.WEAPON_ENABLE_CHANGE or topic == SetJSONVars.MOVEMENT_TYPE :
             # Bypass state machine to send enabling info to the robot
             # There is no associated state
-            self.wifi.sendInfo(topic.value, value)
+            self.wifi.sendInfo({topic.value: value})
         elif topic in BehavioralStates:
             self.robotStateLock.acquire()
             curr_state = self.state.getType()
