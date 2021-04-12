@@ -210,7 +210,7 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     double derivative = (error - previousError)*kd;
 
     int output = proportional + integral + derivative;
-
+    
     // an output of range 0-1000 will be mapped to pwm range 1500-2000
     int speed = map(output, 0, 50, STOPPED, FULL_CW);
     // constrain to pwm range 1000-2000 so negative output values can make motors go backwards
@@ -225,7 +225,7 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     //arbitrary error for now
     if(abs(error) < 10){
         disablePWM("drive");
-        Serial.println("Reached Angle");
+        //Serial.println("Reached Angle");
         return true;
     }
 
@@ -258,10 +258,12 @@ bool driveDistance(int encoderTicks, double distGoal){
     double integral = totalError1*ki;
     double derivative = (error1 - previousError1)*kd;
 
-    int output = proportional + integral + derivative;
+    double output = proportional + integral + derivative;
+    Serial.println(output);
 
     // Map output over full PWM range
-    int speed = map(output, -50, 50, FULL_CCW, FULL_CW);
+    int speed = map(output, -5, 5, FULL_CCW, FULL_CW);
+    speed = constrain(speed, FULL_CCW, FULL_CW);
     Serial.println("Speed ");
     Serial.println(speed);
     // Set drive speeds

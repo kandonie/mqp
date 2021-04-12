@@ -103,6 +103,7 @@ String generalHandler()
 // Encoder ISRs
 void IRAM_ATTR encoder1ISR() {
   // Check motor direction then increment/decrement accordingly
+  //Serial.println("Encoder 1 Moving");
   portENTER_CRITICAL_ISR(&mux);
   if(motor1PWM>1500){
     encoder1Ticks++;
@@ -114,6 +115,7 @@ void IRAM_ATTR encoder1ISR() {
 
 void IRAM_ATTR encoder2ISR() {
   // Check motor direction then increment/decrement accordingly
+  //Serial.println("Encoder 2 Moving");
   portENTER_CRITICAL_ISR(&mux);
   if(motor2PWM>1500){
     encoder2Ticks++;
@@ -301,6 +303,7 @@ void setup()
   //motion setup
   //if not connected to wifi nothing should move
   movementSetup();
+  encoderSetup();
   sensorSetup();
 
   state = teleop;
@@ -429,7 +432,7 @@ void loop()
     if (robotMovementType.equals("distanceMode")){
       Serial.println("In Distance Mode");
       Serial.println(desiredDist);
-      if (driveDistance(encoder2Ticks, desiredDist)){
+      if (driveDistance(encoder1Ticks, desiredDist)){
         robotMovementType = "distanceMode";
       }
       else
