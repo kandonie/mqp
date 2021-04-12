@@ -7,7 +7,7 @@ from src.CV.CVTopics import CVTopics
 distInch = (48/1133)*1.85 # inches per pixel conversion
 
 # true means detecting with webcam, false is using stored images
-liveInference = False
+liveInference = True
 
 class ArucoDetector:
 
@@ -21,13 +21,13 @@ class ArucoDetector:
 
         if liveInference:
             # replace the int with the camera index you want to use
-            cap = cv2.VideoCapture(0)
+            cap = cv2.VideoCapture(1)
             # wait for camera to connect before fetching frames
             time.sleep(1)
         # init pos value to avoid crashing if both tags not visible in first frame
         # the key is the aruco tag id and the three values are: x pos (pixels), y pos (pixels), and heading (degrees)
         # id 203 is the tag on the mqp robot and id 62 is on the opponent robot
-        robotData = {203:[0,0,0],62:[0,0,0]}
+        robotData = {203:[0,0,0],23:[0,0,0]}
 
         while(1):
             if liveInference:
@@ -43,7 +43,7 @@ class ArucoDetector:
             (origCorners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict, parameters=arucoParams)
 
             # verify *at least* one ArUco marker was detected
-            if len(corners) > 0:
+            if len(origCorners) > 0:
                 # flatten the ArUco IDs list
                 ids = ids.flatten()
             
@@ -86,10 +86,10 @@ class ArucoDetector:
                     #update pos and heading
                     ourHeading = robotData[203][2]
                     ourPos = (robotData[203][0], robotData[203][1])
-                    theirHeading = robotData[62][2]
-                    theirPos = (robotData[62][0], robotData[62][1])
-                    angleToTarget = math.degrees(-1 * math.atan2(robotData[62][1] - robotData[203][1], robotData[62][0] - robotData[203][0]))
-                    distToTarget = distInch * math.sqrt((robotData[203][1] - robotData[62][1]) ** 2 +  (robotData[203][0] - robotData[62][0]) ** 2)
+                    theirHeading = robotData[23][2]
+                    theirPos = (robotData[23][0], robotData[23][1])
+                    angleToTarget = math.degrees(-1 * math.atan2(robotData[23][1] - robotData[203][1], robotData[23][0] - robotData[203][0]))
+                    distToTarget = distInch * math.sqrt((robotData[203][1] - robotData[23][1]) ** 2 +  (robotData[203][0] - robotData[23][0]) ** 2)
 
                     # print("targetHead: ", angleToTarget, "targetDist: ", distToTarget)
 
