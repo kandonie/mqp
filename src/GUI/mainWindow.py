@@ -61,31 +61,42 @@ class MainWindow(QMainWindow):
         """
         sets the locations of all widgets on the GUI
         """
-        self.setFixedWidth(2500)
-        self.setFixedHeight(1500)
+        #self.setFixedWidth(2500)
+        #self.setFixedHeight(1500)
 
         self.layout = QVBoxLayout(self.mainWidget)
         self.layout.addStretch(1)
 
+        self.layout.setContentsMargins(200, 60, 200, 60)
+
         # match hbox
         match_buttons_hbox = QHBoxLayout(self.mainWidget)
-        match_buttons_hbox.addStretch(1)
+        #match_buttons_hbox.addStretch(1)
         #KNOWN BUG - but havent found good fix, if estop isn't first, then pressing space to estop doesn't work
         self.makeESTOPButton(match_buttons_hbox)
         match_buttons_hbox.addStretch(1)
         self.makeRobotSystemEnablingButtons(match_buttons_hbox)
         match_buttons_hbox.addStretch(1)
-        self.makeIntelligenceStateComboBox(match_buttons_hbox)
+
+        match_control_vbox = QVBoxLayout(self.mainWidget)
+        match_control_vbox.addStretch(1)
+        self.makeIntelligenceStateComboBox(match_control_vbox)
         match_buttons_hbox.addStretch(1)
-        self.makeBeginMatchButton(match_buttons_hbox)
-        self.makeEndMatchButton(match_buttons_hbox)
-        self.makeResetButton(match_buttons_hbox)
-        match_buttons_hbox.addStretch(1)
+
+        match_timing_hbox = QVBoxLayout(self.mainWidget)
+        self.makeBeginMatchButton(match_timing_hbox)
+        self.makeEndMatchButton(match_timing_hbox)
+        self.makeResetButton(match_timing_hbox)
+
+        match_control_vbox.addLayout(match_timing_hbox)
+        match_control_vbox.addStretch(1)
+        match_buttons_hbox.addLayout(match_control_vbox)
+        #match_buttons_hbox.addStretch(1)
         self.layout.addLayout(match_buttons_hbox)
-        self.layout.addStretch(1)
+        self.layout.addStretch(3)
 
         image_and_data_hbox = QHBoxLayout(self.mainWidget)
-        image_and_data_hbox.addStretch(1)
+        #image_and_data_hbox.addStretch(1)
 
         # sensor data
         sensor_data_vbox = QVBoxLayout(self.mainWidget)
@@ -104,21 +115,29 @@ class MainWindow(QMainWindow):
         image_hbox.addStretch(1)
 
         image_and_data_hbox.addLayout(image_hbox)
-        image_and_data_hbox.addStretch(1)
+        #image_and_data_hbox.addStretch(1)
 
         self.layout.addLayout(image_and_data_hbox)
+        self.layout.addStretch(3)
 
         # Robot control
         robot_control_hbox = QHBoxLayout(self.mainWidget)
-        robot_control_hbox.addStretch(1)
+        #robot_control_hbox.addStretch(1)
         self.makePWMButtons(robot_control_hbox)
         robot_control_hbox.addStretch(1)
         self.makePIDButtons(robot_control_hbox)
         robot_control_hbox.addStretch(1)
-        self.makeHeadingButton(robot_control_hbox)
-        robot_control_hbox.addStretch(1)
-        self.makeDistanceButton(robot_control_hbox)
-        robot_control_hbox.addStretch(1)
+
+
+        heading_distance_vbox = QVBoxLayout(self.mainWidget)
+        self.makeHeadingButton(heading_distance_vbox)
+        heading_distance_vbox.addStretch(1)
+        self.makeDistanceButton(heading_distance_vbox)
+        heading_distance_vbox.addStretch(1)
+        robot_control_hbox.addLayout(heading_distance_vbox)
+        #robot_control_hbox.addStretch(1)
+
+
         self.layout.addLayout(robot_control_hbox)
         self.layout.addStretch(1)
 
@@ -140,6 +159,9 @@ class MainWindow(QMainWindow):
         self.ImageDataTimer = QTimer()
         self.ImageDataTimer.timeout.connect(self.update_image)
         self.ImageDataTimer.start(500)
+        
+        
+        self.showMaximized()
 
     def makeESTOPButton(self, layout):
         """
@@ -149,7 +171,7 @@ class MainWindow(QMainWindow):
         ESTOPLayout = QHBoxLayout(self.mainWidget)
         self.ESTOPButton = QPushButton(self.mainWidget)
         self.ESTOPButton.setStyleSheet("background-color : red")
-        self.ESTOPButton.setMinimumSize(500, 200)
+        self.ESTOPButton.setMinimumSize(420, 180)
         self.ESTOPButton.setText("ESTOP")
         self.ESTOPButton.clicked.connect(self.ESTOP)
 
@@ -174,13 +196,13 @@ class MainWindow(QMainWindow):
         self.enablingButtons = []
 
         self.enablingLabels = {}
-        self.enablingLabels["Disable Drive"] = (
+        self.enablingLabels["Disable drive"] = (
             SetJSONVars.DRIVE_ENABLE_CHANGE, "false")
-        self.enablingLabels["Enable Drive"] = (
+        self.enablingLabels["Enable drive"] = (
             SetJSONVars.DRIVE_ENABLE_CHANGE, "true")
-        self.enablingLabels["Disable Weapon"] = (
+        self.enablingLabels["Disable weapon"] = (
             SetJSONVars.WEAPON_ENABLE_CHANGE, "false")
-        self.enablingLabels["Enable Weapon"] = (
+        self.enablingLabels["Enable weapon"] = (
             SetJSONVars.WEAPON_ENABLE_CHANGE, "true")
 
         buttonVBox = QVBoxLayout(self.mainWidget)
@@ -234,7 +256,7 @@ class MainWindow(QMainWindow):
     def makeIntelligenceStateComboBox(self, layout):
         # make label
         label = QLabel(self.mainWidget)
-        label.setText("Intelligence State")
+        label.setText("Intelligence state")
         label.setMinimumSize(label.width()+30, label.height()+30)
         # make combobox
         # Is self because setToIdle needs it
@@ -265,13 +287,13 @@ class MainWindow(QMainWindow):
             self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
     def makeImage(self, layout):
-        im = QPixmap("src/output.jpg")
+        im = QPixmap("output.jpg")
         self.image_label = QLabel()
         self.image_label.setPixmap(im)
         layout.addWidget(self.image_label)
 
     def update_image(self):
-        im = QPixmap("src/CV/tags/OnFiled.jpg")
+        im = QPixmap("output.jpg")
         self.image_label.setPixmap(im)
 
     def makePWMButtons(self, layout):
@@ -396,6 +418,7 @@ class MainWindow(QMainWindow):
 
         hBox = self.makeHeading(heading)
         headingVBox.addLayout(hBox)
+        headingVBox.addStretch(1)
         layout.addLayout(headingVBox)
 
     def makeHeading(self, heading):
@@ -491,7 +514,7 @@ class MainWindow(QMainWindow):
         hBox.addWidget(self.movementQLineEdit)
 
         self.movementButton = QPushButton(self.mainWidget)
-        self.movementButton.setText("Send Movement Info")
+        self.movementButton.setText("Send movement info")
         self.movementButton.clicked.connect(self.sendMovement)
         hBox.addWidget(self.movementButton)
         layout.addLayout(hBox)
@@ -519,6 +542,7 @@ class MainWindow(QMainWindow):
 
             self.sensor_data = QLabel(self.mainWidget)
             data_val = str(self.wifi.getInfo(sensor.value))
+            self.sensor_data.setAlignment(Qt.AlignRight)
             self.sensor_data.setText(data_val)
             hbox.addWidget(self.sensor_data)
 
@@ -545,6 +569,7 @@ class MainWindow(QMainWindow):
 
             self.item_data = QLabel(self.mainWidget)
             data_val = str(self.robot.getCVData(item))
+            self.item_data.setAlignment(Qt.AlignRight)
             self.item_data.setText(data_val)
             hbox.addWidget(self.item_data)
 
@@ -561,7 +586,7 @@ class MainWindow(QMainWindow):
     def robotMovementTypeComboBox(self, layout):
         # make label
         label = QLabel(self.mainWidget)
-        label.setText("Robot Movement State")
+        label.setText("Robot movement state")
 
         # make combobox
         # Is self because setToIdle needs it
@@ -581,7 +606,7 @@ class MainWindow(QMainWindow):
         self.notifyObservers(SetJSONVars.MOVEMENT_TYPE, text)
 
     def makeBeginMatchButton(self, layout):
-        button = QPushButton("Begin Match")
+        button = QPushButton("Begin match")
         button.clicked.connect(self.startMatch)
         layout.addWidget(button)
 
@@ -589,7 +614,7 @@ class MainWindow(QMainWindow):
         self.notifyObservers(BehavioralStates.MATCH_START, None)
 
     def makeEndMatchButton(self, layout):
-        button = QPushButton("Match Over")
+        button = QPushButton("Match over")
         button.clicked.connect(self.endMatch)
         layout.addWidget(button)
 
@@ -597,7 +622,7 @@ class MainWindow(QMainWindow):
         self.notifyObservers(BehavioralStates.END_MATCH, None)
 
     def makeResetButton(self, layout):
-        button = QPushButton("Reset Match")
+        button = QPushButton("Reset match")
         button.clicked.connect(self.reset)
         layout.addWidget(button)
 

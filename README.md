@@ -4,6 +4,11 @@ To run application:
 To run tests:
     python -m pytest tests
 
+Necessary installs
+    pip install PyQt5
+    pip install opencv-contrib-python
+    pip install requests
+
 shouldConnectToWiFi defaults to True. True tries to connect to WiFi. False will never try to connect
 but will also load faster. Good for testing without the ESP
 
