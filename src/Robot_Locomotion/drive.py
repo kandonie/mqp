@@ -25,8 +25,8 @@ class Drive:
         sets the speeds of both motors to 0
         """
         self.wifi.sendInfo({SetJSONVars.MOTOR1_PWM.value: PWMVals.STOPPED.value,
-                             SetJSONVars.MOTOR2_PWM.value: PWMVals.STOPPED.value,
-                             SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.PWM_CONTROLLED.value})
+                            SetJSONVars.MOTOR2_PWM.value: PWMVals.STOPPED.value,
+                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.PWM_CONTROLLED.value})
 
     def driveSpeed(self, speed):
         """
@@ -40,11 +40,11 @@ class Drive:
             speed = PWMVals.FULL_CCW.value
         self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
         self.setPWM(SetJSONVars.MOTOR2_PWM.value, speed)
-        self.wifi.sendInfo({SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.PWM_CONTROLLED.value})
+        self.wifi.sendInfo(
+            {SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.PWM_CONTROLLED.value})
 
     def disable(self):
         self.stop()
-
 
     def turnAngle(self, angle):
         """
@@ -53,7 +53,7 @@ class Drive:
         """
         print("Turning " + str(angle) + " degrees")
         self.wifi.sendInfo({SetJSONVars.DESIRED_HEADING.value: str(angle),
-                           SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value})
+                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value})
 
     def turnSpeed(self, speed):
         """
@@ -80,7 +80,8 @@ class Drive:
             self.setPWM(SetJSONVars.MOTOR1_PWM.value, speed)
             self.setPWM(SetJSONVars.MOTOR2_PWM.value, invertedSpeed)
         # start this movement type
-        self.wifi.sendInfo({SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.PWM_CONTROLLED.value})
+        self.wifi.sendInfo(
+            {SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.PWM_CONTROLLED.value})
 
     def driveDistance(self, distance):
         """
@@ -89,7 +90,7 @@ class Drive:
         """
         print("Driving " + str(distance) + " meters")
         self.wifi.sendInfo({SetJSONVars.DESIRED_DISTANCE.value: str(distance),
-                           SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
+                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
 
     def setPWM(self, motor, pwm):
         """
@@ -106,12 +107,11 @@ class Drive:
         targetHeading = self.CVData[CVTopics.TARGET_HEADING]
         targetDistance = self.CVData[CVTopics.TARGET_DISTANCE]
         self.wifi.sendInfo({SetJSONVars.SETTING_HEADING.value: 1,
-                           SetJSONVars.DESIRED_HEADING.value: targetHeading,
-                           SetJSONVars.SETTING_HEADING.value: 0,
-                           SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value})
-        # self.wifi.sendInfo(SetJSONVars.DESIRED_DISTANCE.value, str(targetDistance))
-        # self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
-        
+                            SetJSONVars.DESIRED_HEADING.value: targetHeading,
+                            SetJSONVars.SETTING_HEADING.value: 0,
+                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value,
+                            SetJSONVars.DESIRED_DISTANCE.value: str(targetDistance),
+                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
 
     def notify(self, topic, value):
         # if we've had a change or is first time
