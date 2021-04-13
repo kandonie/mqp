@@ -1,4 +1,8 @@
 
+
+#ifndef MOVEMENT_H
+#define MOVEMENT_H
+
 void movementSetup();
 void setPIDGains(double proportional, double integral, double derivative);
 void testPWM();
@@ -12,3 +16,7 @@ boolean PWMWeaponDisabled();
 bool turnToAngle(double currentHeading, double desiredHeading);
 bool driveDistance(int encoderTicks, double distGoal);
 void estopRobot();
+bool getDirection();
+void setDirection(bool isForwards);
+
+#endif

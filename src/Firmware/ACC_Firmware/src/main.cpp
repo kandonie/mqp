@@ -43,8 +43,8 @@ double driveCurrent;
 int startTime = 0;
 
 // Encoder setup
-volatile int encoder1Ticks = 0;
-volatile int encoder2Ticks = 0;
+volatile long int encoder1Ticks = 0;
+volatile long int encoder2Ticks = 0;
 double desiredDist = 0;
 const byte encoder1Pin = 25;
 const byte encoder2Pin = 26;
@@ -105,7 +105,7 @@ void IRAM_ATTR encoder1ISR() {
   // Check motor direction then increment/decrement accordingly
   //Serial.println("Encoder 1 Moving");
   portENTER_CRITICAL_ISR(&mux);
-  if(motor1PWM>1500){
+  if(getDirection()){
     encoder1Ticks++;
   } else{
     encoder1Ticks--;
@@ -117,13 +117,18 @@ void IRAM_ATTR encoder2ISR() {
   // Check motor direction then increment/decrement accordingly
   //Serial.println("Encoder 2 Moving");
   portENTER_CRITICAL_ISR(&mux);
-  if(motor2PWM>1500){
+  if(getDirection()){
     encoder2Ticks++;
   } else{
     encoder2Ticks--;
   }
   portEXIT_CRITICAL_ISR(&mux);
 
+}
+
+void resetEncoderValues(){
+  encoder1Ticks = 0;
+  encoder2Ticks = 0;
 }
 
 void encoderSetup(){
@@ -287,9 +292,11 @@ void setup()
           driveArmed = true;
         }
 
-        if (robotMovementType.equals("gyroMode"))
+        if (robotMovementType.equals("gyroMode") || robotMovementType.equals("distanceMode") || robotMovementType.equals("waiting"))
         {
           state = autonomous;
+        } else {
+          state = teleop;
         }
 
         request->send(200);
@@ -367,7 +374,6 @@ void loop()
     //movement functions need to be aware of arm and disarm states
     //Serial.println("Teleop");
     updateTime();
-    //Serial.println("In Teleop");
     if (weaponArmed)
     {
       if (PWMWeaponDisabled())
@@ -412,10 +418,12 @@ void loop()
     //turn to a defined angle
     if (robotMovementType.equals("gyroMode"))
     {
+      //Serial.println("In GyroMode");
       if (turnToAngle(currHeading, desiredHeading))
       { //turnToAngle returns true when the robot is at the correct heading
         disablePWM("drive");
-        //robotMovementType = "gyroMode";
+        resetEncoderValues();
+        robotMovementType = "gyroMode";
       }
       else
       {
@@ -424,16 +432,18 @@ void loop()
     }
 
     if(robotMovementType.equals("waiting")){
+      //Serial.println("waiting");
       disablePWM("drive");
     }
 
        //drive a set distance
     // Need actual JSON word
     if (robotMovementType.equals("distanceMode")){
-      Serial.println("In Distance Mode");
+      //Serial.println("In Distance Mode");
       Serial.println(desiredDist);
       if (driveDistance(encoder1Ticks, desiredDist)){
-        robotMovementType = "distanceMode";
+        resetEncoderValues();
+        robotMovementType = "waiting";
       }
       else
       {

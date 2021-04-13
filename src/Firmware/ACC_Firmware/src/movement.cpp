@@ -1,14 +1,16 @@
 #include "ESP32Servo.h"
+#include "constants.h"
 #include "Arduino.h"
 
-#define FULL_CW 2000
-#define FULL_CCW 1000
+#define FULL_RV 2000
+#define FULL_FW 1000
 #define STOPPED 1500
 
 Servo Motor1;
 Servo Motor2;
 Servo Motor3;
 Servo Motor4;
+
 
 //motor 1 is right side
 //motor 2 is left side
@@ -43,6 +45,15 @@ double kp = 0;
 double ki = 0;
 double kd = 0;
 
+//encoder PID values
+double kpl = 4;
+double kil = .1;
+double kdl = 0;
+
+//TEMP PLEASE REMOVE
+int print_count = 0;
+bool drivingForwards = true;
+
 
 void brushlessNeutral(){
     Motor1.writeMicroseconds(STOPPED);
@@ -50,11 +61,23 @@ void brushlessNeutral(){
 }
 
 void setPIDGains(double proportional, double integral, double derivative) {
-    kp = proportional;
-    ki = integral;
-    kd = derivative;
+    //kp = proportional;
+    // ki = integral;
+    // kd = derivative;
+    //tempory change to set the encoder pid values
+    kpl = proportional;
+    kil = integral;
+    kdl = derivative;
+
 }
 
+void setDirection(bool isForwards) {
+    drivingForwards = isForwards;
+}
+
+bool getDirection(){
+    return drivingForwards;
+}
 
 int checkPWM(int pwm){
     if (pwm > 1600) {
@@ -136,12 +159,27 @@ void movementSetup()
 
 void setRight(int speed)
 {   
+    if(speed > STOPPED)
+    {
+        setDirection(false);    
+    } else {
+        setDirection(true);
+    }
+
     speed = checkPWM(speed);
     Motor1.writeMicroseconds(speed);
 }
 
 void setLeft(int speed)
 {
+
+    if(speed > STOPPED)
+    {
+        setDirection(false);    
+    } else {
+        setDirection(true);
+    }
+    
     speed = checkPWM(speed);
     Motor2.writeMicroseconds(speed);
 }
@@ -152,9 +190,9 @@ void setLeft(int speed)
 void turnSpeed(int speed, String direction){
     if (direction == "CCW") {
         setLeft(speed);
-        setRight(FULL_CW - abs(speed - FULL_CCW));
+        setRight(FULL_RV - abs(speed - FULL_FW));
     } else {
-        setLeft(FULL_CW - abs(speed - FULL_CCW));
+        setLeft(FULL_RV - abs(speed - FULL_FW));
         setRight(speed);
     }
 }
@@ -212,9 +250,9 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
     int output = proportional + integral + derivative;
     
     // an output of range 0-1000 will be mapped to pwm range 1500-2000
-    int speed = map(output, 0, 50, STOPPED, FULL_CW);
+    int speed = map(output, 0, 50, STOPPED, FULL_RV);
     // constrain to pwm range 1000-2000 so negative output values can make motors go backwards
-    speed = constrain(speed, FULL_CCW, FULL_CW);
+    speed = constrain(speed, FULL_FW, FULL_RV);
 
     //check turn angle
     turnSpeed(speed, direction);
@@ -235,10 +273,12 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 
 
 bool driveDistance(int encoderTicks, double distGoal){
-    Serial.print("encoderTicks ");
-    Serial.println(encoderTicks);
-
-    double kpl = .4;
+    int n_th_print = 20;
+    if(print_count % n_th_print == 0){
+        Serial.print("encoderTicks ");
+        Serial.print(encoderTicks);
+    }
+    
 
     if(distGoal > 50){
         Serial.println("Distance goal too large");
@@ -246,26 +286,36 @@ bool driveDistance(int encoderTicks, double distGoal){
     }
     // Convert encoder ticks to wheel revolutions
     // 14 motor poles, 52:855 gearbox reduction
-    double wheelPos = encoderTicks*14*52/855;
+    double wheelPos = (float)encoderTicks*52.0/(855.0*14.0);
     //Convert goals to wheel revolutions
     double wheelGoal = distGoal/(2.75*3.14);
-
+    Serial.print("\twheelGoal ");
+    Serial.print(wheelGoal);
     // Set error for PID
+    // goal - pos noninverted goes in reverse forever
     error1 = wheelGoal - wheelPos;
+    if(print_count % n_th_print == 0){
+        Serial.print("\terror: ");
+        Serial.print(error1);
+    }
 
     totalError1 += error1;
     double proportional = error1*kpl;
-    double integral = totalError1*ki;
-    double derivative = (error1 - previousError1)*kd;
+    double integral = totalError1*kil;
+    double derivative = (error1 - previousError1)*kdl;
 
     double output = proportional + integral + derivative;
-    Serial.println(output);
+    //Serial.print("output: ");
+    //Serial.println(output);
 
     // Map output over full PWM range
-    int speed = map(output, -5, 5, FULL_CCW, FULL_CW);
-    speed = constrain(speed, FULL_CCW, FULL_CW);
-    Serial.println("Speed ");
-    Serial.println(speed);
+    int speed = map(output, -50, 50, FULL_RV, FULL_FW);
+    //speed = constrain(speed, FULL_FW, FULL_RV);
+    if(print_count % n_th_print == 0){
+        Serial.print("\tSpeed: ");
+        Serial.println(speed);
+    }
+
     // Set drive speeds
     setRight(speed);
     setLeft(speed);
@@ -273,9 +323,13 @@ bool driveDistance(int encoderTicks, double distGoal){
     previousError1 = error1;
     
     //arbitrary error for now in rotations of wheel
-    if(error < .125){
-        return true;
+    if(abs(error1) < .25){
         Serial.println("Robot has reached desired distance");
+        disablePWM("drive");
+        totalError1 = 0;
+        previousError = 0;
+        error1 = 0;
+        return true;
     }
 
     return false;
