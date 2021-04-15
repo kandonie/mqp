@@ -1,6 +1,8 @@
 #include "ESP32Servo.h"
 #include "constants.h"
 #include "Arduino.h"
+#include "string.h"
+using namespace std;
 
 #define FULL_RV 2000
 #define FULL_FW 1000
@@ -41,14 +43,26 @@ double error2;
 double totalError2;
 double previousError2 = 0;
 
-double kp = 0;
+double kp = .2;
 double ki = 0;
 double kd = 0;
+
+#define gyroTune "Turning"
+#define driveTune "Drive Straight"
 
 //encoder PID values
 double kpl = 4;
 double kil = .1;
 double kdl = 0;
+
+//driveStraightVariables
+double errorDS = 0;
+double totalErrorDS = 0;
+double previousErrorDS = 0;
+double kpDS = .15;
+double kiDS = 0;
+double kdDS = 0;
+#define ALLOWED_ENCODER_ERROR 200
 
 //TEMP PLEASE REMOVE
 int print_count = 0;
@@ -60,14 +74,18 @@ void brushlessNeutral(){
     Motor2.writeMicroseconds(STOPPED);
 }
 
-void setPIDGains(double proportional, double integral, double derivative) {
-    //kp = proportional;
-    // ki = integral;
-    // kd = derivative;
+void setPIDGains(double proportional, double integral, double derivative, String pidTarget) {
     //tempory change to set the encoder pid values
-    kpl = proportional;
-    kil = integral;
-    kdl = derivative;
+    if(pidTarget.compareTo(driveTune)){
+        kpDS = proportional;
+        kiDS = integral;
+        kdDS = derivative;
+    } else if (pidTarget.compareTo(gyroTune)){
+        kp = proportional;
+        ki = integral;
+        kd = derivative;
+    }
+
 
 }
 
@@ -197,6 +215,30 @@ void turnSpeed(int speed, String direction){
     }
 }
 
+void wheelSpeedForwards(int speed, int bias, String direction){
+    if (direction == "CCW") {
+        setLeft(speed+bias);
+        setRight(speed-bias);
+    } else {
+        setLeft(speed-bias);
+        setRight(speed+bias);
+    }
+}
+
+double calculateWheelPostion(int encoderTicks){
+    return (float)encoderTicks*52.0/(855.0*7.0);
+}
+
+//returns the wheel position in linear distance
+double calculateEncoderError(int encoderTicks, double goalDist){
+    //encoderticks per rev is 
+    double wheelPosition = (float)encoderTicks*52.0/(855.0*7.0);
+    double wheelGoal = goalDist/(3.14*2.75);
+    return wheelGoal - wheelPosition;
+}
+
+
+
 void setWeapon(int speed){
     speed = checkPWM(speed);
     Motor3.writeMicroseconds(speed);
@@ -271,6 +313,80 @@ bool turnToAngle(double currentHeading, double desiredHeading) {
 
 }
 
+bool driveStraight(double currentHeading, double desiredHeading, int encoderTicks, double distGoal) {
+    //Serial.println("Turning to angle");
+    Serial.print("Heading ");
+    Serial.println(currentHeading);
+    int speed = 1500;
+
+    if (desiredHeading > 360){
+        disablePWM("drive");
+        Serial.println("Desired Heading Out Of Range");
+        return true;
+    }
+    errorDS = ((int)currentHeading - (int)desiredHeading)%360;
+
+    if (errorDS > 180){
+        errorDS = 360 - errorDS;
+    } else if (errorDS < -180){
+        errorDS = 360 + errorDS;
+    }
+
+    String direction;
+
+    if(abs(currentHeading - desiredHeading) > 180){
+        direction = "CW";
+    } else {
+        direction = "CCW";
+    }
+
+    totalErrorDS += errorDS;
+    double proportional = errorDS*kpDS;
+    double integral = totalErrorDS*kiDS;
+    double derivative = (error - previousError)*kdDS;
+
+    int output = proportional + integral + derivative;
+    
+    // an output of range 0-1000 will be mapped to pwm range 1500-2000
+    
+    int pwmBias = map(output, 0, 50, 0, 100);
+    // constrain to pwm range 1000-2000 so negative output values can make motors go backwards
+    pwmBias = constrain(pwmBias, 0, 100);
+    Serial.print("PWMbias ");
+    Serial.println(pwmBias);    
+
+    double encoderError = calculateEncoderError(encoderTicks, distGoal);
+    Serial.print("Wheel Error ");
+    Serial.println(encoderError);
+
+   if(encoderError > .25){
+       speed = 1300;
+   } else if(encoderError < .25) {
+       speed = 1700;
+   }  else {
+       speed = 1500;
+   }
+
+  
+
+    //check turn angle
+    wheelSpeedForwards(speed, pwmBias, direction);
+
+    //reset setpoints when target is hit
+    previousErrorDS = errorDS;
+
+    Serial.print("ErrorDS ");
+    Serial.println(errorDS);
+
+    //arbitrary error for now
+    if(abs(errorDS) < 10 && abs(encoderError) < .25){
+        disablePWM("drive");
+        Serial.println("End of drive straight");
+        return true;
+    } 
+    return false;
+}
+
 
 bool driveDistance(int encoderTicks, double distGoal){
     int n_th_print = 20;
@@ -286,7 +402,7 @@ bool driveDistance(int encoderTicks, double distGoal){
     }
     // Convert encoder ticks to wheel revolutions
     // 14 motor poles, 52:855 gearbox reduction
-    double wheelPos = (float)encoderTicks*52.0/(855.0*14.0);
+    double wheelPos = (float)encoderTicks*52.0/(855.0*7.0);
     //Convert goals to wheel revolutions
     double wheelGoal = distGoal/(2.75*3.14);
     Serial.print("\twheelGoal ");

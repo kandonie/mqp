@@ -241,10 +241,17 @@ void setup()
         bool tuning_kd = doc["tuning_kd"];
         bool setting_heading = doc["setting_heading"];
         bool setting_distance = doc["setting_distance"];
+        auto pidTarget = doc["pid target"];
 
         static double kp = .2;
         static double ki = 0;
         static double kd = 0;
+
+        // if(!strcmp(pidTarget, "Turning")){
+
+        // } else if (!strcmp(pidTarget, "Drive Straight")){
+
+        // }
 
         if (tuning_kp) {
           kp = doc["kp"];
@@ -271,7 +278,7 @@ void setup()
         //Serial.println(motor1PWM);
 
         // set pid gains based on json input
-        setPIDGains(kp, ki, kd);
+        setPIDGains(kp, ki, kd, pidTarget);
 
         // ARM and Disarm checks
         if (strcmp(weaponTest, "false") == 0)
@@ -441,12 +448,14 @@ void loop()
     if (robotMovementType.equals("distanceMode")){
       //Serial.println("In Distance Mode");
       Serial.println(desiredDist);
-      if (driveDistance(encoder1Ticks, desiredDist)){
-        resetEncoderValues();
-        robotMovementType = "waiting";
-      }
-      else
-      {
+      // if (driveDistance(encoder1Ticks, desiredDist)){
+      //   resetEncoderValues();
+      //   robotMovementType = "waiting";
+      // }
+      if (driveStraight(currHeading, desiredHeading, encoder1Ticks, desiredDist)){
+          resetEncoderValues();
+          robotMovementType = "waiting";
+      } else {
         robotMovementType = "distanceMode";
       }
     }
