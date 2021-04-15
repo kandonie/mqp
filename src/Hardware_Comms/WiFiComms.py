@@ -83,11 +83,10 @@ class WiFiComms:
         """
         for topic, value in pairs.items():
             self.setJson[topic] = value
-            #DEBUG
-            #print("asking ", value, " of ", topic)
+            if not self.isConnected:
+                print("asking ", value, " of ", topic)
 
         if not self.isConnected:
-            print("asking ", value, " of ", topic)
             return
         try:
             response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)

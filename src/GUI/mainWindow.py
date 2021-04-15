@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
 from PyQt5.QtGui import QIntValidator, QPixmap, QKeySequence
 from PyQt5.QtCore import Qt, QTimer
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
-from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
+from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType, PIDTargets
 from src.Robot_Locomotion.MotorEnums import PWMVals, PIDVals, MovementVals
 from src.GUI.WindowEnums import WindowEnums
 from src.Sensing.RobotDataManager import RobotDataManager
@@ -346,10 +346,18 @@ class MainWindow(QMainWindow):
         creates all the push buttons
         """
         self.pid_gains = []
+        pid_combo_hbox = QHBoxLayout(self.mainWidget)
+
         pidLabel = QLabel(self.mainWidget)
-        pidLabel.setText("Individually set PIDs")
+        pidLabel.setText("Individually set PIDs: ")
+        pid_combo_hbox.addWidget(pidLabel)
+
+        self.pid_combo_box = QComboBox(self.mainWidget)
+        self.pid_combo_box.addItems(PIDTargets.list_targets())
+        pid_combo_hbox.addWidget(self.pid_combo_box)
+
         pidVBox = QVBoxLayout(self.mainWidget)
-        pidVBox.addWidget(pidLabel)
+        pidVBox.addLayout(pid_combo_hbox)
 
         pid_gains = [SetJSONVars.KP,
                      SetJSONVars.KI, SetJSONVars.KD]
@@ -387,7 +395,7 @@ class MainWindow(QMainWindow):
         """
         val = float(qLineEdit.text())
         self.notifyObservers(BehavioralStates.PID,
-                             (gain_button, qLineEdit.text()))
+                             (gain_button, qLineEdit.text(), str(self.pid_combo_box.currentText())))
 
     def makeHeadingButton(self, layout):
         """
