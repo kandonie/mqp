@@ -10,6 +10,16 @@ class HTTPTopics(Enum):
     ESTOP = "/ESTOP"
 
 
+class PIDTargets(Enum):
+    TURNING = "Turning"
+    DRIVE_STRAIGHT = "Drive Straight"
+
+    @classmethod
+    def list_targets(cls):
+        role_names = [member.value for role, member in cls.__members__.items()]
+        return role_names
+
+
 class RobotMovementType(Enum):
     """
     the type of movement control for the drive
@@ -24,6 +34,7 @@ class RobotMovementType(Enum):
     def list_states(cls):
         role_names = [member.value for role, member in cls.__members__.items()]
         return role_names
+
 
 class SetJSONVars(Enum):
     """
@@ -47,6 +58,7 @@ class SetJSONVars(Enum):
     KP = "kp"
     KI = "ki"
     KD = "kd"
+    PID_TARGET = "pid target"
 
 
 class GetJSONVars(Enum):

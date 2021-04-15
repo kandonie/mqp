@@ -23,15 +23,16 @@ class PIDTuner():
         """
         gain = stateArgs[0]
         gain_val = stateArgs[1]
+        target = stateArgs[2]
         tuning_gain = "tuning_" + gain.value
         if not self.hasSent or not self.pidVals[gain] == gain_val:
             self.pidVals[gain] = gain_val
             self.wifi.sendInfo({tuning_gain: 1,
-                               gain.value: gain_val})
+                                gain.value: gain_val,
+                                SetJSONVars.PID_TARGET.value: target})
             self.hasSent = True
             self.wifi.sendInfo({tuning_gain: 0})
             # return True
-        # self.wifi.sendInfo(tuning_gain, 0) #make sure to send also
         return False
 
     def getType(self):
