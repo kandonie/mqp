@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow,
                              QComboBox, QLabel, QButtonGroup,
                              QHBoxLayout, QVBoxLayout, QLineEdit,
-                             QRadioButton)
-from PyQt5.QtGui import QIntValidator, QPixmap
+                             QRadioButton, QShortcut)
+from PyQt5.QtGui import QIntValidator, QPixmap, QKeySequence
 from PyQt5.QtCore import Qt, QTimer
 from src.Guidance.GuidanceEnums import IntelligenceStates, BehavioralStates
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, GetJSONVars, RobotMovementType
@@ -38,6 +38,9 @@ class MainWindow(QMainWindow):
         self.sensor_label = QLabel(self.mainWidget)
         self.sensor_data = QLabel(self.mainWidget)
 
+        self.spacebar = QShortcut(QKeySequence(Qt.Key_Space), self)
+        self.spacebar.activated.connect(self.ESTOP)
+
         self.initializeLayout()
         self.mainWidget.setLayout(self.layout)
 
@@ -70,7 +73,7 @@ class MainWindow(QMainWindow):
         # match hbox
         match_buttons_hbox = QHBoxLayout(self.mainWidget)
         match_buttons_hbox.addStretch(1)
-        #KNOWN BUG - but havent found good fix, if estop isn't first, then pressing space to estop doesn't work
+        # KNOWN BUG - but havent found good fix, if estop isn't first, then pressing space to estop doesn't work
         self.makeESTOPButton(match_buttons_hbox)
         match_buttons_hbox.addStretch(1)
         self.makeRobotSystemEnablingButtons(match_buttons_hbox)
@@ -136,7 +139,7 @@ class MainWindow(QMainWindow):
         self.CVDataTimer.timeout.connect(self.updateCVLabels)
         self.CVDataTimer.start(500)
 
-        #time to update image periodically
+        # time to update image periodically
         self.ImageDataTimer = QTimer()
         self.ImageDataTimer.timeout.connect(self.update_image)
         self.ImageDataTimer.start(500)
@@ -192,7 +195,7 @@ class MainWindow(QMainWindow):
         count = 0
         for label in self.enablingLabels.keys():
             button = self.makeRadioButton(label)
-            #button.setMinimumSize(tmp_label.width() + 80, tmp_label.height() + 30)
+
             if count < 2:
                 driveRadioHBox.addWidget(button)
                 self.drive_enabled_group.addButton(button)
@@ -265,13 +268,17 @@ class MainWindow(QMainWindow):
             self.notifyObservers(WindowEnums.RC, WindowEnums.RC.value)
 
     def makeImage(self, layout):
-        im = QPixmap("output.jpg")
+        self.img_location = "output.jpg"
+        im = QPixmap(self.img_location)
         self.image_label = QLabel()
         self.image_label.setPixmap(im)
         layout.addWidget(self.image_label)
 
     def update_image(self):
-        im = QPixmap("output.jpg")
+        # gets read permission so that the img isn't currently being written
+        with open(self.img_location) as fd:
+            im = QPixmap(self.img_location)
+            fd.close()
         self.image_label.setPixmap(im)
 
     def makePWMButtons(self, layout):
@@ -629,11 +636,3 @@ class MainWindow(QMainWindow):
             IntelligenceStates.IDLE.value, Qt.MatchFixedString)
         if index >= 0:
             self.intelligenceStateComboBox.setCurrentIndex(index)
-
-    def keyPressEvent(self, event):
-        """
-        when a key is pressed, notify the observers
-        :param event: a key press
-        """
-        if event.key() == Qt.Key_Space:
-            self.ESTOP()

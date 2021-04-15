@@ -1,11 +1,13 @@
 To run application:
-    python3 main.py <shouldConnectToWiFi>
+    python3 main.py <shouldConnectToWiFi> <liveInference>
 
 To run tests:
     python -m pytest tests
 
 shouldConnectToWiFi defaults to True. True tries to connect to WiFi. False will never try to connect
 but will also load faster. Good for testing without the ESP
+liveInference default to True. true means detecting with webcam, false is using stored images
+
 
 Currently, things happen based on the GUI. When there is
 a change in the GUI, the GUI notifies the state machine (which 
