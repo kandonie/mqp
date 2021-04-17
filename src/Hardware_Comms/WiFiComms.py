@@ -3,8 +3,7 @@ import json
 from src.Hardware_Comms.ESPHTTPTopics import GetJSONVars, SetJSONVars, HTTPTopics
 from src.Hardware_Comms.connectionData import ConnectionDataHandler
 from src.Robot_Locomotion.MotorEnums import PWMVals
-from src.Guidance.GuidanceEnums import BehavioralStates
-
+import threading
 
 class WiFiComms:
     """
@@ -76,21 +75,20 @@ class WiFiComms:
             print("No connection could be established with ESP from getInfo")
             return "ESP Comms Err"
 
-    def sendInfo(self, topic, value):
+    def sendInfo(self, pairs):
         """
         sets values over wifi
         :param topic: the topic
         :param value: the value
         """
-        print("asking " + str(value) + " of " + str(topic))
+        for topic, value in pairs.items():
+            self.setJson[topic] = value
+            if not self.isConnected:
+                print("asking ", value, " of ", topic)
+
         if not self.isConnected:
-            self.notifyObservers(GetJSONVars.HEADING, str(self.heading))
-            #for testing purposes
-            self.heading += 10
-            self.heading %= 100
             return
         try:
-            self.setJson[topic] = value
             response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             self.parseResponse(response)
             self.connectionHandler.execute(response.elapsed.total_seconds())
@@ -104,7 +102,9 @@ class WiFiComms:
         given a response, parses the changed values and notifies observers of them
         :param response: the response to parse
         """
-        print(response)
+        pass
+        #FOR DEBUG
+        #print(response)
         # for item in response
         #   if diff from self.GetJSON
         #       change val in self.GETJSON

@@ -13,7 +13,7 @@ from src.Robot_Locomotion.weapon import Weapon
 from src.Robot_Locomotion.robot import Robot
 
 
-def main(connectToWiFi):
+def main(connectToWiFi, liveInference):
     """
     runs the main program
     :param connectToWiFi: True if we should connect to wifi, false otherwise
@@ -25,7 +25,7 @@ def main(connectToWiFi):
     weapon = Weapon(wifi)
     robot = Robot(wifi, drive, weapon)
     # create the CV model
-    cv = ArucoDetector([robotDataManager, robot])
+    cv = ArucoDetector([robotDataManager, robot], liveInference)
     # create state machine
     sm = StateMachine(wifi, robot, drive, weapon)
     wifi.attachObserver(robotDataManager)
@@ -57,8 +57,12 @@ if __name__ == "__main__":
     parses the command line input and calls main
     """
     connectToWiFi = True
-    # Connect to wifi option
+    liveInference = True
+
     if len(sys.argv) > 1:
         if sys.argv[1] != "True":
             connectToWiFi = False
-    main(connectToWiFi)
+    elif len(sys.argv) > 2:
+        if sys.argv[2] != "True":
+            liveInference = False
+    main(connectToWiFi, liveInference)

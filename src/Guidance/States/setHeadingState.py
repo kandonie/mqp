@@ -11,7 +11,8 @@ class SetHeading():
         """
         self.hasSent = False
         self.wifi = wifi
-        self.headingVal = {SetJSONVars.DESIRED_HEADING: MovementVals.HEADING_DEFAULT}
+        self.headingVal = {
+            SetJSONVars.DESIRED_HEADING: MovementVals.HEADING_DEFAULT}
 
     def execute(self, robotData, stateArgs):
         """
@@ -24,11 +25,11 @@ class SetHeading():
         heading_val = stateArgs[1]
         if not self.hasSent or not self.headingVal[heading] == heading_val:
             self.headingVal[heading] = heading_val
-            self.wifi.sendInfo(SetJSONVars.SETTING_HEADING.value, 1)
-            self.wifi.sendInfo(heading.value, heading_val)
+            self.wifi.sendInfo({SetJSONVars.SETTING_HEADING.value: 1,
+                                heading.value: heading_val})
             self.hasSent = True
-            self.wifi.sendInfo(SetJSONVars.SETTING_HEADING.value, 0)
-            self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.TURN_ANGLE.value)
+            self.wifi.sendInfo({SetJSONVars.SETTING_HEADING.value: 0,
+                                SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value})
         return False
 
     def getType(self):

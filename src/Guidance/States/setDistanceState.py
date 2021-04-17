@@ -11,7 +11,8 @@ class SetDistance():
         """
         self.hasSent = False
         self.wifi = wifi
-        self.distanceVal = {SetJSONVars.DESIRED_DISTANCE: MovementVals.DISTANCE_DEFAULT}
+        self.distanceVal = {
+            SetJSONVars.DESIRED_DISTANCE: MovementVals.DISTANCE_DEFAULT}
 
     def execute(self, robotData, stateArgs):
         """
@@ -24,12 +25,11 @@ class SetDistance():
         distance_val = stateArgs[1]
         if not self.hasSent or not self.distanceVal[distance_topic] == distance_val:
             self.distanceVal[distance_topic] = distance_val
-            self.wifi.sendInfo(SetJSONVars.SETTING_DISTANCE.value, 1)
-            self.wifi.sendInfo(distance_topic.value, distance_val)
+            self.wifi.sendInfo({SetJSONVars.SETTING_DISTANCE.value: 1,
+                                distance_topic.value: distance_val})
             self.hasSent = True
-            self.wifi.sendInfo(SetJSONVars.SETTING_DISTANCE.value, 0)
-            self.wifi.sendInfo(SetJSONVars.MOVEMENT_TYPE.value, RobotMovementType.DRIVE_DISTANCE.value)
-            
+            self.wifi.sendInfo({SetJSONVars.SETTING_DISTANCE.value: 0,
+                                SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
         return False
 
     def getType(self):

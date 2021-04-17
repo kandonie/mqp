@@ -18,7 +18,7 @@ class Weapon:
         """
         sets the weapon speed to 0
         """
-        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.STOPPED.value)
+        self.wifi.sendInfo({SetJSONVars.WEAPON_PWM.value: PWMVals.STOPPED.value})
         self.isOn = False
 
     def toggle(self):
@@ -34,5 +34,5 @@ class Weapon:
         """
         turns the weapon on
         """
-        self.wifi.sendInfo(SetJSONVars.WEAPON_PWM.value, PWMVals.FULL_CCW.value)
+        self.wifi.sendInfo({SetJSONVars.WEAPON_PWM.value: PWMVals.FULL_CCW.value})
         self.isOn = True
