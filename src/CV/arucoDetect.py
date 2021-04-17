@@ -21,7 +21,9 @@ class ArucoDetector:
 
         if liveInference:
             # replace the int with the camera index you want to use
-            cap = cv2.VideoCapture(1)
+            cap = cv2.VideoCapture(0)
+            cap.set(3, 1280)
+            cap.set(4, 720)
             # wait for camera to connect before fetching frames
             time.sleep(1)
         # init pos value to avoid crashing if both tags not visible in first frame
