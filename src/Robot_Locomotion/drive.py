@@ -110,7 +110,9 @@ class Drive:
                             SetJSONVars.DESIRED_HEADING.value: targetHeading,
                             SetJSONVars.SETTING_HEADING.value: 0,
                             SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value,
+                            SetJSONVars.SETTING_DISTANCE.value: 1,
                             SetJSONVars.DESIRED_DISTANCE.value: str(targetDistance),
+                            SetJSONVars.SETTING_DISTANCE.value: 0,
                             SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
 
     def notify(self, topic, value):
