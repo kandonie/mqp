@@ -4,7 +4,7 @@ import math
 import time
 from src.CV.CVTopics import CVTopics
 # TODO: update below once set up with new cam
-distInch = (48/1133)*1.85  # inches per pixel conversion
+distInch = (34/720)*1.85  # inches per pixel conversion
 
 
 class ArucoDetector:
