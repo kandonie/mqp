@@ -1,7 +1,8 @@
 from src.Hardware_Comms.ESPHTTPTopics import SetJSONVars, RobotMovementType
 from src.Robot_Locomotion.MotorEnums import PWMVals
 from src.CV.CVTopics import CVTopics
-import threading
+from src.Hardware_Comms import ESPHTTPTopics, WiFiComms
+import threading, time
 
 
 class Drive:
@@ -67,7 +68,6 @@ class Drive:
         elif int(speed) < int(PWMVals.FULL_CCW.value):
             speed = PWMVals.FULL_CCW.value
 
-        print("Turning speed")
         # direction
         if int(speed) > int(PWMVals.STOPPED.value):
             invertedSpeed = int(speed) - int(PWMVals.STOPPED.value)
@@ -106,14 +106,19 @@ class Drive:
         """
         targetHeading = self.CVData[CVTopics.TARGET_HEADING]
         targetDistance = self.CVData[CVTopics.TARGET_DISTANCE]
-        self.wifi.sendInfo({SetJSONVars.SETTING_HEADING.value: 1,
-                            SetJSONVars.DESIRED_HEADING.value: targetHeading,
-                            SetJSONVars.SETTING_HEADING.value: 0,
-                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value,
-                            SetJSONVars.SETTING_DISTANCE.value: 1,
-                            SetJSONVars.DESIRED_DISTANCE.value: str(targetDistance),
-                            SetJSONVars.SETTING_DISTANCE.value: 0,
-                            SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
+        heading = self.CVData[CVTopics.HEADING]
+        if abs(targetHeading - heading) > 15:
+            if targetHeading < 0:
+                targetHeading += 360
+            self.wifi.sendInfo({SetJSONVars.SETTING_HEADING.value: 1,
+                                SetJSONVars.DESIRED_HEADING.value: targetHeading,
+                                SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.TURN_ANGLE.value})
+            self.wifi.sendInfo({SetJSONVars.SETTING_HEADING.value: 0})
+        else:
+            self.wifi.sendInfo({SetJSONVars.SETTING_DISTANCE.value: 1,
+                                SetJSONVars.DESIRED_DISTANCE.value: str(targetDistance),
+                                SetJSONVars.MOVEMENT_TYPE.value: RobotMovementType.DRIVE_DISTANCE.value})
+            self.wifi.sendInfo({SetJSONVars.SETTING_DISTANCE.value: 0})
 
     def notify(self, topic, value):
         # if we've had a change or is first time

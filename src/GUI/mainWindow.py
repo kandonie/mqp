@@ -64,8 +64,8 @@ class MainWindow(QMainWindow):
         """
         sets the locations of all widgets on the GUI
         """
-        self.setFixedWidth(2500)
-        self.setFixedHeight(1500)
+        self.setFixedWidth(1920)
+        self.setFixedHeight(960)
 
         self.layout = QVBoxLayout(self.mainWidget)
         self.layout.addStretch(1)
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
         ESTOPLayout = QHBoxLayout(self.mainWidget)
         self.ESTOPButton = QPushButton(self.mainWidget)
         self.ESTOPButton.setStyleSheet("background-color : red")
-        self.ESTOPButton.setMinimumSize(500, 200)
+        self.ESTOPButton.setMinimumSize(350, 150)
         self.ESTOPButton.setText("ESTOP")
         self.ESTOPButton.clicked.connect(self.ESTOP)
 
@@ -272,14 +272,18 @@ class MainWindow(QMainWindow):
         im = QPixmap(self.img_location)
         self.image_label = QLabel()
         self.image_label.setPixmap(im)
+        self.image_label.setFixedSize(1137, 640)
         layout.addWidget(self.image_label)
 
     def update_image(self):
         # gets read permission so that the img isn't currently being written
-        with open(self.img_location) as fd:
-            im = QPixmap(self.img_location)
-            fd.close()
-        self.image_label.setPixmap(im)
+        try:
+            with open(self.img_location) as fd:
+                im = QPixmap(self.img_location)
+                fd.close()
+            self.image_label.setPixmap(im)
+        except:
+            pass
 
     def makePWMButtons(self, layout):
         """

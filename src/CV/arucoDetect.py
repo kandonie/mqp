@@ -4,7 +4,7 @@ import math
 import time
 from src.CV.CVTopics import CVTopics
 # TODO: update below once set up with new cam
-distInch = (34/720)*1.85  # inches per pixel conversion
+distInch = (34/720)  # inches per pixel conversion
 
 
 class ArucoDetector:
@@ -21,7 +21,7 @@ class ArucoDetector:
 
         if self.liveInference:
             # replace the int with the camera index you want to use
-            cap = cv2.VideoCapture(0)
+            cap = cv2.VideoCapture(1)
             cap.set(3, 1280)
             cap.set(4, 720)
             # wait for camera to connect before fetching frames
@@ -112,8 +112,9 @@ class ArucoDetector:
                     self.notifyObservers(
                         CVTopics.TARGET_DISTANCE, distToTarget)
 
-                    # save annotated image to be pulled by gui
-                    cv2.imwrite("output.jpg", image)
+            # save annotated image to be pulled by gui
+            #print("updating image")
+            cv2.imwrite("output.jpg", image)
 
         # cv2.destroyAllWindows()
 

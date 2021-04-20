@@ -70,6 +70,8 @@ class WiFiComms:
             r = requests.get(url=self.IP + HTTPTopics.ROBOT_DATA.value)
             # TODO get the param
             info = json.loads(r.content.decode("utf-8"))
+            if not param in info.keys():
+                print(param + " not found in robot data.")
             return info[param]
         except:
             print("No connection could be established with ESP from getInfo")
@@ -92,8 +94,9 @@ class WiFiComms:
             response = requests.post(self.IP + HTTPTopics.MAIN.value, json=self.setJson)
             self.parseResponse(response)
             self.connectionHandler.execute(response.elapsed.total_seconds())
-        except:
+        except Exception as e:
             print("No connection could be established with ESP from SendInfo")
+            print(e)
             self.connectionHandler.loss()
             return "ESP Comms Err"
 

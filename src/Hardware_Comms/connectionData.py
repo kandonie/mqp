@@ -26,7 +26,8 @@ class ConnectionDataHandler:
         :param rtt: [int]   the round trip time of a packet
         :return:
         """
-        print("rtt: " + str(rtt))
+        pass
+    #print("rtt: " + str(rtt))
 
     @staticmethod
     def calculatePacketLoss(packetHistory, lost):

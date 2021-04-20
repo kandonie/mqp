@@ -1,22 +1,21 @@
 from src.Hardware_Comms import ESPHTTPTopics, WiFiComms
-
-
+import threading
+import time
 # TODO @Kristen document
 class IMU:
-    def __init__(self):
-        self.heading = self.read()
+
+    def __init__(self, wifi):
+        self.wifi = wifi
+        self.heading = 0
         self.topic = ESPHTTPTopics.GetJSONVars.HEADING
-        self.observers = []
+        self.heading = self.read()
 
     # read IMU heading
     def read(self):
-        self.heading = WiFiComms.getInfo(self.topic)
-        self.notifyObservers()
-
-    def notifyObservers(self):
-        for observer in self.observers:
-            observer.notify(self.topic, self.heading)
-
-    def attachObservers(self, observers):
-        for observer in observers:
-            self.observers.append(observer)
+        while(True):
+            try:
+                self.heading = float(self.wifi.getInfo(self.topic))
+                print("heading got")
+            except:
+                print("heading not got")
+            time.sleep(5)
