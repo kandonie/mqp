@@ -28,10 +28,12 @@ class ArucoDetector:
             time.sleep(1)
         # init pos value to avoid crashing if both tags not visible in first frame
         # the key is the aruco tag id and the three values are: x pos (pixels), y pos (pixels), and heading (degrees)
-        # id 203 is the tag on the mqp robot and id 62 is on the opponent robot
+        # id 203 is the tag on the mqp robot and id 23 is on the opponent robot
         robotData = {203: [0, 0, 0], 23: [0, 0, 0]}
+        robName = ""
 
         while(1):
+            startTime = time.time()
             if self.liveInference:
                 _, image = cap.read()
             else:
@@ -79,7 +81,11 @@ class ArucoDetector:
                     robotData[markerID] = (cX, cY, heading)
 
                     # draw the aruco tag ID on the image
-                    cv2.putText(image, str(markerID),
+                    if(markerID == 203):
+                        robName = "MQP Robot"
+                    else:
+                        robName = "Opponent"
+                    cv2.putText(image, robName,
                                 (topLeft[0], topLeft[1] -
                                  15), cv2.FONT_HERSHEY_SIMPLEX,
                                 0.5, (0, 255, 0), 2)
@@ -100,7 +106,7 @@ class ArucoDetector:
                                   2 + (robotData[203][0] - robotData[23][0]) ** 2)
 
                     # print("targetHead: ", angleToTarget, "targetDist: ", distToTarget)
-
+            
                     # send pos and heading
                     self.notifyObservers(CVTopics.HEADING, ourHeading)
                     self.notifyObservers(CVTopics.POSITION, ourPos)
@@ -112,6 +118,9 @@ class ArucoDetector:
                     self.notifyObservers(
                         CVTopics.TARGET_DISTANCE, distToTarget)
 
+            endTime = time.time()
+            FPS = 1/(startTime - endTime)
+            # self.notifyObservers(CVTopics.FPS, FPS)
             # save annotated image to be pulled by gui
             #print("updating image")
             cv2.imwrite("output.jpg", image)
