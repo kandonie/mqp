@@ -7,3 +7,4 @@ class CVTopics(Enum):
     OPPONENT_POSITION = "opponent position" # value will be tuple of (x, y)
     TARGET_HEADING = "CV target heading"
     TARGET_DISTANCE = "CV target distance"
+    FPS = "Frames Per Second"

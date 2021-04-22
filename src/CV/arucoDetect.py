@@ -120,7 +120,7 @@ class ArucoDetector:
 
             endTime = time.time()
             FPS = 1/(startTime - endTime)
-            # self.notifyObservers(CVTopics.FPS, FPS)
+            self.notifyObservers(CVTopics.FPS, FPS)
             # save annotated image to be pulled by gui
             #print("updating image")
             cv2.imwrite("output.jpg", image)
