@@ -31,6 +31,8 @@ class ArucoDetector:
         # id 203 is the tag on the mqp robot and id 23 is on the opponent robot
         robotData = {203: [0, 0, 0], 23: [0, 0, 0]}
         robName = ""
+        frames = 0
+        numSeen = 0
 
         while(1):
             startTime = time.time()
@@ -94,6 +96,7 @@ class ArucoDetector:
                 # only update pos/heading when both detected
                     # otherwise target angles will be inaccurate
                 if len(ids) == 2:
+                    numSeen += 1
                     # update pos and heading
                     ourHeading = robotData[203][2]
                     ourPos = (robotData[203][0], robotData[203][1])
@@ -117,10 +120,12 @@ class ArucoDetector:
                         CVTopics.TARGET_HEADING, angleToTarget)
                     self.notifyObservers(
                         CVTopics.TARGET_DISTANCE, distToTarget)
-
+            frames += 1
             endTime = time.time()
             FPS = 1/(startTime - endTime)
             self.notifyObservers(CVTopics.FPS, FPS)
+            detect = numSeen/frames
+            self.notifyObservers(CVTopics.DETECT, detect)
             # save annotated image to be pulled by gui
             #print("updating image")
             cv2.imwrite("output.jpg", image)

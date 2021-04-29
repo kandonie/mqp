@@ -8,3 +8,4 @@ class CVTopics(Enum):
     TARGET_HEADING = "CV target heading"
     TARGET_DISTANCE = "CV target distance"
     FPS = "Frames Per Second"
+    DETECT = "Percentage of frames with both robots detected"
