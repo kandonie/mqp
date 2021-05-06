@@ -277,13 +277,16 @@ class MainWindow(QMainWindow):
 
     def update_image(self):
         # gets read permission so that the img isn't currently being written
-        try:
-            with open(self.img_location) as fd:
-                im = QPixmap(self.img_location)
-                fd.close()
-            self.image_label.setPixmap(im)
-        except:
-            pass
+        with open(self.img_location) as fd:
+            im = QPixmap(self.img_location)
+            fd.close()
+        img = im.toImage()
+        if  (img.width()-1 == -1 and img.height()-1 == -1) or \
+            (img.pixel(img.width()-1,img.height()-1 )  ==  4286611584  and \
+            img.pixel(img.width()/2,img.height()-1 )  ==  4286611584  and  \
+            img.pixel(0,img.height()-1 )  ==  4286611584 ):
+             return
+        self.image_label.setPixmap(im)
 
     def makePWMButtons(self, layout):
         """
@@ -608,7 +611,7 @@ class MainWindow(QMainWindow):
         self.notifyObservers(BehavioralStates.MATCH_START, None)
 
     def makeEndMatchButton(self, layout):
-        button = QPushButton("Match Over")
+        button = QPushButton("End Match")
         button.clicked.connect(self.endMatch)
         layout.addWidget(button)
 
